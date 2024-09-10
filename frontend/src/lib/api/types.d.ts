@@ -75,7 +75,7 @@ export interface paths {
         patch: operations["MembersController_update"];
         trace?: never;
     };
-    "/api/members/{id}/freeze": {
+    "/api/members/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -88,25 +88,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Freeze member */
+        /** Freeze/unfreeze member */
         patch: operations["MembersController_freeze"];
-        trace?: never;
-    };
-    "/api/members/{id}/unfreeze": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Unfreeze member */
-        patch: operations["MembersController_unfreeze"];
         trace?: never;
     };
     "/api/members/{id}/telegram": {
@@ -415,6 +398,9 @@ export interface components {
             /** Format: email */
             email: string;
         };
+        UpdateStatusDTO: {
+            status: string;
+        };
         UpdateTelegramMetadataDTO: {
             telegramId: string;
         };
@@ -426,6 +412,8 @@ export interface components {
             id: string;
             /** Format: uuid */
             memberId: string;
+            /** @enum {string} */
+            type: "pan" | "uid";
             key: string;
             name: string;
         };
@@ -766,38 +754,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MemberDTO"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusDTO"];
             };
         };
-    };
-    MembersController_unfreeze: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
         responses: {
             /** @description Successful response */
             200: {

@@ -11,8 +11,8 @@ import {
 } from "@nestjs/swagger";
 import {IsEnum, IsNotEmpty, IsUUID} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
-import { ACSKeysService } from "./acs-keys.service";
-import { MembersService } from "src/members/members.service";
+import {ACSKeysService} from "./acs-keys.service";
+import {MembersService} from "src/members/members.service";
 
 class CreateACSKeyDTO {
     @ApiProperty({enum: ACSKeyType})
@@ -60,11 +60,13 @@ export class ACSKeysController {
     private mapToDTO(acsKey: ACSKey): ACSKeyDTO {
         return {
             id: acsKey.id,
+            type: acsKey.type,
             key: acsKey.key,
             name: acsKey.name,
             memberId: acsKey.member.id
         };
     }
+
     @Get("member/:memberId")
     @ApiOperation({
         summary: "Get ACS keys for specific member"
@@ -103,6 +105,9 @@ export class ACSKeysController {
         const member = await this.membersService.findById(memberId);
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+        if (await this.acsKeysService.existsByKey(key)) {
+            throw new HttpException("This key already exists", HttpStatus.BAD_REQUEST);
         }
         const acsKey = await this.acsKeysService.create({
             type,

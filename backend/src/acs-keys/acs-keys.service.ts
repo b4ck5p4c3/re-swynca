@@ -1,21 +1,29 @@
 import {Injectable} from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { ACSKey } from "src/common/database/entities/acs-key.entity";
+import {InjectRepository} from "@nestjs/typeorm";
+import {ACSKey} from "src/common/database/entities/acs-key.entity";
 import {DeepPartial, Repository} from "typeorm";
 
 @Injectable()
 export class ACSKeysService {
     constructor(@InjectRepository(ACSKey) private acsKeyRepository: Repository<ACSKey>) {
     }
-    async findAll(): Promise<ACSKey[]> {
-        return await this.acsKeyRepository.find();
-    }
 
     async findAllByMemberId(id: string): Promise<ACSKey[] | null> {
         return await this.acsKeyRepository.find({
             where: {
-                id
+                member: {
+                    id
+                }
+            },
+            relations: {
+                member: true
             }
+        });
+    }
+
+    async existsByKey(key: string): Promise<boolean> {
+        return this.acsKeyRepository.existsBy({
+            key
         });
     }
 

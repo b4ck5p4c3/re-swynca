@@ -7,7 +7,8 @@ import {MembersService} from "./members.service";
 @Module({
     imports: [TypeOrmModule.forFeature([Member])],
     controllers: [MembersController],
-    providers: [MembersService]
+    providers: [MembersService],
+    exports: [MembersService]
 })
 export class MembersModule {
 

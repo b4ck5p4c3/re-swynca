@@ -3,7 +3,12 @@
 import {useParams} from "next/navigation";
 import {useQuery} from "@tanstack/react-query";
 import {getClient, R} from "@/lib/api/client";
-import {MEMBER_ACS_KEYS_QUERY_KEY, MEMBER_QUERY_KEY} from "@/lib/cache-tags";
+import {
+    MEMBER_ACS_KEYS_QUERY_KEY,
+    MEMBER_QUERY_KEY,
+    MEMBER_SUBSCRIPTIONS_QUERY_KEY,
+    MEMBERSHIPS_QUERY_KEY
+} from "@/lib/cache-tags";
 import React from "react";
 import {Skeleton} from "@/components/ui/skeleton";
 import {Separator} from "@/components/ui/separator";
@@ -81,6 +86,31 @@ export default function MemberPage() {
         retry: false
     });
 
+    const memberships = useQuery({
+        queryFn: async () => {
+            const memberships = R(await client.GET("/api/memberships", {}));
+            return memberships.data!;
+        },
+        queryKey: [MEMBERSHIPS_QUERY_KEY],
+        retry: false
+    });
+
+    const memberSubscriptions = useQuery({
+        queryFn: async () => {
+            const memberSubscriptions = R(await client.GET("/api/membership-subscriptions/member/{memberId}", {
+                params: {
+                    path: {
+                        memberId: id
+                    }
+                }
+            }));
+
+            return memberSubscriptions.data!;
+        },
+        queryKey: [`${MEMBER_SUBSCRIPTIONS_QUERY_KEY}-${id}`],
+        retry: false
+    });
+
     return <div>
         <div className={"flex flex-col gap-4"}>
             <MemberInfoRow title={"Name"}>{member.data ? member.data.name :
@@ -105,14 +135,28 @@ export default function MemberPage() {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Subscription</TableHead>
+                        <TableHead>Membership</TableHead>
                         <TableHead>Amount</TableHead>
                         <TableHead>Subscribed at</TableHead>
                         <TableHead>Declined at</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-
+                    {memberships.data && memberSubscriptions.data ? memberSubscriptions.data.map(subscription =>
+                            <TableRow>
+                                <TableCell>{memberships.data.find(membership =>
+                                    membership.id === subscription.membershipId)?.title ?? "???"}</TableCell>
+                                <TableCell>{memberships.data.find(membership =>
+                                    membership.id === subscription.membershipId)?.amount ?? "???"}</TableCell>
+                                <TableCell>{new Date(subscription.subscribedAt).toLocaleDateString()}</TableCell>
+                                <TableCell>{new Date(subscription.declinedAt).toLocaleDateString()}</TableCell>
+                            </TableRow>) :
+                        <TableRow>
+                            <TableCell><Skeleton className={"h-[24px] w-[50px]"}/></TableCell>
+                            <TableCell><Skeleton className={"h-[24px] w-[60px]"}/></TableCell>
+                            <TableCell><Skeleton className={"h-[24px] w-[80px]"}/></TableCell>
+                            <TableCell><Skeleton className={"h-[24px] w-[80px]"}/></TableCell>
+                        </TableRow>}
                 </TableBody>
             </Table>
             <Separator/>
@@ -131,7 +175,12 @@ export default function MemberPage() {
                             <TableCell>{acsKey.name}</TableCell>
                             <TableCell>{acsKey.type}</TableCell>
                             <TableCell>{acsKey.key}</TableCell>
-                        </TableRow>)}
+                        </TableRow>) :
+                        <TableRow>
+                            <TableCell><Skeleton className={"h-[24px] w-[60px]"}/></TableCell>
+                            <TableCell><Skeleton className={"h-[24px] w-[40px]"}/></TableCell>
+                            <TableCell><Skeleton className={"h-[24px] w-[80px]"}/></TableCell>
+                        </TableRow>}
                 </TableBody>
             </Table>
         </div>

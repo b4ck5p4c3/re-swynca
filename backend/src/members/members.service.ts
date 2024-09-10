@@ -3,6 +3,7 @@ import {Member} from "../common/database/entities/member.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Membership} from "../common/database/entities/membership.entity";
+import {ACSKey} from "../common/database/entities/acs-key.entity";
 
 @Injectable()
 export class MembersService {
