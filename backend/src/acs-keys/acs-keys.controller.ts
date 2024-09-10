@@ -1,5 +1,5 @@
 import {Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post} from "@nestjs/common";
-import {ACSKeyType} from "../common/database/entities/acs-key.entity";
+import {ACSKey, ACSKeyType} from "../common/database/entities/acs-key.entity";
 import {
     ApiBody,
     ApiCookieAuth,
@@ -11,6 +11,8 @@ import {
 } from "@nestjs/swagger";
 import {IsEnum, IsNotEmpty, IsUUID} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
+import { ACSKeysService } from "./acs-keys.service";
+import { MembersService } from "src/members/members.service";
 
 class CreateACSKeyDTO {
     @ApiProperty({enum: ACSKeyType})
@@ -49,6 +51,17 @@ class ACSKeyDTO {
 @ApiTags("acs-keys")
 @Controller("acs-keys")
 export class ACSKeysController {
+    constructor(private acsKeysService: ACSKeysService, private membersService: MembersService) {
+    }
+
+    private mapToDTO(acsKey: ACSKey): ACSKeyDTO {
+        return {
+            id: acsKey.id,
+            key: acsKey.key,
+            name: acsKey.name,
+            memberId: acsKey.member.id
+        };
+    }
     @Get("member/:memberId")
     @ApiOperation({
         summary: "Get ACS keys for specific member"
@@ -63,7 +76,7 @@ export class ACSKeysController {
         type: ErrorApiResponse
     })
     async findAllByMemberId(@Param("memberId") memberId: string): Promise<ACSKeyDTO[]> {
-        return [];
+        return (await this.acsKeysService.findAllByMemberId(memberId)).map(this.mapToDTO);
     }
 
     @Post()
@@ -83,7 +96,18 @@ export class ACSKeysController {
         type: ErrorApiResponse
     })
     async create(@Body() request: CreateACSKeyDTO): Promise<ACSKeyDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+        const {type, key, name, memberId} = request;
+        const member = await this.membersService.findById(memberId);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+        const acsKey = await this.acsKeysService.create({
+            type,
+            key,
+            name,
+            member
+        });
+        return this.mapToDTO(acsKey);
     }
 
     @Delete(":id")
@@ -99,6 +123,6 @@ export class ACSKeysController {
         type: ErrorApiResponse
     })
     async remove(@Param("id") id: string): Promise<void> {
-
+        await this.acsKeysService.remove(id);
     }
 }
