@@ -39,6 +39,9 @@ class ACSKeyDTO {
     @ApiProperty({format: "uuid"})
     memberId: string;
 
+    @ApiProperty({enum: ACSKeyType})
+    type: ACSKeyType;
+
     @ApiProperty()
     key: string;
 

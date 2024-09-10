@@ -9,7 +9,7 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {Separator} from "@/components/ui/separator";
 import {Button} from "@/components/ui/button";
 import {Pencil1Icon, PlusIcon, TrashIcon} from "@radix-ui/react-icons";
-import {Table, TableBody, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 
 export function MemberInfoRow({title, children}: { title: string, children: React.ReactNode }) {
     return <div className={"flex flex-row"}>
@@ -126,7 +126,12 @@ export default function MemberPage() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-
+                    {memberAcsKeys.data ? memberAcsKeys.data.map(acsKey =>
+                        <TableRow>
+                            <TableCell>{acsKey.name}</TableCell>
+                            <TableCell>{acsKey.type}</TableCell>
+                            <TableCell>{acsKey.key}</TableCell>
+                        </TableRow>)}
                 </TableBody>
             </Table>
         </div>
