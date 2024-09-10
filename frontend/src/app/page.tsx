@@ -8,7 +8,7 @@ import {useRouter} from "next/navigation";
 import {AUTH_SELF_QUERY_KEY} from "@/lib/cache-tags";
 import {setCurrentMemberId} from "@/lib/auth-storage";
 
-export default function Home() {
+export default function HomePage() {
     const client = getClient();
 
     const router = useRouter();

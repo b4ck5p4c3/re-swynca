@@ -5,7 +5,7 @@ import {Button} from "@/components/ui/button";
 import {useRouter} from "next/navigation";
 import Image from "next/image";
 
-export default function Auth() {
+export default function AuthPage() {
     const router = useRouter();
 
     return (<div className={"w-screen h-screen flex items-center justify-center"}>

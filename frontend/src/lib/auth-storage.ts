@@ -1,3 +1,5 @@
+"use client";
+
 import {UnauthorizedError} from "@/lib/api/client";
 
 const CURRENT_MEMBER_ID_LOCAL_STORAGE_KEY = "current-member-id";

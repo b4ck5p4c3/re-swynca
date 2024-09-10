@@ -51,7 +51,7 @@ export class MembershipsController {
     constructor(private membershipService: MembershipsService) {
     }
 
-    private mapToDTO(membership: Membership): MembershipDTO {
+    private static mapToDTO(membership: Membership): MembershipDTO {
         return {
             id: membership.id,
             title: membership.title,
@@ -74,7 +74,7 @@ export class MembershipsController {
         type: ErrorApiResponse
     })
     async findAll(): Promise<MembershipDTO[]> {
-        return (await this.membershipService.findAll()).map(this.mapToDTO);
+        return (await this.membershipService.findAll()).map(MembershipsController.mapToDTO);
     }
 
     @Post()
@@ -101,7 +101,7 @@ export class MembershipsController {
         if (decimalAmount.precision() > MONEY_PRECISION - MONEY_DECIMAL_PLACES) {
             throw new CustomValidationError(`Membership amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
         }
-        return this.mapToDTO(await this.membershipService.create({
+        return MembershipsController.mapToDTO(await this.membershipService.create({
             title: request.title,
             amount: decimalAmount,
             active: request.active
@@ -143,6 +143,6 @@ export class MembershipsController {
 
         await this.membershipService.update(membership);
 
-        return this.mapToDTO(membership);
+        return MembershipsController.mapToDTO(membership);
     }
 }

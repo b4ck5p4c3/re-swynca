@@ -7,9 +7,12 @@ import {useQuery} from "@tanstack/react-query";
 import {AUTH_SELF_QUERY_KEY, SELF_MEMBER_QUERY_KEY} from "@/lib/cache-tags";
 import {getCurrentMemberId} from "@/lib/auth-storage";
 import {Skeleton} from "@/components/ui/skeleton";
+import {useRouter} from "next/navigation";
 
 export function SelfUserBlock() {
     const client = getClient();
+
+    const router = useRouter();
 
     const selfMember = useQuery({
         queryFn: async () => {
@@ -28,13 +31,14 @@ export function SelfUserBlock() {
         queryKey: [SELF_MEMBER_QUERY_KEY]
     })
 
-    return selfMember.data ? <div className={"flex flex-row items-center gap-2"}>
+    return selfMember.data ? <div onClick={() => router.push(`/dashboard/members/${selfMember.data.id}`)}
+                                  className={"flex flex-row items-center gap-2 cursor-pointer"}>
         <Avatar>
-            <AvatarFallback>{selfMember.data.name.replace(/[a-zа-я0-9\s\-]/ig, '')}</AvatarFallback>
+            <AvatarFallback>{selfMember.data.name.replace(/[a-zа-я0-9\s\-]/g, '')}</AvatarFallback>
         </Avatar>
         <div>{selfMember.data.name}</div>
     </div> : <div className={"flex flex-row items-center gap-2"}>
-        <Skeleton className="w-[40px] h-[40px] rounded-full"/>
-        <Skeleton className="w-[100px] h-[24px]"/>
+        <Skeleton className={"w-[40px] h-[40px] rounded-full"}/>
+        <Skeleton className={"w-[100px] h-[24px]"}/>
     </div>;
 }

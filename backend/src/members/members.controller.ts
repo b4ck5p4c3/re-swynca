@@ -13,6 +13,7 @@ import {ACSKeyType} from "../common/database/entities/acs-key.entity";
 import {IsEmail, IsEnum, IsNotEmpty} from "class-validator";
 import {GitHubMetadata} from "../common/database/entities/github-metadata.entity";
 import {ErrorApiResponse} from "../common/api-responses";
+import {MembersService} from "./members.service";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -89,6 +90,28 @@ class UpdateStatusDTO {
 @Controller("members")
 export class MembersController {
 
+    constructor(private membersService: MembersService) {
+    }
+
+    private static mapToDTO(member: Member): MemberDTO {
+        return {
+            id: member.id,
+            name: member.name,
+            email: member.email,
+            status: member.status,
+            balance: member.balance.balance.toFixed(2),
+            joinedAt: member.joinedAt.toISOString(),
+            telegramMetadata: member.telegramMetadata ? {
+                telegramId: member.telegramMetadata.telegramId,
+                telegramName: member.telegramMetadata.telegramName
+            } : undefined,
+            githubMetadata: member.githubMetadata ? {
+                githubId: member.githubMetadata.githubId,
+                githubUsername: member.githubMetadata.githubUsername
+            } : undefined
+        };
+    }
+
     @Get()
     @ApiOperation({
         summary: "Get info about all members"
@@ -103,7 +126,7 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async findAll(): Promise<MemberDTO[]> {
-        return [];
+        return (await this.membersService.findAll()).map(member => MembersController.mapToDTO(member));
     }
 
     @Get(":id")
@@ -120,7 +143,11 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async findById(@Param("id") id: string): Promise<MemberDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+        const member = await this.membersService.findById(id);
+        if (!member) {
+            throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+        }
+        return MembersController.mapToDTO(member);
     }
 
     @Post()
