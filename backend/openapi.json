@@ -1,0 +1,1781 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+        "/api/memberships": {
+            "get": {
+                "operationId": "MembershipsController_findAll",
+                "summary": "Get all memberships",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MembershipDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "memberships"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "MembershipsController_create",
+                "summary": "Create new membership",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUpdateMembershipDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfull response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MembershipDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "memberships"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/memberships/{id}": {
+            "patch": {
+                "operationId": "MembershipsController_updateMembership",
+                "summary": "Update membership",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUpdateMembershipDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfull response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MembershipDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "memberships"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/members": {
+            "get": {
+                "operationId": "MembersController_findAll",
+                "summary": "Get info about all members",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MemberDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "MembersController_create",
+                "summary": "Create new member",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUpdateMemberDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/members/{id}": {
+            "get": {
+                "operationId": "MembersController_findById",
+                "summary": "Get full info about member",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "MembersController_update",
+                "summary": "Update member",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUpdateMemberDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/members/{id}/status": {
+            "patch": {
+                "operationId": "MembersController_freeze",
+                "summary": "Freeze/unfreeze member",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateStatusDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/members/{id}/telegram": {
+            "patch": {
+                "operationId": "MembersController_updateTelegramMetadata",
+                "summary": "Add/update Telegram metadata for member",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateTelegramMetadataDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "MembersController_deleteTelegramMetadata",
+                "summary": "Delete Telegram metadata for member",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/members/{id}/github": {
+            "patch": {
+                "operationId": "MembersController_updateGitHubMetadata",
+                "summary": "Add/update GitHub metadata for member",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateGitHubMetadataDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "MembersController_deleteGitHubMetadata",
+                "summary": "Delete GitHub metadata for member",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/acs-keys/member/{memberId}": {
+            "get": {
+                "operationId": "ACSKeysController_findAllByMemberId",
+                "summary": "Get ACS keys for specific member",
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ACSKeyDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "acs-keys"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/acs-keys": {
+            "post": {
+                "operationId": "ACSKeysController_create",
+                "summary": "Create ACS key",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateACSKeyDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ACSKeyDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "acs-keys"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/acs-keys/{id}": {
+            "delete": {
+                "operationId": "ACSKeysController_remove",
+                "summary": "Delete ACS key",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful response"
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "acs-keys"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/member-transactions": {
+            "get": {
+                "operationId": "MemberTransactionsController_findAll",
+                "summary": "Get all member transactions",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MemberTransactionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "member-transactions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "MemberTransactionsController_create",
+                "summary": "Create new member transaction",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateMemberTransactionDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MemberTransactionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "member-transactions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/member-transactions/subject/{memberId}": {
+            "get": {
+                "operationId": "MemberTransactionsController_findAllBySubjectMember",
+                "summary": "Get all member transactions for subject member",
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MemberTransactionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "member-transactions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/member-transactions/actor/{memberId}": {
+            "get": {
+                "operationId": "MemberTransactionsController_findAllByActorMember",
+                "summary": "Get all member transactions for actor member",
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MemberTransactionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "member-transactions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/space-transactions": {
+            "get": {
+                "operationId": "SpaceTransactionsController_findAll",
+                "summary": "Get all space transactions",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SpaceTransactionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "space-transactions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "SpaceTransactionsController_create",
+                "summary": "Create new space transaction",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSpaceTransactionDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SpaceTransactionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "space-transactions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/space-transactions/actor/{memberId}": {
+            "get": {
+                "operationId": "SpaceTransactionsController_findAllByActor",
+                "summary": "Get all space transactions",
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SpaceTransactionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "space-transactions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/membership-subscriptions/member/{memberId}": {
+            "get": {
+                "operationId": "MembershipSubscriptionsController_findAllByMemberId",
+                "summary": "Get all membership subscriptions for member",
+                "parameters": [
+                    {
+                        "name": "memberId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MembershipSubscriptionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "membership-subscriptions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/membership-subscriptions/membership/{membershipId}": {
+            "get": {
+                "operationId": "MembershipSubscriptionsController_findAllByMembershipId",
+                "summary": "Get all membership subscriptions for membership",
+                "parameters": [
+                    {
+                        "name": "membershipId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MembershipSubscriptionDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "membership-subscriptions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/membership-subscriptions": {
+            "post": {
+                "operationId": "MembershipSubscriptionsController_subscribe",
+                "summary": "Subscribe member to membership",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubscribeDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MembershipSubscriptionDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "membership-subscriptions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/membership-subscriptions/{id}": {
+            "delete": {
+                "operationId": "MembershipSubscriptionsController_unsubscribe",
+                "summary": "Unsubscribe member from membership",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": "Successful response"
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "membership-subscriptions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/self": {
+            "get": {
+                "operationId": "AuthController_getSelf",
+                "summary": "Get self member auth info",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SelfAuthInfoDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "auth"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "RE: Swynca",
+        "description": "B4CKSP4CE member/money management system",
+        "version": "1.0",
+        "contact": {}
+    },
+    "tags": [],
+    "servers": [],
+    "components": {
+        "securitySchemes": {
+            "cookie": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "session"
+            }
+        },
+        "schemas": {
+            "MembershipDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "title",
+                    "amount",
+                    "active"
+                ]
+            },
+            "ErrorApiResponse": {
+                "type": "object",
+                "properties": {
+                    "statusCode": {
+                        "type": "number"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "statusCode",
+                    "message"
+                ]
+            },
+            "CreateUpdateMembershipDTO": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "title",
+                    "amount",
+                    "active"
+                ]
+            },
+            "TelegramMetadataDTO": {
+                "type": "object",
+                "properties": {
+                    "telegramId": {
+                        "type": "string"
+                    },
+                    "telegramName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "telegramId",
+                    "telegramName"
+                ]
+            },
+            "GitHubMetadataDTO": {
+                "type": "object",
+                "properties": {
+                    "githubId": {
+                        "type": "string"
+                    },
+                    "githubUsername": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "githubId",
+                    "githubUsername"
+                ]
+            },
+            "MemberDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "frozen"
+                        ]
+                    },
+                    "balance": {
+                        "type": "string"
+                    },
+                    "joinedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "telegramMetadata": {
+                        "$ref": "#/components/schemas/TelegramMetadataDTO"
+                    },
+                    "githubMetadata": {
+                        "$ref": "#/components/schemas/GitHubMetadataDTO"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "status",
+                    "balance",
+                    "joinedAt"
+                ]
+            },
+            "CreateUpdateMemberDTO": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    }
+                },
+                "required": [
+                    "name",
+                    "email"
+                ]
+            },
+            "UpdateStatusDTO": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status"
+                ]
+            },
+            "UpdateTelegramMetadataDTO": {
+                "type": "object",
+                "properties": {
+                    "telegramId": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "telegramId"
+                ]
+            },
+            "UpdateGitHubMetadataDTO": {
+                "type": "object",
+                "properties": {
+                    "githubId": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "githubId"
+                ]
+            },
+            "ACSKeyDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "memberId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "memberId",
+                    "key",
+                    "name"
+                ]
+            },
+            "CreateACSKeyDTO": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "pan",
+                            "uid"
+                        ]
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "memberId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "type",
+                    "key",
+                    "name",
+                    "memberId"
+                ]
+            },
+            "MemberTransactionDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "deposit",
+                            "withdrawal"
+                        ]
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": [
+                            "magic",
+                            "donate",
+                            "topup"
+                        ]
+                    },
+                    "target": {
+                        "type": "string",
+                        "enum": [
+                            "magic",
+                            "membership"
+                        ]
+                    },
+                    "actorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "subjectId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "amount",
+                    "date",
+                    "actorId",
+                    "subjectId",
+                    "createdAt"
+                ]
+            },
+            "CreateMemberTransactionDTO": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "deposit",
+                            "withdrawal"
+                        ]
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": [
+                            "magic",
+                            "donate",
+                            "topup"
+                        ]
+                    },
+                    "target": {
+                        "type": "string",
+                        "enum": [
+                            "magic",
+                            "membership"
+                        ]
+                    },
+                    "subjectId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "type",
+                    "amount",
+                    "date",
+                    "subjectId"
+                ]
+            },
+            "SpaceTransactionDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "deposit",
+                            "withdrawal"
+                        ]
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": [
+                            "magic",
+                            "donate",
+                            "topup"
+                        ]
+                    },
+                    "target": {
+                        "type": "string",
+                        "enum": [
+                            "magic",
+                            "basic",
+                            "purchases"
+                        ]
+                    },
+                    "actorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "amount",
+                    "date",
+                    "actorId",
+                    "createdAt"
+                ]
+            },
+            "CreateSpaceTransactionDTO": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "deposit",
+                            "withdrawal"
+                        ]
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "source": {
+                        "type": "string",
+                        "enum": [
+                            "magic",
+                            "donate",
+                            "topup"
+                        ]
+                    },
+                    "target": {
+                        "type": "string",
+                        "enum": [
+                            "magic",
+                            "basic",
+                            "purchases"
+                        ]
+                    }
+                },
+                "required": [
+                    "type",
+                    "amount",
+                    "date"
+                ]
+            },
+            "MembershipSubscriptionDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "memberId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "membershipId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "subscribedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "declinedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "memberId",
+                    "membershipId",
+                    "subscribedAt",
+                    "declinedAt"
+                ]
+            },
+            "SubscribeDTO": {
+                "type": "object",
+                "properties": {
+                    "memberId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "membershipId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "memberId",
+                    "membershipId"
+                ]
+            },
+            "SelfAuthInfoDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            }
+        }
+    }
+}
