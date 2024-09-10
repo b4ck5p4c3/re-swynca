@@ -1751,8 +1751,7 @@
                     "id",
                     "memberId",
                     "membershipId",
-                    "subscribedAt",
-                    "declinedAt"
+                    "subscribedAt"
                 ]
             },
             "SubscribeDTO": {

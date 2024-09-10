@@ -24,8 +24,8 @@ class MembershipSubscriptionDTO {
     @ApiProperty({format: "date-time"})
     subscribedAt: string;
 
-    @ApiProperty({format: "date-time"})
-    declinedAt: string;
+    @ApiProperty({format: "date-time", required: false})
+    declinedAt?: string;
 }
 
 class SubscribeDTO {

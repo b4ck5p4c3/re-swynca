@@ -10,7 +10,7 @@ export class MembershipSubscription {
     @Column("timestamp without time zone")
     subscribedAt: Date;
 
-    @Column("timestamp without time zone")
+    @Column("timestamp without time zone", {nullable: true})
     declinedAt: Date;
 
     @ManyToOne(() => Membership, membership => membership.subscriptions)
