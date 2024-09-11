@@ -1,19 +1,22 @@
-import {Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Patch, Post} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post} from "@nestjs/common";
 import {
     ApiBody,
     ApiCookieAuth,
     ApiDefaultResponse,
+    ApiNoContentResponse,
     ApiOkResponse,
     ApiOperation,
     ApiProperty,
     ApiTags
 } from "@nestjs/swagger";
 import {Member, MemberStatus} from "../common/database/entities/member.entity";
-import {ACSKeyType} from "../common/database/entities/acs-key.entity";
 import {IsEmail, IsEnum, IsNotEmpty} from "class-validator";
-import {GitHubMetadata} from "../common/database/entities/github-metadata.entity";
 import {ErrorApiResponse} from "../common/api-responses";
 import {MembersService} from "./members.service";
+import {GitHubMetadatasService} from "../github-metadatas/github-metadatas.service";
+import {GitHubService} from "../github/github.service";
+import {TelegramMetadatasService} from "../telegram-metadatas/telegram-metadatas.service";
+import {BalancesService} from "../balances/balances.service";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -76,12 +79,12 @@ class UpdateTelegramMetadataDTO {
 class UpdateGitHubMetadataDTO {
     @ApiProperty()
     @IsNotEmpty()
-    githubId: string;
+    githubUsername: string;
 }
 
 class UpdateStatusDTO {
-    @ApiProperty()
-    @IsEnum({enum: MemberStatus})
+    @ApiProperty({enum: MemberStatus})
+    @IsEnum(MemberStatus)
     @IsNotEmpty()
     status: MemberStatus;
 }
@@ -90,7 +93,9 @@ class UpdateStatusDTO {
 @Controller("members")
 export class MembersController {
 
-    constructor(private membersService: MembersService) {
+    constructor(private membersService: MembersService, private githubMetadataService: GitHubMetadatasService,
+                private githubService: GitHubService, private telegramMetadataService: TelegramMetadatasService,
+                private balancesService: BalancesService) {
     }
 
     private static mapToDTO(member: Member): MemberDTO {
@@ -167,7 +172,22 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async create(@Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+        if (await this.membersService.existsByEmail(request.email)) {
+            throw new HttpException("Member with this email already exists", HttpStatus.BAD_REQUEST);
+        }
+
+        const member = await this.membersService.create({
+            name: request.name,
+            email: request.email,
+            status: MemberStatus.FROZEN,
+            joinedAt: new Date(),
+        });
+
+        await this.balancesService.create({
+            member
+        });
+
+        return MembersController.mapToDTO(await this.membersService.findById(member.id));
     }
 
     @Patch(":id")
@@ -187,7 +207,23 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async update(@Param("id") id: string, @Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+        const member = await this.membersService.findById(id);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+
+        if (request.email !== member.email) {
+            if (await this.membersService.existsByEmail(request.email)) {
+                throw new HttpException("Member with such email already exists", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        member.name = request.name;
+        member.email = request.email;
+
+        await this.membersService.update(member);
+
+        return MembersController.mapToDTO(member);
     }
 
     @Patch(":id/status")
@@ -207,7 +243,16 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async freeze(@Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+        const member = await this.membersService.findById(id);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+
+        member.status = request.status;
+
+        await this.membersService.update(member);
+
+        return MembersController.mapToDTO(member);
     }
 
     @Patch(":id/telegram")
@@ -217,34 +262,52 @@ export class MembersController {
     @ApiBody({
         type: UpdateTelegramMetadataDTO
     })
-    @ApiOkResponse({
-        description: "Successful response",
-        type: MemberDTO
+    @ApiNoContentResponse({
+        description: "Successful response"
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async updateTelegramMetadata(@Param("id") id: string, @Body() request: UpdateTelegramMetadataDTO): Promise<MemberDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+    async updateTelegramMetadata(@Param("id") id: string, @Body() request: UpdateTelegramMetadataDTO): Promise<void> {
+        const member = await this.membersService.findById(id);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+
+        if (member.telegramMetadata) {
+            await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
+        }
+
+        await this.telegramMetadataService.create({
+            telegramId: request.telegramId,
+            telegramName: "Unknown",
+            member
+        });
     }
 
     @Delete(":id/telegram")
     @ApiOperation({
         summary: "Delete Telegram metadata for member"
     })
-    @ApiOkResponse({
-        description: "Successful response",
-        type: MemberDTO
+    @ApiNoContentResponse({
+        description: "Successful response"
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async deleteTelegramMetadata(@Param("id") id: string): Promise<MemberDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+    async deleteTelegramMetadata(@Param("id") id: string): Promise<void> {
+        const member = await this.membersService.findById(id);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+        if (!member.telegramMetadata) {
+            throw new HttpException("Member does not have Telegram metadata", HttpStatus.NOT_FOUND);
+        }
+        await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
     }
 
     @Patch(":id/github")
@@ -254,33 +317,55 @@ export class MembersController {
     @ApiBody({
         type: UpdateGitHubMetadataDTO
     })
-    @ApiOkResponse({
+    @ApiNoContentResponse({
         description: "Successful response",
-        type: MemberDTO
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async updateGitHubMetadata(@Param("id") id: string, @Body() request: UpdateGitHubMetadataDTO): Promise<MemberDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+    async updateGitHubMetadata(@Param("id") id: string, @Body() request: UpdateGitHubMetadataDTO): Promise<void> {
+        const member = await this.membersService.findById(id);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+        const githubId = await this.githubService.getIdByUsername(request.githubUsername);
+        if (!githubId) {
+            throw new HttpException("Invalid GitHub username", HttpStatus.BAD_REQUEST);
+        }
+
+        if (member.githubMetadata) {
+            await this.githubMetadataService.remove(member.githubMetadata.githubId);
+        }
+
+        await this.githubMetadataService.create({
+            githubId,
+            githubUsername: request.githubUsername,
+            member
+        });
     }
 
     @Delete(":id/github")
     @ApiOperation({
         summary: "Delete GitHub metadata for member"
     })
-    @ApiOkResponse({
-        description: "Successful response",
-        type: MemberDTO
+    @ApiNoContentResponse({
+        description: "Successful response"
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async deleteGitHubMetadata(@Param("id") id: string): Promise<MemberDTO> {
-        throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+    async deleteGitHubMetadata(@Param("id") id: string): Promise<void> {
+        const member = await this.membersService.findById(id);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+        if (!member.githubMetadata) {
+            throw new HttpException("Member does not have GitHub metadata", HttpStatus.NOT_FOUND);
+        }
+        await this.githubMetadataService.remove(member.githubMetadata.githubId);
     }
 }

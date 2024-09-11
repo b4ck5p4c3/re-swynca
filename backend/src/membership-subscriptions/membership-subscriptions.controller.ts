@@ -123,6 +123,9 @@ export class MembershipSubscriptionsController {
         if (!membership) {
             throw new HttpException("Membership not found", HttpStatus.NOT_FOUND);
         }
+        if (!membership.active) {
+            throw new HttpException("Membership is frozen", HttpStatus.BAD_REQUEST);
+        }
 
         if (await this.membershipSubscriptionsService.existsByMemberAndMembershipWithNotDeclined(member, membership)) {
             throw new HttpException("Member already subscribed to this membership", HttpStatus.BAD_REQUEST);

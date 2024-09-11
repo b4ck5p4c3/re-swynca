@@ -408,15 +408,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/MemberDTO"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "Successful response"
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -452,15 +445,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/MemberDTO"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "Successful response"
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -508,15 +494,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/MemberDTO"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "Successful response"
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -552,15 +531,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/MemberDTO"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "Successful response"
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -1432,7 +1404,11 @@
                 "type": "object",
                 "properties": {
                     "status": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "frozen"
+                        ]
                     }
                 },
                 "required": [
@@ -1453,12 +1429,12 @@
             "UpdateGitHubMetadataDTO": {
                 "type": "object",
                 "properties": {
-                    "githubId": {
+                    "githubUsername": {
                         "type": "string"
                     }
                 },
                 "required": [
-                    "githubId"
+                    "githubUsername"
                 ]
             },
             "ACSKeyDTO": {

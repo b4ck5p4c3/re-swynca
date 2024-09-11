@@ -57,7 +57,7 @@ export class ACSKeysController {
     constructor(private acsKeysService: ACSKeysService, private membersService: MembersService) {
     }
 
-    private mapToDTO(acsKey: ACSKey): ACSKeyDTO {
+    private static mapToDTO(acsKey: ACSKey): ACSKeyDTO {
         return {
             id: acsKey.id,
             type: acsKey.type,
@@ -81,7 +81,7 @@ export class ACSKeysController {
         type: ErrorApiResponse
     })
     async findAllByMemberId(@Param("memberId") memberId: string): Promise<ACSKeyDTO[]> {
-        return (await this.acsKeysService.findAllByMemberId(memberId)).map(this.mapToDTO);
+        return (await this.acsKeysService.findAllByMemberId(memberId)).map(ACSKeysController.mapToDTO);
     }
 
     @Post()
@@ -115,7 +115,7 @@ export class ACSKeysController {
             name,
             member
         });
-        return this.mapToDTO(acsKey);
+        return ACSKeysController.mapToDTO(acsKey);
     }
 
     @Delete(":id")
