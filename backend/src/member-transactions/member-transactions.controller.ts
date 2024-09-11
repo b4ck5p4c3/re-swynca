@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Post} from "@nestjs/common";
+import {Body, Controller, Get, HttpException, HttpStatus, Param, Post} from "@nestjs/common";
 import {
     ApiBody,
     ApiCookieAuth,
@@ -10,11 +10,18 @@ import {
 } from "@nestjs/swagger";
 import {TransactionType} from "../common/database/entities/common";
 import {
+    MemberTransaction,
     MemberTransactionDeposit,
     MemberTransactionWithdrawal
 } from "../common/database/entities/member-transaction.entity";
 import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsNumberString, IsUUID} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
+import { MemberTransactionsService } from "./member-transactions.service";
+import { MembersService } from "src/members/members.service";
+import Decimal from "decimal.js";
+import { CustomValidationError } from "src/common/exceptions";
+import { MONEY_DECIMAL_PLACES, MONEY_PRECISION } from "src/common/money";
+import { UserId } from "src/auth/user-id.decorator";
 
 class MemberTransactionDTO {
     @ApiProperty({format: "uuid"})
@@ -84,6 +91,21 @@ class CreateMemberTransactionDTO {
 @Controller("member-transactions")
 @ApiTags("member-transactions")
 export class MemberTransactionsController {
+    constructor(private readonly memberTransactionsService: MemberTransactionsService, private readonly membersSerivice: MembersService) {}
+    private static mapToDTO(memberTransaction: MemberTransaction): MemberTransactionDTO {
+        return {
+            id: memberTransaction.id,
+            type: memberTransaction.type,
+            amount: memberTransaction.amount.toString(),
+            comment: memberTransaction.comment,
+            date: memberTransaction.date.toISOString(),
+            source: memberTransaction.source,
+            target: memberTransaction.target,
+            actorId: memberTransaction.actor.id,
+            subjectId: memberTransaction.subject.id,
+            createdAt: memberTransaction.createdAt.toISOString()
+        };
+    }
     @Get()
     @ApiOperation({
         summary: "Get all member transactions"
@@ -98,7 +120,7 @@ export class MemberTransactionsController {
         type: ErrorApiResponse
     })
     async findAll(): Promise<MemberTransactionDTO[]> {
-        return [];
+        return (await this.memberTransactionsService.findAll()).map(MemberTransactionsController.mapToDTO);
     }
 
     @Get("subject/:memberId")
@@ -115,7 +137,13 @@ export class MemberTransactionsController {
         type: ErrorApiResponse
     })
     async findAllBySubjectMember(@Param("memberId") memberId: string): Promise<MemberTransactionDTO[]> {
-        return [];
+        const member = await this.membersSerivice.findById(memberId);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+        
+        return (await this.memberTransactionsService.findAllBySubjectMember(memberId)).map(MemberTransactionsController.mapToDTO);
+
     }
 
     @Get("actor/:memberId")
@@ -131,8 +159,8 @@ export class MemberTransactionsController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async findAllByActorMember(@Param("memberId") memberId: string): Promise<MemberTransactionDTO[]> {
-        return [];
+    async findAllByActorMember(@Param("memberId") actorId: string): Promise<MemberTransactionDTO[]> {
+        return (await this.memberTransactionsService.findAllByActorId(actorId)).map(MemberTransactionsController.mapToDTO);
     }
 
     @Post()
@@ -151,7 +179,37 @@ export class MemberTransactionsController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async create(@Body() request: CreateMemberTransactionDTO): Promise<MemberTransactionDTO> {
-        throw new Error();
-    }
+    async create(@UserId() actorId: string, @Body() request: CreateMemberTransactionDTO): Promise<MemberTransactionDTO> {
+        const {type, amount, comment, date, source, target, subjectId} = request;
+        const decimalAmount = new Decimal(amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
+        const actor = await this.membersSerivice.findById(actorId);
+        const transactionDate = new Date(date);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
+        }
+
+        const member = await this.membersSerivice.findById(subjectId);
+        if (!member) {
+            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+        }
+
+        if (decimalAmount.lessThanOrEqualTo(0)) {
+            throw new CustomValidationError("Membership amount must be > 0");
+        }
+        if (decimalAmount.precision() > MONEY_PRECISION - MONEY_DECIMAL_PLACES) {
+            throw new CustomValidationError(`Membership amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
+        }
+
+        return MemberTransactionsController.mapToDTO(await this.memberTransactionsService.create({
+            type,
+            amount: decimalAmount,
+            comment,
+            date: transactionDate,
+            source,
+            target,
+            subject: member,
+            actor,
+            createdAt: new Date()
+        }));
+    };
 }
