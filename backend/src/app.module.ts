@@ -9,11 +9,14 @@ import {SpaceTransactionsModule} from "./space-transactions/space-transactions.m
 import {MembershipSubscriptionsModule} from "./membership-subscriptions/membership-subscriptions.module";
 import {LogtoAuthModule} from "./logto-auth/logto-auth.module";
 import {AppJwtModule} from "./common/jwt/app-jwt.module";
+import {AppHttpModule} from "./common/http/app-http.module";
 
 @Module({
     imports: [
         AppConfigModule,
         AppJwtModule,
+        AppHttpModule,
+
         DatabaseModule,
 
         MembershipsModule,

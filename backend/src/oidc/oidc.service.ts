@@ -1,5 +1,6 @@
 import {Injectable, OnModuleInit} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
+import {HttpService} from "@nestjs/axios";
 
 export interface OIDCServiceConfig {
     issuer: string;
@@ -26,11 +27,12 @@ interface OIDCUserInfo {
 export class OIDCService implements OnModuleInit {
     private issuerConfig: OIDCConfig;
 
-    constructor(private readonly config: OIDCServiceConfig) {
+    constructor(private readonly config: OIDCServiceConfig, private httpService: HttpService) {
     }
 
     async onModuleInit(): Promise<void> {
-        this.issuerConfig = await (await fetch(`${this.config.issuer}/.well-known/openid-configuration`)).json();
+        this.issuerConfig = (await this.httpService.axiosRef.get<OIDCConfig>(
+            `${this.config.issuer}/.well-known/openid-configuration`)).data;
     }
 
     getAuthUrl(redirectUrl: string): string {
@@ -49,23 +51,21 @@ export class OIDCService implements OnModuleInit {
         postData.set("redirect_url", redirectUrl);
         postData.set("client_id", this.config.clientId);
         postData.set("client_secret", this.config.clientSecret);
-        const response: OIDCTokenResponse = await (await fetch(this.issuerConfig.token_endpoint, {
-            method: "POST",
+        const response: OIDCTokenResponse = (await this.httpService.axiosRef.post(this.issuerConfig.token_endpoint, postData.toString(), {
             headers: {
                 "content-type": "application/x-www-form-urlencoded"
-            },
-            body: postData.toString()
-        })).json();
+            }
+        })).data;
 
         if (response.token_type !== "Bearer") {
             throw new Error(`OIDC token type from response '${response.token_type}' !== 'Bearer'`);
         }
 
-        const userInfo: OIDCUserInfo = await (await fetch(this.issuerConfig.userinfo_endpoint, {
+        const userInfo: OIDCUserInfo = (await this.httpService.axiosRef.get(this.issuerConfig.userinfo_endpoint, {
             headers: {
                 "authorization": `Bearer ${response.access_token}`
             }
-        })).json();
+        })).data;
 
         if (!userInfo.sub) {
             throw new Error(`No 'sub' in OIDC user info`);
