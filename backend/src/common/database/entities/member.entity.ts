@@ -1,5 +1,5 @@
 import {Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, Unique} from "typeorm";
-import {ExternalAuthenticationLogto} from "./external-authentication-logto.entity";
+import {LogtoBinding} from "./logto-binding.entity";
 import {ACSKey} from "./acs-key.entity";
 import {Balance} from "./balance.entity";
 import {SpaceTransaction} from "./space-transaction.entity";
@@ -42,9 +42,9 @@ export class Member {
     @OneToMany(() => MemberTransaction, memberTransaction => memberTransaction.subject)
     subjectedMemberTransactions: MemberTransaction[];
 
-    @OneToOne(() => ExternalAuthenticationLogto, externalAuthenticationLogto =>
+    @OneToOne(() => LogtoBinding, externalAuthenticationLogto =>
         externalAuthenticationLogto.member, {nullable: true})
-    externalAuthenticationLogto?: ExternalAuthenticationLogto;
+    externalAuthenticationLogto?: LogtoBinding;
 
     @OneToOne(() => Balance, balance =>
         balance.member)

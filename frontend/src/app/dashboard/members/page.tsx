@@ -1,7 +1,7 @@
 "use client";
 
 import {getClient, R} from "@/lib/api/client";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {useQuery} from "@tanstack/react-query";
 import {MEMBERS_QUERY_KEY} from "@/lib/cache-tags";
 import {GitHubLink} from "@/components/github-link";
 import {TelegramLink} from "@/components/telegram-link";
@@ -9,104 +9,8 @@ import {Badge} from "@/components/ui/badge";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {useRouter} from "next/navigation";
 import {Button} from "@/components/ui/button";
-import {useEffect, useState} from "react";
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import {z} from "zod";
-import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {DefaultDialogProps} from "@/lib/types";
-
-const createMemberSchema = z.object({
-    name: z.string(),
-    email: z.string().email({
-        message: "E-Mail must be valid"
-    })
-});
-
-type CreateMemberData = z.infer<typeof createMemberSchema>;
-
-export function CreateMemberDialog({open, onClose}: DefaultDialogProps) {
-    const form = useForm<CreateMemberData>({
-        resolver: zodResolver(createMemberSchema)
-    });
-
-    const client = getClient();
-
-    const queryClient = useQueryClient();
-
-    const createMember = useMutation({
-        mutationFn: async (data: CreateMemberData) => {
-            R(await client.POST("/api/members", {
-                body: {
-                    name: data.name,
-                    email: data.email
-                }
-            }));
-        },
-        onSuccess: async () => {
-            onClose();
-            await queryClient.refetchQueries({queryKey: [MEMBERS_QUERY_KEY]})
-        }
-    });
-
-    function onOpenChange(open: boolean) {
-        if (!open) {
-            onClose();
-        }
-    }
-
-    useEffect(() => {
-        if (open) {
-            form.reset();
-        }
-    }, [open]);
-
-    return <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Create new member</DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(data => createMember.mutate(data))}>
-                    <div className={"flex flex-col gap-4 mb-4"}>
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="New member" {...field} />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>E-Mail</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="new-member@0x08.in" {...field} />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button type={"submit"}>Create</Button>
-                    </DialogFooter>
-                </form>
-            </Form>
-        </DialogContent>
-    </Dialog>;
-}
+import {useState} from "react";
+import {CreateMemberDialog} from "@/components/dialogs/create-member";
 
 export default function MembersPage() {
     const client = getClient();

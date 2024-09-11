@@ -12,7 +12,7 @@ export class SpaceTransactionsService {
         return await this.spaceTransactionRepository.find();
     }
 
-    async findAllByMemberId(id: string): Promise<SpaceTransaction[] | null> {
+    async findAllByActorId(id: string): Promise<SpaceTransaction[] | null> {
         return await this.spaceTransactionRepository.find({
             where: {
                 id

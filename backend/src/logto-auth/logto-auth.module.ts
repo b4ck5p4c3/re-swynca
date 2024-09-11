@@ -2,14 +2,12 @@ import {Module} from "@nestjs/common";
 import {LogtoAuthController} from "./logto-auth.controller";
 import {LogtoAuthService} from "./logto-auth.service";
 import {ConfigModule} from "@nestjs/config";
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {ExternalAuthenticationLogto} from "../common/database/entities/external-authentication-logto.entity";
 import {AuthModule} from "../auth/auth.module";
-import {AppHttpModule} from "../common/http/app-http.module";
 import {HttpModule} from "@nestjs/axios";
+import {LogtoBindingsModule} from "../logto-bindings/logto-bindings.module";
 
 @Module({
-    imports: [ConfigModule, AuthModule, TypeOrmModule.forFeature([ExternalAuthenticationLogto]),
+    imports: [ConfigModule, AuthModule, LogtoBindingsModule,
         HttpModule],
     controllers: [LogtoAuthController],
     providers: [LogtoAuthService]

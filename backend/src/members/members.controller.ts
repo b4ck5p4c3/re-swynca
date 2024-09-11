@@ -17,6 +17,8 @@ import {GitHubMetadatasService} from "../github-metadatas/github-metadatas.servi
 import {GitHubService} from "../github/github.service";
 import {TelegramMetadatasService} from "../telegram-metadatas/telegram-metadatas.service";
 import {BalancesService} from "../balances/balances.service";
+import {LogtoManagementService} from "../logto-management/logto-management.service";
+import {LogtoBindingsService} from "../logto-bindings/logto-bindings.service";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -95,7 +97,8 @@ export class MembersController {
 
     constructor(private membersService: MembersService, private githubMetadataService: GitHubMetadatasService,
                 private githubService: GitHubService, private telegramMetadataService: TelegramMetadatasService,
-                private balancesService: BalancesService) {
+                private balancesService: BalancesService, private logtoManagementService: LogtoManagementService,
+                private logtoBindingsService: LogtoBindingsService) {
     }
 
     private static mapToDTO(member: Member): MemberDTO {
@@ -176,11 +179,22 @@ export class MembersController {
             throw new HttpException("Member with this email already exists", HttpStatus.BAD_REQUEST);
         }
 
+        const logtoId = await this.logtoManagementService.createUser({
+            name: request.name,
+            email: request.email
+        });
+        await this.logtoManagementService.updateUserSuspensionStatus(logtoId, true);
+
         const member = await this.membersService.create({
             name: request.name,
             email: request.email,
             status: MemberStatus.FROZEN,
             joinedAt: new Date(),
+        });
+
+        await this.logtoBindingsService.create({
+            logtoId,
+            member
         });
 
         await this.balancesService.create({
@@ -212,11 +226,21 @@ export class MembersController {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
         }
 
+        const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
+        if (!logtoBinding) {
+            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+        }
+
         if (request.email !== member.email) {
             if (await this.membersService.existsByEmail(request.email)) {
                 throw new HttpException("Member with such email already exists", HttpStatus.BAD_REQUEST);
             }
         }
+
+        await this.logtoManagementService.updateUser(logtoBinding.logtoId, {
+            name: request.name,
+            email: request.email
+        });
 
         member.name = request.name;
         member.email = request.email;
@@ -247,6 +271,15 @@ export class MembersController {
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
         }
+
+        const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
+
+        if (!logtoBinding) {
+            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+        }
+
+        await this.logtoManagementService.updateUserSuspensionStatus(logtoBinding.logtoId,
+            request.status === "frozen");
 
         member.status = request.status;
 

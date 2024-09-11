@@ -9,154 +9,30 @@ import {
     MEMBER_SUBSCRIPTIONS_QUERY_KEY,
     MEMBERSHIPS_QUERY_KEY
 } from "@/lib/cache-tags";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Skeleton} from "@/components/ui/skeleton";
 import {Separator} from "@/components/ui/separator";
 import {Button} from "@/components/ui/button";
-import {IdCardIcon, Pencil1Icon, PlusIcon, TrashIcon} from "@radix-ui/react-icons";
+import {Pencil1Icon, TrashIcon} from "@radix-ui/react-icons";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {DefaultDialogProps, MembershipDTO} from "@/lib/types";
-import {z} from "zod";
-import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import {Input} from "@/components/ui/input";
-import {Switch} from "@/components/ui/switch";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-
-export function MemberInfoRow({title, children}: { title: string, children: React.ReactNode }) {
-    return <div className={"flex flex-row"}>
-        <div className={"font-semibold"}>{title}:</div>
-        <div className={"flex-1"}></div>
-        <div>{children}</div>
-    </div>;
-}
-
-function TelegramMetadata({metadata}: { metadata?: { telegramId: string; telegramName: string } }) {
-    return metadata ? <div className={"flex flex-row gap-2"}>
-        <a href={`tg://user?id=${metadata.telegramId}`} className={"underline leading-8"}>
-            {metadata.telegramName} ({metadata.telegramId})
-        </a>
-        <Button className={"w-8 p-0 h-8"}><Pencil1Icon/></Button>
-        <Button variant={"destructive"} className={"w-8 p-0 h-8"}><TrashIcon/></Button>
-    </div> : <div className={"flex flex-row gap-2"}>
-        <span className={"leading-8"}>Not linked</span>
-        <Button className={"w-8 p-0 h-8"}><PlusIcon/></Button>
-    </div>
-}
-
-function GitHubMetadata({metadata}: { metadata?: { githubId: string; githubUsername: string } }) {
-    return metadata ? <div className={"flex flex-row gap-2"}>
-        <a href={`https://github.com/${metadata.githubUsername}`} className={"underline leading-8"}>
-            {metadata.githubUsername} ({metadata.githubId})
-        </a>
-        <Button className={"w-8 p-0 h-8"}><Pencil1Icon/></Button>
-        <Button variant={"destructive"} className={"w-8 p-0 h-8"}><TrashIcon/></Button>
-    </div> : <div className={"flex flex-row gap-2"}>
-        <span className={"leading-8"}>Not linked</span>
-        <Button className={"w-8 p-0 h-8"}><PlusIcon/></Button>
-    </div>
-}
+import {MemberInfoRow} from "@/components/member-info-row";
+import {SubscribeDialog} from "@/components/dialogs/subscribe";
+import {CreateACSKeyDialog} from "@/components/dialogs/create-acs-key";
+import {UpdateNameDialog} from "@/components/dialogs/update-name";
+import {UpdateEMailDialog} from "@/components/dialogs/update-email";
+import {GitHubMetadata} from "@/components/github-metadata";
+import {TelegramMetadata} from "@/components/telegram-metadata";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
     "pan": "💳",
     "uid": "🔑"
 };
 
-const subscribeForm = z.object({
-    membershipId: z.string()
-});
-
-type SubscribeData = z.infer<typeof subscribeForm>;
-
-export function SubscribeDialog({open, onClose, availableMemberships, memberId}: DefaultDialogProps & {
-    availableMemberships: MembershipDTO[],
-    memberId: string
-}) {
-    const form = useForm<SubscribeData>({
-        resolver: zodResolver(subscribeForm)
-    });
-
-    const client = getClient();
-
-    const queryClient = useQueryClient();
-
-    const subscribe = useMutation({
-        mutationFn: async (data: SubscribeData) => {
-            R(await client.POST("/api/membership-subscriptions", {
-                body: {
-                    memberId,
-                    membershipId: data.membershipId
-                }
-            }));
-        },
-        onSuccess: async () => {
-            onClose();
-            await queryClient.refetchQueries({queryKey: [`${MEMBER_SUBSCRIPTIONS_QUERY_KEY}-${memberId}`]})
-        }
-    });
-
-    function onOpenChange(open: boolean) {
-        if (!open) {
-            onClose();
-        }
-    }
-
-    useEffect(() => {
-        if (open) {
-            form.reset();
-        }
-    }, [open]);
-
-    return <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Subscribe to</DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(data => subscribe.mutate(data))}>
-                    <div className={"flex flex-col gap-4 mb-4"}>
-                        <FormField
-                            control={form.control}
-                            name="membershipId"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Membership</FormLabel>
-                                    <FormControl>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select membership"/>
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    {
-                                                        availableMemberships.map(membership =>
-                                                            <SelectItem value={membership.id}>
-                                                                {membership.title} - {membership.amount}
-                                                            </SelectItem>
-                                                        )
-                                                    }
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button type={"submit"}>Subscribe</Button>
-                    </DialogFooter>
-                </form>
-            </Form>
-        </DialogContent>
-    </Dialog>;
-}
-
 export default function MemberPage() {
     const [subscribeDialogOpened, setSubscribeDialogOpened] = useState(false);
+    const [createACSKeyDialogOpened, setCreateACSKeyDialogOpened] = useState(false);
+    const [updateNameDialogOpened, setUpdateNameDialogOpened] = useState(false);
+    const [updateEMailDialogOpened, setUpdateEMailDialogOpened] = useState(false);
 
     const client = getClient();
 
@@ -235,11 +111,52 @@ export default function MemberPage() {
         }
     }));
 
+    const removeACSKey = useMutation(({
+        mutationFn: async (id: string) => {
+            R(await client.DELETE("/api/acs-keys/{id}", {
+                params: {
+                    path: {
+                        id
+                    }
+                }
+            }));
+        },
+        onSuccess: async () => {
+            await queryClient.refetchQueries({queryKey: [`${MEMBER_ACS_KEYS_QUERY_KEY}-${id}`]});
+        }
+    }));
+
+    const updateMemberStatus = useMutation({
+        mutationFn: async (data: "active" | "frozen") => {
+            R(await client.PATCH("/api/members/{id}/status", {
+                params: {
+                    path: {
+                        id
+                    }
+                },
+                body: {
+                    status: data
+                }
+            }));
+        },
+        onSuccess: async () => {
+            await queryClient.refetchQueries({queryKey: [`${MEMBER_QUERY_KEY}-${id}`]});
+        }
+    });
+
     return <div>
-        <div className={"flex flex-col gap-4"}>
-            <MemberInfoRow title={"Name"}>{member.data ? member.data.name :
-                <Skeleton className={"h-[24px] w-[100px]"}/>}</MemberInfoRow>
-            <MemberInfoRow title={"E-Mail"}>{member.data ? member.data.email :
+        <div className={"flex flex-col gap-4 mb-10"}>
+            <MemberInfoRow title={"Name"}>{member.data ? <div className={"flex flex-row gap-2"}>
+                    <div className={"leading-8"}>{member.data.name}</div>
+                    <Button className={"w-8 p-0 h-8"}
+                            onClick={() => setUpdateNameDialogOpened(true)}><Pencil1Icon/></Button>
+                </div> :
+                <Skeleton className={"h-[32px] w-[100px]"}/>}</MemberInfoRow>
+            <MemberInfoRow title={"E-Mail"}>{member.data ? <div className={"flex flex-row gap-2"}>
+                    <div className={"leading-8"}>{member.data.email}</div>
+                    <Button className={"w-8 p-0 h-8"}
+                            onClick={() => setUpdateEMailDialogOpened(true)}><Pencil1Icon/></Button>
+                </div> :
                 <Skeleton className={"h-[24px] w-[200px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"Joined at"}>{member.data ? new Date(member.data.joinedAt).toLocaleDateString() :
                 <Skeleton className={"h-[24px] w-[90px]"}/>}</MemberInfoRow>
@@ -248,17 +165,19 @@ export default function MemberPage() {
             <MemberInfoRow title={"Status"}>{member.data ?
                 <div className={"flex flex-row gap-2"}>
                     <div className={"leading-8"}>{member.data.status === "active" ? "Active" : "Frozen"}</div>
-                    <Button variant={member.data.status === "active" ? "destructive" : "default"}>
+                    <Button variant={member.data.status === "active" ? "destructive" : "default"} onClick={() => {
+                        updateMemberStatus.mutate(member.data.status === "active" ? "frozen" : "active");
+                    }}>
                         {member.data.status === "active" ? "Freeze" : "Unfreeze"}
                     </Button>
                 </div> :
                 <Skeleton className={"h-[36px] w-[60px]"}/>}</MemberInfoRow>
             <Separator/>
             <MemberInfoRow title={"Telegram"}>{member.data ?
-                <TelegramMetadata metadata={member.data.telegramMetadata}/> :
+                <TelegramMetadata metadata={member.data.telegramMetadata} member={member.data}/> :
                 <Skeleton className={"h-[32px] w-[120px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"GitHub"}>{member.data ?
-                <GitHubMetadata metadata={member.data.githubMetadata}/> :
+                <GitHubMetadata metadata={member.data.githubMetadata} member={member.data}/> :
                 <Skeleton className={"h-[32px] w-[80px]"}/>}</MemberInfoRow>
             <Separator/>
             <div className={"flex flex-row"}>
@@ -306,7 +225,7 @@ export default function MemberPage() {
             <div className={"flex flex-row"}>
                 <div className={"text-2xl font-semibold"}>ACS keys:</div>
                 <div className={"flex-1"}/>
-                <Button>Add</Button>
+                <Button onClick={() => setCreateACSKeyDialogOpened(true)}>Add</Button>
             </div>
             <Table>
                 <TableHeader>
@@ -314,6 +233,7 @@ export default function MemberPage() {
                         <TableHead>Name</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Key</TableHead>
+                        <TableHead></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -322,11 +242,14 @@ export default function MemberPage() {
                                 <TableCell>{acsKey.name}</TableCell>
                                 <TableCell>{ACS_KEY_TYPE_MAPPING[acsKey.type]}</TableCell>
                                 <TableCell>{acsKey.key}</TableCell>
+                                <TableCell><Button onClick={() => removeACSKey.mutate(acsKey.id)} variant={"destructive"}
+                                                   className={"w-8 p-0 h-8"}><TrashIcon/></Button></TableCell>
                             </TableRow>) :
                         <TableRow>
                             <TableCell><Skeleton className={"h-[24px] w-[60px]"}/></TableCell>
                             <TableCell><Skeleton className={"h-[24px] w-[40px]"}/></TableCell>
                             <TableCell><Skeleton className={"h-[24px] w-[80px]"}/></TableCell>
+                            <TableCell></TableCell>
                         </TableRow>}
                 </TableBody>
             </Table>
@@ -340,5 +263,11 @@ export default function MemberPage() {
                              }
                              memberId={id}/>
             : <></>}
+        <CreateACSKeyDialog open={createACSKeyDialogOpened} onClose={() => setCreateACSKeyDialogOpened(false)}
+                            memberId={id}/>
+        {member.data ? <UpdateNameDialog member={member.data} open={updateNameDialogOpened}
+                                         onClose={() => setUpdateNameDialogOpened(false)}/> : <></>}
+        {member.data ? <UpdateEMailDialog member={member.data} open={updateEMailDialogOpened}
+                                         onClose={() => setUpdateEMailDialogOpened(false)}/> : <></>}
     </div>;
 }

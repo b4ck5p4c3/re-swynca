@@ -7,10 +7,12 @@ import {GitHubModule} from "../github/github.module";
 import {GitHubMetadatasModule} from "../github-metadatas/github-metadatas.module";
 import {TelegramMetadatasModule} from "../telegram-metadatas/telegram-metadatas.module";
 import {BalancesModule} from "../balances/balances.module";
+import {LogtoManagementModule} from "../logto-management/logto-management.module";
+import {LogtoBindingsModule} from "../logto-bindings/logto-bindings.module";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Member]), GitHubModule, GitHubMetadatasModule,
-        TelegramMetadatasModule, BalancesModule],
+        TelegramMetadatasModule, BalancesModule, LogtoManagementModule, LogtoBindingsModule],
     controllers: [MembersController],
     providers: [MembersService],
     exports: [MembersService]

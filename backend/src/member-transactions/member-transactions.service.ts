@@ -12,7 +12,7 @@ export class MemberTransactionsService {
         return await this.memberTransactionRepository.find();
     }
 
-    async findAllBySubjectMember(id: string): Promise<MemberTransaction[]> {
+    async findAllBySubjectId(id: string): Promise<MemberTransaction[]> {
         return await this.memberTransactionRepository.find({
             where: {
                 subject: {

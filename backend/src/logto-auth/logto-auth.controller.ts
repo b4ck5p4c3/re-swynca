@@ -1,11 +1,10 @@
 import {Controller, Get, Response, Request, Query, HttpException, HttpStatus} from "@nestjs/common";
-import {ApiExcludeController, ApiExcludeEndpoint, ApiTags} from "@nestjs/swagger";
+import {ApiExcludeEndpoint} from "@nestjs/swagger";
 import {LogtoAuthService} from "./logto-auth.service";
 import express from "express";
 import {PATH_METADATA} from "@nestjs/common/constants";
 import {ConfigService} from "@nestjs/config";
 import {CustomValidationError} from "../common/exceptions";
-import {JwtService} from "@nestjs/jwt";
 import {AuthService} from "../auth/auth.service";
 import {NoAuth} from "../auth/no-auth.decorator";
 

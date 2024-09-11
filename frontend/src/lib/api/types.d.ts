@@ -399,13 +399,14 @@ export interface components {
             email: string;
         };
         UpdateStatusDTO: {
-            status: string;
+            /** @enum {string} */
+            status: "active" | "frozen";
         };
         UpdateTelegramMetadataDTO: {
             telegramId: string;
         };
         UpdateGitHubMetadataDTO: {
-            githubId: string;
+            githubUsername: string;
         };
         ACSKeyDTO: {
             /** Format: uuid */

@@ -2,17 +2,13 @@ import {Injectable} from "@nestjs/common";
 import {OIDCService} from "../oidc/oidc.service";
 import {ConfigService} from "@nestjs/config";
 import {Member} from "../common/database/entities/member.entity";
-import {Repository} from "typeorm";
-import {ExternalAuthenticationLogto} from "../common/database/entities/external-authentication-logto.entity";
-import {InjectRepository} from "@nestjs/typeorm";
 import {HttpService} from "@nestjs/axios";
+import {LogtoBindingsService} from "../logto-bindings/logto-bindings.service";
 
 @Injectable()
 export class LogtoAuthService extends OIDCService {
 
-    constructor(private configService: ConfigService,
-                @InjectRepository(ExternalAuthenticationLogto) private externalAuthenticationLogtoRepository:
-                    Repository<ExternalAuthenticationLogto>,
+    constructor(private configService: ConfigService, private logtoBindingsService: LogtoBindingsService,
                 httpService: HttpService) {
         super({
             issuer: configService.getOrThrow("LOGTO_ISSUER"),
@@ -22,14 +18,7 @@ export class LogtoAuthService extends OIDCService {
     }
 
     async getMemberFromLogtoId(logtoId: string): Promise<Member | null> {
-        const memberAuth = await this.externalAuthenticationLogtoRepository.findOne({
-            where: {
-                logtoId: logtoId
-            },
-            relations: {
-                member: true
-            }
-        });
+        const memberAuth = await this.logtoBindingsService.findByLogtoId(logtoId);
         if (!memberAuth) {
             return null;
         }
