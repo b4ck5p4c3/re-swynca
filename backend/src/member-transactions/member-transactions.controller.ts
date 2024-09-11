@@ -183,7 +183,6 @@ export class MemberTransactionsController {
         const {type, amount, comment, date, source, target, subjectId} = request;
         const decimalAmount = new Decimal(amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
         const actor = await this.membersSerivice.findById(actorId);
-        const transactionDate = new Date(date);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
         }
@@ -204,7 +203,7 @@ export class MemberTransactionsController {
             type,
             amount: decimalAmount,
             comment,
-            date: transactionDate,
+            date: new Date(date),
             source,
             target,
             subject: member,
