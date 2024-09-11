@@ -499,7 +499,7 @@ export interface components {
             /** Format: date-time */
             subscribedAt: string;
             /** Format: date-time */
-            declinedAt: string;
+            declinedAt?: string;
         };
         SubscribeDTO: {
             /** Format: uuid */
@@ -1321,7 +1321,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;

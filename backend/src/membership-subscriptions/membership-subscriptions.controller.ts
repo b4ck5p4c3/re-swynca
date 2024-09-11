@@ -10,10 +10,10 @@ import {
 } from "@nestjs/swagger";
 import {IsNotEmpty, IsUUID} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
-import { MembershipSubscriptionsService } from "./membership-subscriptions.service";
-import { MembershipSubscription } from "src/common/database/entities/membership-subscription.entity";
-import { MembersService } from "src/members/members.service";
-import { MembershipsService } from "src/memberships/memberships.service";
+import {MembershipSubscriptionsService} from "./membership-subscriptions.service";
+import {MembershipSubscription} from "src/common/database/entities/membership-subscription.entity";
+import {MembersService} from "src/members/members.service";
+import {MembershipsService} from "src/memberships/memberships.service";
 
 class MembershipSubscriptionDTO {
     @ApiProperty({format: "uuid"})
@@ -47,7 +47,8 @@ class SubscribeDTO {
 @ApiTags("membership-subscriptions")
 @Controller("membership-subscriptions")
 export class MembershipSubscriptionsController {
-    constructor(private membershipSubscriptionsService: MembershipSubscriptionsService, private membersService: MembersService, private membershipService: MembershipsService){
+    constructor(private membershipSubscriptionsService: MembershipSubscriptionsService,
+                private membersService: MembersService, private membershipService: MembershipsService) {
     }
 
     private static mapToDTO(membershipSubscription: MembershipSubscription): MembershipSubscriptionDTO {
@@ -56,9 +57,11 @@ export class MembershipSubscriptionsController {
             memberId: membershipSubscription.member.id,
             membershipId: membershipSubscription.membership.id,
             subscribedAt: membershipSubscription.subscribedAt.toISOString(),
-            declinedAt: membershipSubscription.declinedAt.toISOString()
+            declinedAt: membershipSubscription.declinedAt ?
+                membershipSubscription.declinedAt.toISOString() : undefined
         };
     }
+
     @Get("member/:memberId")
     @ApiOperation({
         summary: "Get all membership subscriptions for member"
@@ -73,7 +76,8 @@ export class MembershipSubscriptionsController {
         type: ErrorApiResponse
     })
     async findAllByMemberId(@Param("memberId") memberId: string): Promise<MembershipSubscriptionDTO[]> {
-        return (await this.membershipSubscriptionsService.findAllByMemberId(memberId)).map(MembershipSubscriptionsController.mapToDTO);
+        return (await this.membershipSubscriptionsService.findAllByMemberId(memberId))
+            .map(MembershipSubscriptionsController.mapToDTO);
     }
 
     @Get("membership/:membershipId")
@@ -119,11 +123,12 @@ export class MembershipSubscriptionsController {
         if (!membership) {
             throw new HttpException("Membership not found", HttpStatus.NOT_FOUND);
         }
-        if (await this.membershipSubscriptionsService.checkIfNotDeclinedByMemberIdAndMemberId(memberId, membershipId)) {
+
+        if (await this.membershipSubscriptionsService.existsByMemberAndMembershipWithNotDeclined(member, membership)) {
             throw new HttpException("Member already subscribed to this membership", HttpStatus.BAD_REQUEST);
         }
- 
-        return MembershipSubscriptionsController.mapToDTO(await this.membershipSubscriptionsService.subscribe(memberId, membershipId));
+
+        return MembershipSubscriptionsController.mapToDTO(await this.membershipSubscriptionsService.create(member, membership));
     }
 
     @Delete(":id")
@@ -138,7 +143,7 @@ export class MembershipSubscriptionsController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async unsubscribe(@Param() id: string): Promise<void> {
+    async unsubscribe(@Param("id") id: string): Promise<void> {
         const membershipSubscription = await this.membershipSubscriptionsService.findById(id);
         if (!membershipSubscription) {
             throw new HttpException("Membership subscription not found", HttpStatus.NOT_FOUND);
@@ -146,7 +151,7 @@ export class MembershipSubscriptionsController {
         if (membershipSubscription.declinedAt) {
             throw new HttpException("Membership subscription already declined", HttpStatus.BAD_REQUEST);
         }
-        await this.membershipSubscriptionsService.unsubscribe(id);
-
+        membershipSubscription.declinedAt = new Date();
+        await this.membershipSubscriptionsService.update(membershipSubscription);
     }
 }

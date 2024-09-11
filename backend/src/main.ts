@@ -10,7 +10,7 @@ import {SESSION_COOKIE_NAME} from "./auth/auth.service";
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, process.env.NODE_ENV === "development" ? {
         cors: {
-            allowedHeaders: ["Cookie"],
+            allowedHeaders: ["Cookie", "Content-Type"],
             credentials: true,
             origin: "http://localhost:3000",
         }

@@ -1,7 +1,9 @@
 import {Injectable} from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { MembershipSubscription } from "src/common/database/entities/membership-subscription.entity";
-import { Not, Repository } from "typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
+import {MembershipSubscription} from "src/common/database/entities/membership-subscription.entity";
+import {IsNull, Not, Repository} from "typeorm";
+import {Member} from "../common/database/entities/member.entity";
+import {Membership} from "../common/database/entities/membership.entity";
 
 @Injectable()
 export class MembershipSubscriptionsService {
@@ -16,19 +18,12 @@ export class MembershipSubscriptionsService {
         });
     }
 
-    async checkIfNotDeclinedByMemberIdAndMemberId (memberId: string, subscriptionId: string): Promise<boolean> {
-        const existing = await this.membershipSubscriptionRepository.find({
-            where: {
-                member: {
-                    id: memberId,
-                },
-                membership: {
-                    id: subscriptionId
-                },
-                declinedAt: Not(null)
-            }
+    async existsByMemberAndMembershipWithNotDeclined(member: Member, membership: Membership): Promise<boolean> {
+        return await this.membershipSubscriptionRepository.existsBy({
+            member,
+            membership,
+            declinedAt: IsNull()
         });
-        return existing.length > 0;
     }
 
     async findAllByMemberId(id: string): Promise<MembershipSubscription[]> {
@@ -39,7 +34,8 @@ export class MembershipSubscriptionsService {
                 }
             },
             relations: {
-                member: true
+                member: true,
+                membership: true
             }
         });
     }
@@ -52,26 +48,23 @@ export class MembershipSubscriptionsService {
                 }
             },
             relations: {
+                member: true,
                 membership: true
             }
         });
     }
 
-    async subscribe(memberId: string, membershipId: string): Promise<MembershipSubscription> {
+    async create(member: Member, membership: Membership): Promise<MembershipSubscription> {
         const membershipSubscription = this.membershipSubscriptionRepository.create({
-            member: {
-                id: memberId
-            },
-            membership: {
-                id: membershipId
-            },
+            member,
+            membership,
             subscribedAt: new Date()
         });
         await this.membershipSubscriptionRepository.save(membershipSubscription);
         return membershipSubscription;
     }
-    
-    async unsubscribe(id: string): Promise<void> {
-        await this.membershipSubscriptionRepository.delete(id);
+
+    async update(subscription: MembershipSubscription): Promise<MembershipSubscription> {
+        return await this.membershipSubscriptionRepository.save(subscription);
     }
 }

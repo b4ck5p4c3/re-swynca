@@ -1,7 +1,7 @@
 "use client";
 
 import {useParams} from "next/navigation";
-import {useQuery} from "@tanstack/react-query";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {getClient, R} from "@/lib/api/client";
 import {
     MEMBER_ACS_KEYS_QUERY_KEY,
@@ -9,12 +9,21 @@ import {
     MEMBER_SUBSCRIPTIONS_QUERY_KEY,
     MEMBERSHIPS_QUERY_KEY
 } from "@/lib/cache-tags";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Skeleton} from "@/components/ui/skeleton";
 import {Separator} from "@/components/ui/separator";
 import {Button} from "@/components/ui/button";
-import {Pencil1Icon, PlusIcon, TrashIcon} from "@radix-ui/react-icons";
+import {IdCardIcon, Pencil1Icon, PlusIcon, TrashIcon} from "@radix-ui/react-icons";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {DefaultDialogProps, MembershipDTO} from "@/lib/types";
+import {z} from "zod";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {Input} from "@/components/ui/input";
+import {Switch} from "@/components/ui/switch";
+import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 export function MemberInfoRow({title, children}: { title: string, children: React.ReactNode }) {
     return <div className={"flex flex-row"}>
@@ -50,7 +59,105 @@ function GitHubMetadata({metadata}: { metadata?: { githubId: string; githubUsern
     </div>
 }
 
+const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
+    "pan": "💳",
+    "uid": "🔑"
+};
+
+const subscribeForm = z.object({
+    membershipId: z.string()
+});
+
+type SubscribeData = z.infer<typeof subscribeForm>;
+
+export function SubscribeDialog({open, onClose, availableMemberships, memberId}: DefaultDialogProps & {
+    availableMemberships: MembershipDTO[],
+    memberId: string
+}) {
+    const form = useForm<SubscribeData>({
+        resolver: zodResolver(subscribeForm)
+    });
+
+    const client = getClient();
+
+    const queryClient = useQueryClient();
+
+    const subscribe = useMutation({
+        mutationFn: async (data: SubscribeData) => {
+            R(await client.POST("/api/membership-subscriptions", {
+                body: {
+                    memberId,
+                    membershipId: data.membershipId
+                }
+            }));
+        },
+        onSuccess: async () => {
+            onClose();
+            await queryClient.refetchQueries({queryKey: [`${MEMBER_SUBSCRIPTIONS_QUERY_KEY}-${memberId}`]})
+        }
+    });
+
+    function onOpenChange(open: boolean) {
+        if (!open) {
+            onClose();
+        }
+    }
+
+    useEffect(() => {
+        if (open) {
+            form.reset();
+        }
+    }, [open]);
+
+    return <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Subscribe to</DialogTitle>
+            </DialogHeader>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(data => subscribe.mutate(data))}>
+                    <div className={"flex flex-col gap-4 mb-4"}>
+                        <FormField
+                            control={form.control}
+                            name="membershipId"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Membership</FormLabel>
+                                    <FormControl>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select membership"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    {
+                                                        availableMemberships.map(membership =>
+                                                            <SelectItem value={membership.id}>
+                                                                {membership.title} - {membership.amount}
+                                                            </SelectItem>
+                                                        )
+                                                    }
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button type={"submit"}>Subscribe</Button>
+                    </DialogFooter>
+                </form>
+            </Form>
+        </DialogContent>
+    </Dialog>;
+}
+
 export default function MemberPage() {
+    const [subscribeDialogOpened, setSubscribeDialogOpened] = useState(false);
+
     const client = getClient();
 
     const {id} = useParams<{ id: string }>();
@@ -111,6 +218,23 @@ export default function MemberPage() {
         retry: false
     });
 
+    const queryClient = useQueryClient();
+
+    const unsubscribe = useMutation(({
+        mutationFn: async (id: string) => {
+            R(await client.DELETE("/api/membership-subscriptions/{id}", {
+                params: {
+                    path: {
+                        id
+                    }
+                }
+            }));
+        },
+        onSuccess: async () => {
+            await queryClient.refetchQueries({queryKey: [`${MEMBER_SUBSCRIPTIONS_QUERY_KEY}-${id}`]})
+        }
+    }));
+
     return <div>
         <div className={"flex flex-col gap-4"}>
             <MemberInfoRow title={"Name"}>{member.data ? member.data.name :
@@ -121,8 +245,14 @@ export default function MemberPage() {
                 <Skeleton className={"h-[24px] w-[90px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"Balance"}>{member.data ? member.data.balance :
                 <Skeleton className={"h-[24px] w-[50px]"}/>}</MemberInfoRow>
-            <MemberInfoRow title={"Status"}>{member.data ? member.data.status === "active" ? "Active" : "Frozen" :
-                <Skeleton className={"h-[24px] w-[60px]"}/>}</MemberInfoRow>
+            <MemberInfoRow title={"Status"}>{member.data ?
+                <div className={"flex flex-row gap-2"}>
+                    <div className={"leading-8"}>{member.data.status === "active" ? "Active" : "Frozen"}</div>
+                    <Button variant={member.data.status === "active" ? "destructive" : "default"}>
+                        {member.data.status === "active" ? "Freeze" : "Unfreeze"}
+                    </Button>
+                </div> :
+                <Skeleton className={"h-[36px] w-[60px]"}/>}</MemberInfoRow>
             <Separator/>
             <MemberInfoRow title={"Telegram"}>{member.data ?
                 <TelegramMetadata metadata={member.data.telegramMetadata}/> :
@@ -131,7 +261,13 @@ export default function MemberPage() {
                 <GitHubMetadata metadata={member.data.githubMetadata}/> :
                 <Skeleton className={"h-[32px] w-[80px]"}/>}</MemberInfoRow>
             <Separator/>
-            <div className={"text-2xl font-semibold"}>Subscriptions:</div>
+            <div className={"flex flex-row"}>
+                <div className={"text-2xl font-semibold"}>Subscriptions:</div>
+                <div className={"flex-1"}/>
+                {memberSubscriptions.data && memberships.data ?
+                    <Button onClick={() => setSubscribeDialogOpened(true)}>Subscribe</Button> :
+                    <Skeleton className={"w-[70px] h-[36px]"}/>}
+            </div>
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -139,28 +275,39 @@ export default function MemberPage() {
                         <TableHead>Amount</TableHead>
                         <TableHead>Subscribed at</TableHead>
                         <TableHead>Declined at</TableHead>
+                        <TableHead></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {memberships.data && memberSubscriptions.data ? memberSubscriptions.data.map(subscription =>
-                            <TableRow>
-                                <TableCell>{memberships.data.find(membership =>
-                                    membership.id === subscription.membershipId)?.title ?? "???"}</TableCell>
-                                <TableCell>{memberships.data.find(membership =>
-                                    membership.id === subscription.membershipId)?.amount ?? "???"}</TableCell>
-                                <TableCell>{new Date(subscription.subscribedAt).toLocaleDateString()}</TableCell>
-                                <TableCell>{new Date(subscription.declinedAt).toLocaleDateString()}</TableCell>
-                            </TableRow>) :
+                    {memberships.data && memberSubscriptions.data ? memberSubscriptions.data.slice(0)
+                            .sort((a, b) => new Date(b.subscribedAt).getTime() - new Date(a.subscribedAt).getTime())
+                            .map(subscription =>
+                                <TableRow>
+                                    <TableCell>{memberships.data.find(membership =>
+                                        membership.id === subscription.membershipId)?.title ?? "???"}</TableCell>
+                                    <TableCell>{memberships.data.find(membership =>
+                                        membership.id === subscription.membershipId)?.amount ?? "???"}</TableCell>
+                                    <TableCell>{new Date(subscription.subscribedAt).toLocaleDateString()}</TableCell>
+                                    <TableCell>{subscription.declinedAt ? new Date(subscription.declinedAt).toLocaleDateString() : "-"}</TableCell>
+                                    <TableCell>{subscription.declinedAt ? <></> :
+                                        <Button variant={"destructive"}
+                                                onClick={() => unsubscribe.mutate(subscription.id)}>Unsubscribe</Button>}</TableCell>
+                                </TableRow>) :
                         <TableRow>
                             <TableCell><Skeleton className={"h-[24px] w-[50px]"}/></TableCell>
                             <TableCell><Skeleton className={"h-[24px] w-[60px]"}/></TableCell>
                             <TableCell><Skeleton className={"h-[24px] w-[80px]"}/></TableCell>
                             <TableCell><Skeleton className={"h-[24px] w-[80px]"}/></TableCell>
+                            <TableCell></TableCell>
                         </TableRow>}
                 </TableBody>
             </Table>
             <Separator/>
-            <div className={"text-2xl font-semibold"}>ACS keys:</div>
+            <div className={"flex flex-row"}>
+                <div className={"text-2xl font-semibold"}>ACS keys:</div>
+                <div className={"flex-1"}/>
+                <Button>Add</Button>
+            </div>
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -171,11 +318,11 @@ export default function MemberPage() {
                 </TableHeader>
                 <TableBody>
                     {memberAcsKeys.data ? memberAcsKeys.data.map(acsKey =>
-                        <TableRow>
-                            <TableCell>{acsKey.name}</TableCell>
-                            <TableCell>{acsKey.type}</TableCell>
-                            <TableCell>{acsKey.key}</TableCell>
-                        </TableRow>) :
+                            <TableRow className={"cursor-pointer"}>
+                                <TableCell>{acsKey.name}</TableCell>
+                                <TableCell>{ACS_KEY_TYPE_MAPPING[acsKey.type]}</TableCell>
+                                <TableCell>{acsKey.key}</TableCell>
+                            </TableRow>) :
                         <TableRow>
                             <TableCell><Skeleton className={"h-[24px] w-[60px]"}/></TableCell>
                             <TableCell><Skeleton className={"h-[24px] w-[40px]"}/></TableCell>
@@ -184,5 +331,14 @@ export default function MemberPage() {
                 </TableBody>
             </Table>
         </div>
+        {memberSubscriptions.data && memberships.data ?
+            <SubscribeDialog open={subscribeDialogOpened} onClose={() => setSubscribeDialogOpened(false)}
+                             availableMemberships={memberships.data
+                                 .filter(membership => membership.active)
+                                 .filter(membership => !memberSubscriptions.data.find(subscription =>
+                                     !subscription.declinedAt && subscription.membershipId === membership.id))
+                             }
+                             memberId={id}/>
+            : <></>}
     </div>;
 }
