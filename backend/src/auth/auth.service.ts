@@ -19,7 +19,7 @@ export class AuthService {
     setResponseAuthorizationCookie(response: express.Response, token: string): void {
         response.cookie(SESSION_COOKIE_NAME, token, {
             httpOnly: true, ...(process.env.NODE_ENV === "development"
-                ? {sameSite: "none", secure: true} : {secure: true})
+                ? {sameSite: "none", secure: true} : {secure: true, sameSite: "strict"})
         });
     }
 

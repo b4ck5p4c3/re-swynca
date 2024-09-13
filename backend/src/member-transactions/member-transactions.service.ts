@@ -1,19 +1,21 @@
 import {Injectable} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MemberTransaction } from "src/common/database/entities/member-transaction.entity";
-import { Repository } from "typeorm";
+import {FindOptionsOrder, Repository} from "typeorm";
+import {SpaceTransaction} from "../common/database/entities/space-transaction.entity";
+import {of} from "rxjs";
 
 @Injectable()
 export class MemberTransactionsService {
     constructor(@InjectRepository(MemberTransaction) private memberTransactionRepository: Repository<MemberTransaction>) {
     }
 
-    async findAll(): Promise<MemberTransaction[]> {
-        return await this.memberTransactionRepository.find();
+    async countAll(): Promise<number> {
+        return await this.memberTransactionRepository.count();
     }
 
-    async findAllBySubjectId(id: string): Promise<MemberTransaction[]> {
-        return await this.memberTransactionRepository.find({
+    async countAllBySubjectId(id: string): Promise<number> {
+        return await this.memberTransactionRepository.count({
             where: {
                 subject: {
                     id
@@ -22,8 +24,57 @@ export class MemberTransactionsService {
         });
     }
 
-    async findAllByActorId(id: string): Promise<MemberTransaction[]> {
+    async countAllByActorId(id: string): Promise<number> {
+        return await this.memberTransactionRepository.count({
+            where: {
+                actor: {
+                    id
+                }
+            }
+        });
+    }
+
+    async findAll(offset: number, count: number,
+                  orderBy: FindOptionsOrder<MemberTransaction>): Promise<MemberTransaction[]> {
         return await this.memberTransactionRepository.find({
+            skip: offset,
+            take: count,
+            order: orderBy,
+            relations: {
+                actor: true,
+                subject: true
+            }
+        });
+    }
+
+    async findAllBySubjectId(id: string, offset: number, count: number,
+                             orderBy: FindOptionsOrder<MemberTransaction>): Promise<MemberTransaction[]> {
+        return await this.memberTransactionRepository.find({
+            skip: offset,
+            take: count,
+            order: orderBy,
+            relations: {
+                actor: true,
+                subject: true
+            },
+            where: {
+                subject: {
+                    id
+                }
+            }
+        });
+    }
+
+    async findAllByActorId(id: string, offset: number, count: number,
+                           orderBy: FindOptionsOrder<MemberTransaction>): Promise<MemberTransaction[]> {
+        return await this.memberTransactionRepository.find({
+            skip: offset,
+            take: count,
+            order: orderBy,
+            relations: {
+                actor: true,
+                subject: true
+            },
             where: {
                 actor: {
                     id

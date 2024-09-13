@@ -4,7 +4,7 @@ import {Loader2} from "lucide-react";
 import {useQuery} from "@tanstack/react-query";
 import {getClient, R} from "@/lib/api/client";
 import {useEffect} from "react";
-import {useRouter} from "next/navigation";
+import {redirect, useRouter} from "next/navigation";
 import {AUTH_SELF_QUERY_KEY} from "@/lib/cache-tags";
 import {setCurrentMemberId} from "@/lib/auth-storage";
 
@@ -25,7 +25,7 @@ export default function HomePage() {
     useEffect(() => {
         if (selfMemberId.data) {
             setCurrentMemberId(selfMemberId.data);
-            router.push("/dashboard");
+            router.replace("/dashboard");
         }
     }, [selfMemberId]);
 

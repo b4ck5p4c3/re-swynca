@@ -1,9 +1,10 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {TransactionType} from "./common";
 import Decimal from "decimal.js";
 import {Member} from "./member.entity";
 import {DecimalTransformer} from "../transformers/decimal.transformer";
 import {MONEY_DECIMAL_PLACES, MONEY_PRECISION} from "../../money";
+import {MemberTransaction} from "./member-transaction.entity";
 
 export enum SpaceTransactionWithdrawal {
     MAGIC = "magic",
@@ -56,4 +57,9 @@ export class SpaceTransaction {
 
     @CreateDateColumn({type: "timestamp without time zone"})
     createdAt: Date;
+
+    @OneToOne(() => MemberTransaction, memberTransaction =>
+        memberTransaction.relatedSpaceTransaction)
+    @JoinColumn()
+    relatedMemberTransaction?: MemberTransaction;
 }

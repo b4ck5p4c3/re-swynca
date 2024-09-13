@@ -1,4 +1,4 @@
-import {Body, Controller, Get, HttpException, HttpStatus, Param, Post} from "@nestjs/common";
+import {Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query} from "@nestjs/common";
 import {
     ApiBody,
     ApiCookieAuth,
@@ -14,14 +14,18 @@ import {
     MemberTransactionDeposit,
     MemberTransactionWithdrawal
 } from "../common/database/entities/member-transaction.entity";
-import {IsDate, IsEnum, IsNotEmpty, IsNumberString, IsUUID} from "class-validator";
+import {IsDate, IsEnum, IsISO8601, IsNotEmpty, IsNumberString, IsOptional, IsUUID} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
 import {MemberTransactionsService} from "./member-transactions.service";
-import {MembersService} from "src/members/members.service";
+import {MembersService, SPACE_MEMBER_ID} from "src/members/members.service";
 import Decimal from "decimal.js";
 import {CustomValidationError} from "src/common/exceptions";
 import {MONEY_DECIMAL_PLACES, MONEY_PRECISION} from "src/common/money";
 import {UserId} from "src/auth/user-id.decorator";
+import {getCountAndOffset, getOrderObject} from "../common/utils";
+import {SpaceTransaction, SpaceTransactionDeposit} from "../common/database/entities/space-transaction.entity";
+import {MemberDTO, MembersController} from "../members/members.controller";
+import {SpaceTransactionsService} from "../space-transactions/space-transactions.service";
 
 class MemberTransactionDTO {
     @ApiProperty({format: "uuid"})
@@ -45,11 +49,11 @@ class MemberTransactionDTO {
     @ApiProperty({required: false, enum: MemberTransactionWithdrawal})
     target?: MemberTransactionWithdrawal;
 
-    @ApiProperty({format: "uuid"})
-    actorId: string;
+    @ApiProperty()
+    actor: MemberDTO;
 
-    @ApiProperty({format: "uuid"})
-    subjectId: string;
+    @ApiProperty()
+    subject: MemberDTO;
 
     @ApiProperty({format: "date-time"})
     createdAt: string;
@@ -70,15 +74,17 @@ class CreateMemberTransactionDTO {
     comment?: string;
 
     @ApiProperty({format: "date-time"})
-    @IsDate()
+    @IsISO8601({strict: true})
     @IsNotEmpty()
     date: string;
 
     @ApiProperty({required: false, enum: MemberTransactionDeposit})
+    @IsOptional()
     @IsEnum(MemberTransactionDeposit)
     source?: MemberTransactionDeposit;
 
     @ApiProperty({required: false, enum: MemberTransactionWithdrawal})
+    @IsOptional()
     @IsEnum(MemberTransactionWithdrawal)
     target?: MemberTransactionWithdrawal;
 
@@ -88,23 +94,33 @@ class CreateMemberTransactionDTO {
     subjectId: string;
 }
 
+class MemberTransactionsDTO {
+    @ApiProperty()
+    count: number;
+
+    @ApiProperty({type: [MemberTransactionDTO]})
+    transactions: MemberTransactionDTO[];
+}
+
 @Controller("member-transactions")
 @ApiTags("member-transactions")
 export class MemberTransactionsController {
-    constructor(private readonly memberTransactionsService: MemberTransactionsService, private readonly membersSerivice: MembersService) {
+    constructor(private readonly memberTransactionsService: MemberTransactionsService,
+                private readonly membersService: MembersService,
+                private readonly spaceTransactionsService: SpaceTransactionsService) {
     }
 
     private static mapToDTO(memberTransaction: MemberTransaction): MemberTransactionDTO {
         return {
             id: memberTransaction.id,
             type: memberTransaction.type,
-            amount: memberTransaction.amount.toString(),
+            amount: memberTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
             comment: memberTransaction.comment,
             date: memberTransaction.date.toISOString(),
             source: memberTransaction.source,
             target: memberTransaction.target,
-            actorId: memberTransaction.actor.id,
-            subjectId: memberTransaction.subject.id,
+            actor: MembersController.mapToDTO(memberTransaction.actor),
+            subject: MembersController.mapToDTO(memberTransaction.subject),
             createdAt: memberTransaction.createdAt.toISOString()
         };
     }
@@ -115,15 +131,34 @@ export class MemberTransactionsController {
     })
     @ApiOkResponse({
         description: "Successful response",
-        type: [MemberTransactionDTO]
+        type: MemberTransactionsDTO
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async findAll(): Promise<MemberTransactionDTO[]> {
-        return (await this.memberTransactionsService.findAll()).map(MemberTransactionsController.mapToDTO);
+    async findAll(@Query("offset") offset?: string,
+                  @Query("count") count?: string,
+                  @Query("orderBy") orderBy?: string,
+                  @Query("orderDirection") orderDirection?: string): Promise<MemberTransactionsDTO> {
+        const transactionsCount = await this.memberTransactionsService.countAll();
+        const [realCount, realOffset] = getCountAndOffset(count, offset, 100);
+
+        const orderObject = getOrderObject<SpaceTransaction>(orderBy, orderDirection,
+            {
+                date: true,
+                createdAt: true
+            });
+
+        const transactions = await this.memberTransactionsService.findAll(realOffset,
+            realCount, orderObject);
+
+        return {
+            count: transactionsCount,
+            transactions: transactions.map(transaction =>
+                MemberTransactionsController.mapToDTO(transaction))
+        };
     }
 
     @Get("subject/:memberId")
@@ -132,16 +167,34 @@ export class MemberTransactionsController {
     })
     @ApiOkResponse({
         description: "Successful response",
-        type: [MemberTransactionDTO]
+        type: MemberTransactionsDTO
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async findAllBySubjectMember(@Param("memberId") subjectId: string): Promise<MemberTransactionDTO[]> {
-        return (await this.memberTransactionsService.findAllBySubjectId(subjectId)).map(MemberTransactionsController.mapToDTO);
+    async findAllBySubjectMember(@Param("memberId") subjectId: string, @Query("offset") offset?: string,
+                                 @Query("count") count?: string,
+                                 @Query("orderBy") orderBy?: string,
+                                 @Query("orderDirection") orderDirection?: string): Promise<MemberTransactionsDTO> {
+        const transactionsCount = await this.memberTransactionsService.countAllBySubjectId(subjectId);
+        const [realCount, realOffset] = getCountAndOffset(count, offset, 100);
 
+        const orderObject = getOrderObject<SpaceTransaction>(orderBy, orderDirection,
+            {
+                date: true,
+                createdAt: true
+            });
+
+        const transactions = await this.memberTransactionsService.findAllBySubjectId(subjectId,
+            realOffset, realCount, orderObject);
+
+        return {
+            count: transactionsCount,
+            transactions: transactions.map(transaction =>
+                MemberTransactionsController.mapToDTO(transaction))
+        };
     }
 
     @Get("actor/:memberId")
@@ -150,15 +203,34 @@ export class MemberTransactionsController {
     })
     @ApiOkResponse({
         description: "Successful response",
-        type: [MemberTransactionDTO]
+        type: MemberTransactionsDTO
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async findAllByActorMember(@Param("memberId") actorId: string): Promise<MemberTransactionDTO[]> {
-        return (await this.memberTransactionsService.findAllByActorId(actorId)).map(MemberTransactionsController.mapToDTO);
+    async findAllByActorMember(@Param("memberId") actorId: string, @Query("offset") offset?: string,
+                               @Query("count") count?: string,
+                               @Query("orderBy") orderBy?: string,
+                               @Query("orderDirection") orderDirection?: string): Promise<MemberTransactionsDTO> {
+        const transactionsCount = await this.memberTransactionsService.countAllByActorId(actorId);
+        const [realCount, realOffset] = getCountAndOffset(count, offset, 100);
+
+        const orderObject = getOrderObject<SpaceTransaction>(orderBy, orderDirection,
+            {
+                date: true,
+                createdAt: true
+            });
+
+        const transactions = await this.memberTransactionsService.findAllByActorId(actorId,
+            realOffset, realCount, orderObject);
+
+        return {
+            count: transactionsCount,
+            transactions: transactions.map(transaction =>
+                MemberTransactionsController.mapToDTO(transaction))
+        };
     }
 
     @Post()
@@ -170,7 +242,7 @@ export class MemberTransactionsController {
     })
     @ApiOkResponse({
         description: "Successful response",
-        type: [MemberTransactionDTO]
+        type: MemberTransactionDTO
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
@@ -182,25 +254,30 @@ export class MemberTransactionsController {
             type, amount, comment, date, source
             , target, subjectId
         } = request;
-        const decimalAmount = new Decimal(amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
-        const actor = await this.membersSerivice.findById(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
+        if (source && target) {
+            throw new HttpException("Target and source can't be defined at the same time", HttpStatus.BAD_REQUEST);
         }
-
-        const subjectMember = await this.membersSerivice.findById(subjectId);
-        if (!subjectMember) {
-            throw new HttpException("Subject member not found", HttpStatus.NOT_FOUND);
-        }
-
-        if (decimalAmount.lessThanOrEqualTo(0)) {
+        const decimalAmount = new Decimal(amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);if (decimalAmount.lessThanOrEqualTo(0)) {
             throw new CustomValidationError("Transaction amount must be > 0");
         }
         if (decimalAmount.precision() > MONEY_PRECISION - MONEY_DECIMAL_PLACES) {
             throw new CustomValidationError(`Transaction amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
         }
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
+        }
+        const subjectMember = await this.membersService.findById(subjectId);
+        if (!subjectMember) {
+            throw new HttpException("Subject member not found", HttpStatus.NOT_FOUND);
+        }
+        const spaceMember = await this.membersService.findByIdUnfiltered(SPACE_MEMBER_ID);
+        if (!spaceMember) {
+            throw new HttpException("Space member does not exist", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-        return MemberTransactionsController.mapToDTO(await this.memberTransactionsService.create({
+
+        const memberTransaction = await this.memberTransactionsService.create({
             type,
             amount: decimalAmount,
             comment,
@@ -210,6 +287,28 @@ export class MemberTransactionsController {
             subject: subjectMember,
             actor,
             createdAt: new Date()
-        }));
+        });
+
+        if (type !== TransactionType.DEPOSIT || source !== MemberTransactionDeposit.DONATE) {
+            await this.membersService.atomicIncrementBalance(subjectMember,
+                type === TransactionType.DEPOSIT ?
+                    decimalAmount : decimalAmount.negated());
+        }
+        if (type === TransactionType.DEPOSIT && source !== MemberTransactionDeposit.MAGIC) {
+            await this.spaceTransactionsService.create({
+                type: TransactionType.DEPOSIT,
+                amount: decimalAmount,
+                date: new Date(date),
+                source: source === MemberTransactionDeposit.DONATE ? SpaceTransactionDeposit.DONATE :
+                    (source === MemberTransactionDeposit.TOPUP ?
+                        SpaceTransactionDeposit.TOPUP : SpaceTransactionDeposit.MAGIC),
+                actor,
+                createdAt: new Date(),
+                relatedMemberTransaction: memberTransaction
+            });
+            await this.membersService.atomicIncrementBalance(spaceMember, decimalAmount);
+        }
+
+        return MemberTransactionsController.mapToDTO(memberTransaction);
     };
 }

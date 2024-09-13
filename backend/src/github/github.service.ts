@@ -21,7 +21,7 @@ export class GitHubService {
                     }
                 });
 
-            return response.data.id;
+            return response.data.id.toString();
         } catch (e) {
             return null;
         }

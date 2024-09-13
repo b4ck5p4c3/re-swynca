@@ -9,7 +9,8 @@ import {MembersModule} from "../members/members.module";
 @Module({
     imports: [MembersModule, TypeOrmModule.forFeature([SpaceTransaction])],
     controllers: [SpaceTransactionsController],
-    providers: [SpaceTransactionsService]
+    providers: [SpaceTransactionsService],
+    exports: [SpaceTransactionsService]
 })
 export class SpaceTransactionsModule {
 }

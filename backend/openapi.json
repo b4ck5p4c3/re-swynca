@@ -694,17 +694,47 @@
             "get": {
                 "operationId": "MemberTransactionsController_findAll",
                 "summary": "Get all member transactions",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "count",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderDirection",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/MemberTransactionDTO"
-                                    }
+                                    "$ref": "#/components/schemas/MemberTransactionsDTO"
                                 }
                             }
                         }
@@ -749,10 +779,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/MemberTransactionDTO"
-                                    }
+                                    "$ref": "#/components/schemas/MemberTransactionDTO"
                                 }
                             }
                         }
@@ -790,6 +817,38 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "offset",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "count",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderDirection",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -798,10 +857,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/MemberTransactionDTO"
-                                    }
+                                    "$ref": "#/components/schemas/MemberTransactionsDTO"
                                 }
                             }
                         }
@@ -839,6 +895,38 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "offset",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "count",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderDirection",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -847,10 +935,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/MemberTransactionDTO"
-                                    }
+                                    "$ref": "#/components/schemas/MemberTransactionsDTO"
                                 }
                             }
                         }
@@ -880,17 +965,47 @@
             "get": {
                 "operationId": "SpaceTransactionsController_findAll",
                 "summary": "Get all space transactions",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "count",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderDirection",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/SpaceTransactionDTO"
-                                    }
+                                    "$ref": "#/components/schemas/SpaceTransactionsDTO"
                                 }
                             }
                         }
@@ -976,6 +1091,38 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "offset",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "count",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderBy",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "orderDirection",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -984,10 +1131,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/SpaceTransactionDTO"
-                                    }
+                                    "$ref": "#/components/schemas/SpaceTransactionsDTO"
                                 }
                             }
                         }
@@ -1537,13 +1681,11 @@
                             "membership"
                         ]
                     },
-                    "actorId": {
-                        "type": "string",
-                        "format": "uuid"
+                    "actor": {
+                        "$ref": "#/components/schemas/MemberDTO"
                     },
-                    "subjectId": {
-                        "type": "string",
-                        "format": "uuid"
+                    "subject": {
+                        "$ref": "#/components/schemas/MemberDTO"
                     },
                     "createdAt": {
                         "type": "string",
@@ -1555,9 +1697,27 @@
                     "type",
                     "amount",
                     "date",
-                    "actorId",
-                    "subjectId",
+                    "actor",
+                    "subject",
                     "createdAt"
+                ]
+            },
+            "MemberTransactionsDTO": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "number"
+                    },
+                    "transactions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MemberTransactionDTO"
+                        }
+                    }
+                },
+                "required": [
+                    "count",
+                    "transactions"
                 ]
             },
             "CreateMemberTransactionDTO": {
@@ -1647,9 +1807,11 @@
                             "purchases"
                         ]
                     },
-                    "actorId": {
-                        "type": "string",
-                        "format": "uuid"
+                    "actor": {
+                        "$ref": "#/components/schemas/MemberDTO"
+                    },
+                    "relatedMemberTransactionSubject": {
+                        "$ref": "#/components/schemas/MemberDTO"
                     },
                     "createdAt": {
                         "type": "string",
@@ -1661,8 +1823,26 @@
                     "type",
                     "amount",
                     "date",
-                    "actorId",
+                    "actor",
                     "createdAt"
+                ]
+            },
+            "SpaceTransactionsDTO": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "number"
+                    },
+                    "transactions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SpaceTransactionDTO"
+                        }
+                    }
+                },
+                "required": [
+                    "count",
+                    "transactions"
                 ]
             },
             "CreateSpaceTransactionDTO": {

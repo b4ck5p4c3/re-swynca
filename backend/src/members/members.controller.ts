@@ -10,15 +10,15 @@ import {
     ApiTags
 } from "@nestjs/swagger";
 import {Member, MemberStatus} from "../common/database/entities/member.entity";
-import {IsEmail, IsEnum, IsNotEmpty} from "class-validator";
+import {IsEmail, IsEnum, IsNotEmpty, IsNumberString, Matches} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
 import {MembersService} from "./members.service";
 import {GitHubMetadatasService} from "../github-metadatas/github-metadatas.service";
 import {GitHubService} from "../github/github.service";
 import {TelegramMetadatasService} from "../telegram-metadatas/telegram-metadatas.service";
-import {BalancesService} from "../balances/balances.service";
-import {LogtoManagementService} from "../logto-management/logto-management.service";
+import {LOGTO_GITHUB_CONNECTOR_TARGET, LogtoManagementService} from "../logto-management/logto-management.service";
 import {LogtoBindingsService} from "../logto-bindings/logto-bindings.service";
+import {MONEY_DECIMAL_PLACES} from "../common/money";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -36,7 +36,7 @@ class TelegramMetadataDTO {
     telegramName: string;
 }
 
-class MemberDTO {
+export class MemberDTO {
     @ApiProperty({format: "uuid"})
     id: string;
 
@@ -75,6 +75,7 @@ class CreateUpdateMemberDTO {
 class UpdateTelegramMetadataDTO {
     @ApiProperty()
     @IsNotEmpty()
+    @Matches("^(\d{1,20})$")
     telegramId: string;
 }
 
@@ -97,17 +98,17 @@ export class MembersController {
 
     constructor(private membersService: MembersService, private githubMetadataService: GitHubMetadatasService,
                 private githubService: GitHubService, private telegramMetadataService: TelegramMetadatasService,
-                private balancesService: BalancesService, private logtoManagementService: LogtoManagementService,
+                private logtoManagementService: LogtoManagementService,
                 private logtoBindingsService: LogtoBindingsService) {
     }
 
-    private static mapToDTO(member: Member): MemberDTO {
+    static mapToDTO(member: Member): MemberDTO {
         return {
             id: member.id,
             name: member.name,
             email: member.email,
             status: member.status,
-            balance: member.balance.balance.toFixed(2),
+            balance: member.balance.toFixed(MONEY_DECIMAL_PLACES),
             joinedAt: member.joinedAt.toISOString(),
             telegramMetadata: member.telegramMetadata ? {
                 telegramId: member.telegramMetadata.telegramId,
@@ -194,10 +195,6 @@ export class MembersController {
 
         await this.logtoBindingsService.create({
             logtoId,
-            member
-        });
-
-        await this.balancesService.create({
             member
         });
 
@@ -309,6 +306,10 @@ export class MembersController {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
         }
 
+        if (await this.telegramMetadataService.existsByTelegramId(request.telegramId)) {
+            throw new HttpException("This Telegram account is already linked", HttpStatus.BAD_REQUEST);
+        }
+
         if (member.telegramMetadata) {
             await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
         }
@@ -368,6 +369,18 @@ export class MembersController {
             throw new HttpException("Invalid GitHub username", HttpStatus.BAD_REQUEST);
         }
 
+        if (await this.githubMetadataService.existsByGithubId(githubId)) {
+            throw new HttpException("This GitHub account is already linked", HttpStatus.BAD_REQUEST);
+        }
+
+        const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
+        if (!logtoBinding) {
+            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+        }
+
+        await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
+            LOGTO_GITHUB_CONNECTOR_TARGET, githubId, {});
+
         if (member.githubMetadata) {
             await this.githubMetadataService.remove(member.githubMetadata.githubId);
         }
@@ -399,6 +412,11 @@ export class MembersController {
         if (!member.githubMetadata) {
             throw new HttpException("Member does not have GitHub metadata", HttpStatus.NOT_FOUND);
         }
+        const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
+        if (!logtoBinding) {
+            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+        }
+        await this.logtoManagementService.deleteUserSocialIdentity(logtoBinding.logtoId, LOGTO_GITHUB_CONNECTOR_TARGET);
         await this.githubMetadataService.remove(member.githubMetadata.githubId);
     }
 }

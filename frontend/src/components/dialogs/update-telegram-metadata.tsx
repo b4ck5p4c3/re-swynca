@@ -43,7 +43,7 @@ export function UpdateTelegramMetadataDialog({open, onClose, member}: DefaultDia
         },
         onSuccess: async () => {
             onClose();
-            await queryClient.refetchQueries({queryKey: [`${MEMBER_QUERY_KEY}-${member.id}`]})
+            await queryClient.refetchQueries({queryKey: [MEMBER_QUERY_KEY, member.id]})
         }
     });
 

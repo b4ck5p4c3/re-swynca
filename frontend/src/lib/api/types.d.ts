@@ -439,12 +439,14 @@ export interface components {
             source?: "magic" | "donate" | "topup";
             /** @enum {string} */
             target?: "magic" | "membership";
-            /** Format: uuid */
-            actorId: string;
-            /** Format: uuid */
-            subjectId: string;
+            actor: components["schemas"]["MemberDTO"];
+            subject: components["schemas"]["MemberDTO"];
             /** Format: date-time */
             createdAt: string;
+        };
+        MemberTransactionsDTO: {
+            count: number;
+            transactions: components["schemas"]["MemberTransactionDTO"][];
         };
         CreateMemberTransactionDTO: {
             /** @enum {string} */
@@ -473,10 +475,14 @@ export interface components {
             source?: "magic" | "donate" | "topup";
             /** @enum {string} */
             target?: "magic" | "basic" | "purchases";
-            /** Format: uuid */
-            actorId: string;
+            actor: components["schemas"]["MemberDTO"];
+            relatedMemberTransactionSubject?: components["schemas"]["MemberDTO"];
             /** Format: date-time */
             createdAt: string;
+        };
+        SpaceTransactionsDTO: {
+            count: number;
+            transactions: components["schemas"]["SpaceTransactionDTO"][];
         };
         CreateSpaceTransactionDTO: {
             /** @enum {string} */
@@ -793,13 +799,11 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful response */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["MemberDTO"];
-                };
+                content?: never;
             };
             /** @description Erroneous response */
             default: {
@@ -828,13 +832,11 @@ export interface operations {
         };
         responses: {
             /** @description Successful response */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["MemberDTO"];
-                };
+                content?: never;
             };
             /** @description Erroneous response */
             default: {
@@ -859,13 +861,11 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful response */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["MemberDTO"];
-                };
+                content?: never;
             };
             /** @description Erroneous response */
             default: {
@@ -894,13 +894,11 @@ export interface operations {
         };
         responses: {
             /** @description Successful response */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["MemberDTO"];
-                };
+                content?: never;
             };
             /** @description Erroneous response */
             default: {
@@ -1008,7 +1006,12 @@ export interface operations {
     };
     MemberTransactionsController_findAll: {
         parameters: {
-            query?: never;
+            query: {
+                offset: string;
+                count: string;
+                orderBy: string;
+                orderDirection: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1021,7 +1024,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MemberTransactionDTO"][];
+                    "application/json": components["schemas"]["MemberTransactionsDTO"];
                 };
             };
             /** @description Erroneous response */
@@ -1054,7 +1057,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MemberTransactionDTO"][];
+                    "application/json": components["schemas"]["MemberTransactionDTO"];
                 };
             };
             /** @description Erroneous response */
@@ -1070,7 +1073,12 @@ export interface operations {
     };
     MemberTransactionsController_findAllBySubjectMember: {
         parameters: {
-            query?: never;
+            query: {
+                offset: string;
+                count: string;
+                orderBy: string;
+                orderDirection: string;
+            };
             header?: never;
             path: {
                 memberId: string;
@@ -1085,7 +1093,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MemberTransactionDTO"][];
+                    "application/json": components["schemas"]["MemberTransactionsDTO"];
                 };
             };
             /** @description Erroneous response */
@@ -1101,7 +1109,12 @@ export interface operations {
     };
     MemberTransactionsController_findAllByActorMember: {
         parameters: {
-            query?: never;
+            query: {
+                offset: string;
+                count: string;
+                orderBy: string;
+                orderDirection: string;
+            };
             header?: never;
             path: {
                 memberId: string;
@@ -1116,7 +1129,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MemberTransactionDTO"][];
+                    "application/json": components["schemas"]["MemberTransactionsDTO"];
                 };
             };
             /** @description Erroneous response */
@@ -1132,7 +1145,12 @@ export interface operations {
     };
     SpaceTransactionsController_findAll: {
         parameters: {
-            query?: never;
+            query: {
+                offset: string;
+                count: string;
+                orderBy: string;
+                orderDirection: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1145,7 +1163,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SpaceTransactionDTO"][];
+                    "application/json": components["schemas"]["SpaceTransactionsDTO"];
                 };
             };
             /** @description Erroneous response */
@@ -1194,7 +1212,12 @@ export interface operations {
     };
     SpaceTransactionsController_findAllByActor: {
         parameters: {
-            query?: never;
+            query: {
+                offset: string;
+                count: string;
+                orderBy: string;
+                orderDirection: string;
+            };
             header?: never;
             path: {
                 memberId: string;
@@ -1209,7 +1232,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SpaceTransactionDTO"][];
+                    "application/json": components["schemas"]["SpaceTransactionsDTO"];
                 };
             };
             /** @description Erroneous response */

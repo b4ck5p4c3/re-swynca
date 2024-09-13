@@ -23,4 +23,10 @@ export class GitHubMetadatasService {
     async remove(githubId: string) {
         await this.githubMetadataRepository.delete(githubId);
     }
+
+    async existsByGithubId(githubId: string) {
+        return await this.githubMetadataRepository.existsBy({
+            githubId
+        });
+    }
 }

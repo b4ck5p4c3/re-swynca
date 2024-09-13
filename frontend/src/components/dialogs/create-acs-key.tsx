@@ -43,7 +43,7 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
         },
         onSuccess: async () => {
             onClose();
-            await queryClient.refetchQueries({queryKey: [`${MEMBER_ACS_KEYS_QUERY_KEY}-${memberId}`]})
+            await queryClient.refetchQueries({queryKey: [MEMBER_ACS_KEYS_QUERY_KEY, memberId]})
         }
     });
 

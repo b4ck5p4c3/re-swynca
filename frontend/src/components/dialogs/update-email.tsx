@@ -42,7 +42,7 @@ export function UpdateEMailDialog({open, onClose, member}: DefaultDialogProps & 
         },
         onSuccess: async () => {
             onClose();
-            await queryClient.refetchQueries({queryKey: [`${MEMBER_QUERY_KEY}-${member.id}`]})
+            await queryClient.refetchQueries({queryKey: [MEMBER_QUERY_KEY, member.id]})
         }
     });
 

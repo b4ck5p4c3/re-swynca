@@ -1,12 +1,14 @@
 import {Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, Unique} from "typeorm";
 import {LogtoBinding} from "./logto-binding.entity";
 import {ACSKey} from "./acs-key.entity";
-import {Balance} from "./balance.entity";
 import {SpaceTransaction} from "./space-transaction.entity";
 import {MemberTransaction} from "./member-transaction.entity";
 import {MembershipSubscription} from "./membership-subscription.entity";
 import {TelegramMetadata} from "./telegram-metadata.entity";
 import {GitHubMetadata} from "./github-metadata.entity";
+import {MONEY_DECIMAL_PLACES, MONEY_PRECISION} from "../../money";
+import {DecimalTransformer} from "../transformers/decimal.transformer";
+import Decimal from "decimal.js";
 
 export enum MemberStatus {
     ACTIVE = "active",
@@ -46,9 +48,8 @@ export class Member {
         externalAuthenticationLogto.member, {nullable: true})
     externalAuthenticationLogto?: LogtoBinding;
 
-    @OneToOne(() => Balance, balance =>
-        balance.member)
-    balance: Balance;
+    @Column("decimal", {precision: MONEY_PRECISION, scale: MONEY_DECIMAL_PLACES, default: "0.0", transformer: new DecimalTransformer()})
+    balance: Decimal;
 
     @OneToMany(() => MembershipSubscription, membershipSubscription => membershipSubscription.member)
     subscriptions: MembershipSubscription[];

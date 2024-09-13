@@ -34,6 +34,8 @@ interface LogtoCreateUserResponse {
 
 const LOGTO_MANAGEMENT_API_ID = "https://default.logto.app/api";
 
+export const LOGTO_GITHUB_CONNECTOR_TARGET = "github";
+
 @Injectable()
 export class LogtoManagementService {
     private logtoM2MConfig: LogtoM2MConfig;
@@ -118,5 +120,33 @@ export class LogtoManagementService {
                     "authorization": `Bearer ${await this.getToken()}`
                 }
             });
+    }
+
+    async updateUserSocialIdentity(logtoUserId: string, target: string, targetUserId: string, details: object): Promise<void> {
+        await this.httpService.axiosRef.put(
+            `${this.logtoM2MConfig.endpoint}/api/users/${logtoUserId}/identities/${target}`, {
+                userId: targetUserId,
+                details
+            }, {
+                headers: {
+                    "authorization": `Bearer ${await this.getToken()}`
+                }
+            });
+    }
+
+    async deleteUserSocialIdentity(userId: string, target: string): Promise<void> {
+        const response = await this.httpService.axiosRef.delete(
+            `${this.logtoM2MConfig.endpoint}/api/users/${userId}/identities/${target}`,
+            {
+                headers: {
+                    "authorization": `Bearer ${await this.getToken()}`
+                },
+                validateStatus: () => true
+            });
+        if (response.status < 200 || response.status > 299) {
+            if (response.data.code !== "user.identity_not_exist") {
+                throw new Error(`Failed to delete social identity: ${response.data.message}`);
+            }
+        }
     }
 }

@@ -3,9 +3,9 @@ import {getClient, R} from "@/lib/api/client";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {MEMBER_QUERY_KEY} from "@/lib/cache-tags";
 import {Button} from "@/components/ui/button";
-import {Pencil1Icon, PlusIcon, TrashIcon} from "@radix-ui/react-icons";
 import {UpdateGitHubMetadataDialog} from "@/components/dialogs/update-github-metadata";
 import {MemberDTO} from "@/lib/types";
+import {Pencil, Plus, Trash} from "lucide-react";
 
 export function GitHubMetadata({metadata, member}: {
     metadata?: { githubId: string; githubUsername: string },
@@ -28,7 +28,7 @@ export function GitHubMetadata({metadata, member}: {
             }));
         },
         onSuccess: async (_: void, memberId: string) => {
-            await queryClient.refetchQueries({queryKey: [`${MEMBER_QUERY_KEY}-${member.id}`]});
+            await queryClient.refetchQueries({queryKey: [MEMBER_QUERY_KEY, member.id]});
         }
     });
 
@@ -38,13 +38,13 @@ export function GitHubMetadata({metadata, member}: {
                 {metadata.githubUsername} ({metadata.githubId})
             </a>
             <Button className={"w-8 p-0 h-8"}
-                    onClick={() => setUpdateGitHubMetadataDialogOpened(true)}><Pencil1Icon/></Button>
+                    onClick={() => setUpdateGitHubMetadataDialogOpened(true)}><Pencil className={"w-4 h-4"}/></Button>
             <Button variant={"destructive"} className={"w-8 p-0 h-8"}
-                    onClick={() => deleteGitHubMetadata.mutate(member.id)}><TrashIcon/></Button>
+                    onClick={() => deleteGitHubMetadata.mutate(member.id)}><Trash className={"w-4 h-4"}/></Button>
         </div> : <div className={"flex flex-row gap-2"}>
             <span className={"leading-8"}>Not linked</span>
             <Button className={"w-8 p-0 h-8"}
-                    onClick={() => setUpdateGitHubMetadataDialogOpened(true)}><PlusIcon/></Button>
+                    onClick={() => setUpdateGitHubMetadataDialogOpened(true)}><Plus className={"w-6 h-6"}/></Button>
         </div>}
         <UpdateGitHubMetadataDialog open={updateGitHubMetadataDialogOpened}
                                     onClose={() => setUpdateGitHubMetadataDialogOpened(false)} member={member}/>

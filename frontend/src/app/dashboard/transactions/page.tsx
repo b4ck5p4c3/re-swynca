@@ -1,3 +1,5 @@
+import {redirect, RedirectType} from "next/navigation";
+
 export default function TransactionsPage() {
-    return <></>;
+    redirect("/dashboard/transactions/member", RedirectType.replace);
 }

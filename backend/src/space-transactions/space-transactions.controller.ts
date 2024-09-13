@@ -1,4 +1,4 @@
-import {Body, Controller, Get, HttpException, HttpStatus, Param, Post} from "@nestjs/common";
+import {Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query} from "@nestjs/common";
 import {
     ApiBody, ApiCookieAuth,
     ApiDefaultResponse,
@@ -8,7 +8,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import {TransactionType} from "../common/database/entities/common";
-import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsNumberString, IsUUID} from "class-validator";
+import {IsDate, IsEnum, IsISO8601, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsUUID} from "class-validator";
 import {
     SpaceTransaction,
     SpaceTransactionDeposit,
@@ -16,12 +16,15 @@ import {
 } from "../common/database/entities/space-transaction.entity";
 import {ErrorApiResponse} from "../common/api-responses";
 import {SpaceTransactionsService} from "./space-transactions.service";
-import {MembersService} from "src/members/members.service";
+import {MembersService, SPACE_MEMBER_ID} from "src/members/members.service";
 import Decimal from "decimal.js";
 import {CustomValidationError} from "src/common/exceptions";
 import {MONEY_DECIMAL_PLACES, MONEY_PRECISION} from "src/common/money";
 import {MemberTransactionsController} from "src/member-transactions/member-transactions.controller";
 import {UserId} from "src/auth/user-id.decorator";
+import {MemberDTO, MembersController} from "../members/members.controller";
+import {getCountAndOffset, getOrderObject} from "../common/utils";
+import {of} from "rxjs";
 
 class SpaceTransactionDTO {
     @ApiProperty({format: "uuid"})
@@ -45,8 +48,11 @@ class SpaceTransactionDTO {
     @ApiProperty({required: false, enum: SpaceTransactionWithdrawal})
     target?: SpaceTransactionWithdrawal;
 
-    @ApiProperty({format: "uuid"})
-    actorId: string;
+    @ApiProperty()
+    actor: MemberDTO;
+
+    @ApiProperty({required: false})
+    relatedMemberTransactionSubject?: MemberDTO;
 
     @ApiProperty({format: "date-time"})
     createdAt: string;
@@ -67,17 +73,27 @@ class CreateSpaceTransactionDTO {
     comment?: string;
 
     @ApiProperty({format: "date-time"})
-    @IsDate()
+    @IsISO8601({strict: true})
     @IsNotEmpty()
     date: string;
 
     @ApiProperty({required: false, enum: SpaceTransactionDeposit})
     @IsEnum(SpaceTransactionDeposit)
+    @IsOptional()
     source?: SpaceTransactionDeposit;
 
     @ApiProperty({required: false, enum: SpaceTransactionWithdrawal})
     @IsEnum(SpaceTransactionWithdrawal)
+    @IsOptional()
     target?: SpaceTransactionWithdrawal;
+}
+
+class SpaceTransactionsDTO {
+    @ApiProperty()
+    count: number;
+
+    @ApiProperty({type: [SpaceTransactionDTO]})
+    transactions: SpaceTransactionDTO[];
 }
 
 @Controller("space-transactions")
@@ -90,13 +106,15 @@ export class SpaceTransactionsController {
         return {
             id: spaceTransaction.id,
             type: spaceTransaction.type,
-            amount: spaceTransaction.amount.toString(),
+            amount: spaceTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
             comment: spaceTransaction.comment,
             date: spaceTransaction.date.toISOString(),
             source: spaceTransaction.source,
             target: spaceTransaction.target,
-            actorId: spaceTransaction.actor.id,
-            createdAt: spaceTransaction.createdAt.toISOString()
+            actor: MembersController.mapToDTO(spaceTransaction.actor),
+            createdAt: spaceTransaction.createdAt.toISOString(),
+            relatedMemberTransactionSubject: spaceTransaction.relatedMemberTransaction ?
+                MembersController.mapToDTO(spaceTransaction.relatedMemberTransaction.subject) : undefined,
         };
     }
 
@@ -106,15 +124,31 @@ export class SpaceTransactionsController {
     })
     @ApiOkResponse({
         description: "Successful response",
-        type: [SpaceTransactionDTO]
+        type: SpaceTransactionsDTO
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async findAll(): Promise<SpaceTransactionDTO[]> {
-        return (await this.spaceTransactionsService.findAll()).map(SpaceTransactionsController.mapToDTO);
+    async findAll(@Query("offset") offset?: string, @Query("count") count?: string,
+                  @Query("orderBy") orderBy?: string,
+                  @Query("orderDirection") orderDirection?: string): Promise<SpaceTransactionsDTO> {
+        const transactionsCount = await this.spaceTransactionsService.countAll();
+        const [realCount, realOffset] = getCountAndOffset(count, offset, 100);
+
+        const orderObject = getOrderObject<SpaceTransaction>(orderBy, orderDirection,
+            {
+                date: true,
+                createdAt: true
+            });
+
+        const transactions = await this.spaceTransactionsService.findAll(realOffset, realCount, orderObject);
+
+        return {
+            count: transactionsCount,
+            transactions: transactions.map(transaction => SpaceTransactionsController.mapToDTO(transaction))
+        };
     }
 
     @Get("actor/:memberId")
@@ -123,15 +157,33 @@ export class SpaceTransactionsController {
     })
     @ApiOkResponse({
         description: "Successful response",
-        type: [SpaceTransactionDTO]
+        type: SpaceTransactionsDTO
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async findAllByActor(@Param("memberId") actorId: string): Promise<SpaceTransactionDTO[]> {
-        return (await this.spaceTransactionsService.findAllByActorId(actorId)).map(SpaceTransactionsController.mapToDTO);
+    async findAllByActor(@Param("memberId") actorId: string, @Query("offset") offset?: string,
+                         @Query("count") count?: string,
+                         @Query("orderBy") orderBy?: string,
+                         @Query("orderDirection") orderDirection?: string): Promise<SpaceTransactionsDTO> {
+        const transactionsCount = await this.spaceTransactionsService.countAllByActorId(actorId);
+        const [realCount, realOffset] = getCountAndOffset(count, offset, 100);
+
+        const orderObject = getOrderObject<SpaceTransaction>(orderBy, orderDirection,
+            {
+                date: true,
+                createdAt: true
+            });
+
+        const transactions = await this.spaceTransactionsService.findAllByActorId(actorId,
+            realOffset, realCount, orderObject);
+
+        return {
+            count: transactionsCount,
+            transactions: transactions.map(transaction => SpaceTransactionsController.mapToDTO(transaction))
+        };
     }
 
     @Post()
@@ -152,9 +204,9 @@ export class SpaceTransactionsController {
     })
     async create(@UserId() actorId: string, @Body() request: CreateSpaceTransactionDTO): Promise<SpaceTransactionDTO> {
         const {type, amount, comment, date, source, target} = request;
-        const actor = await this.membersService.findById(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
+
+        if (source && target) {
+            throw new HttpException("Target and source can't be defined at the same time", HttpStatus.BAD_REQUEST);
         }
         const decimalAmount = new Decimal(amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
         if (decimalAmount.lessThanOrEqualTo(0)) {
@@ -163,8 +215,19 @@ export class SpaceTransactionsController {
         if (decimalAmount.precision() > MONEY_PRECISION - MONEY_DECIMAL_PLACES) {
             throw new CustomValidationError(`Transaction amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
         }
+        const spaceMember = await this.membersService.findByIdUnfiltered(SPACE_MEMBER_ID);
+        if (!spaceMember) {
+            throw new HttpException("Space member does not exist", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if (type === TransactionType.WITHDRAWAL && spaceMember.balance.lt(decimalAmount)) {
+            throw new HttpException("Space balance is lower than transaction amount", HttpStatus.BAD_REQUEST);
+        }
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
+        }
 
-        return SpaceTransactionsController.mapToDTO(await this.spaceTransactionsService.create({
+        const spaceTransaction = await this.spaceTransactionsService.create({
             type,
             amount: decimalAmount,
             comment,
@@ -173,6 +236,12 @@ export class SpaceTransactionsController {
             target,
             createdAt: new Date(),
             actor
-        }));
+        });
+
+        await this.membersService.atomicIncrementBalance(spaceMember,
+            request.type === TransactionType.DEPOSIT ?
+                decimalAmount : decimalAmount.negated());
+
+        return SpaceTransactionsController.mapToDTO(spaceTransaction);
     };
 }

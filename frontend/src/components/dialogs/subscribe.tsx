@@ -40,7 +40,7 @@ export function SubscribeDialog({open, onClose, availableMemberships, memberId}:
         },
         onSuccess: async () => {
             onClose();
-            await queryClient.refetchQueries({queryKey: [`${MEMBER_SUBSCRIPTIONS_QUERY_KEY}-${memberId}`]})
+            await queryClient.refetchQueries({queryKey: [MEMBER_SUBSCRIPTIONS_QUERY_KEY, memberId]})
         }
     });
 

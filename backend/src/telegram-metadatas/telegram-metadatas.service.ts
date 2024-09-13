@@ -22,4 +22,10 @@ export class TelegramMetadatasService {
     async remove(telegramId: string) {
         await this.telegramMetadataRepository.delete(telegramId);
     }
+
+    async existsByTelegramId(telegramId: string) {
+        return await this.telegramMetadataRepository.existsBy({
+            telegramId
+        });
+    }
 }

@@ -4,7 +4,6 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
 import {Member} from "./entities/member.entity";
 import {LogtoBinding} from "./entities/logto-binding.entity";
 import {ACSKey} from "./entities/acs-key.entity";
-import {Balance} from "./entities/balance.entity";
 import {SpaceTransaction} from "./entities/space-transaction.entity";
 import {MemberTransaction} from "./entities/member-transaction.entity";
 import {Membership} from "./entities/membership.entity";
@@ -20,7 +19,7 @@ import {GitHubMetadata} from "./entities/github-metadata.entity";
                 type: "postgres",
                 url: configService.getOrThrow("DATABASE_URL"),
                 entities: [Member, LogtoBinding, ACSKey,
-                    Balance, SpaceTransaction, MemberTransaction,
+                    SpaceTransaction, MemberTransaction,
                     Membership, MembershipSubscription,
                     TelegramMetadata, GitHubMetadata],
                 synchronize: true

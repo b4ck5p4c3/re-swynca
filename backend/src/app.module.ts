@@ -10,6 +10,8 @@ import {MembershipSubscriptionsModule} from "./membership-subscriptions/membersh
 import {LogtoAuthModule} from "./logto-auth/logto-auth.module";
 import {AppJwtModule} from "./common/jwt/app-jwt.module";
 import {AppHttpModule} from "./common/http/app-http.module";
+import {SpaceSeederModule} from "./space-seeder/space-seeder.module";
+import {SpaceModule} from "./space/space.module";
 
 @Module({
     imports: [
@@ -25,8 +27,11 @@ import {AppHttpModule} from "./common/http/app-http.module";
         MemberTransactionsModule,
         SpaceTransactionsModule,
         MembershipSubscriptionsModule,
+        SpaceModule,
 
-        LogtoAuthModule
+        LogtoAuthModule,
+
+        SpaceSeederModule
     ],
     controllers: [],
     providers: [],

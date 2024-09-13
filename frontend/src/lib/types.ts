@@ -28,3 +28,28 @@ export interface MemberDTO {
         telegramId: string;
     }
 }
+
+export interface SpaceTransactionDTO {
+    id: string;
+    type: "deposit" | "withdrawal";
+    amount: string;
+    comment?: string;
+    date: string;
+    source?: "magic" | "donate" | "topup";
+    target?: "magic" | "basic" | "purchases";
+    actor: MemberDTO;
+    createdAt: string;
+}
+
+export interface MemberTransactionDTO {
+    id: string;
+    type: "deposit" | "withdrawal";
+    amount: string;
+    comment?: string;
+    date: string;
+    source?: "magic" | "donate" | "topup";
+    target?: "magic" | "membership";
+    subject: MemberDTO;
+    actor: MemberDTO;
+    createdAt: string;
+}
