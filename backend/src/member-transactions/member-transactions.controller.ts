@@ -26,6 +26,7 @@ import {getCountAndOffset, getOrderObject} from "../common/utils";
 import {SpaceTransaction, SpaceTransactionDeposit} from "../common/database/entities/space-transaction.entity";
 import {MemberDTO, MembersController} from "../members/members.controller";
 import {SpaceTransactionsService} from "../space-transactions/space-transactions.service";
+import {AuditLogService} from "../audit-log/audit-log.service";
 
 class MemberTransactionDTO {
     @ApiProperty({format: "uuid"})
@@ -105,9 +106,10 @@ class MemberTransactionsDTO {
 @Controller("member-transactions")
 @ApiTags("member-transactions")
 export class MemberTransactionsController {
-    constructor(private readonly memberTransactionsService: MemberTransactionsService,
-                private readonly membersService: MembersService,
-                private readonly spaceTransactionsService: SpaceTransactionsService) {
+    constructor(private memberTransactionsService: MemberTransactionsService,
+                private membersService: MembersService,
+                private spaceTransactionsService: SpaceTransactionsService,
+                private auditLogService: AuditLogService) {
     }
 
     private static mapToDTO(memberTransaction: MemberTransaction): MemberTransactionDTO {
@@ -289,24 +291,46 @@ export class MemberTransactionsController {
             createdAt: new Date()
         });
 
+        await this.auditLogService.create("create-member-transaction", actor, {
+            id: memberTransaction.id,
+            type: memberTransaction.type,
+            amount: memberTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
+            comment: memberTransaction.comment,
+            date: memberTransaction.date.toISOString(),
+            source: memberTransaction.source,
+            target: memberTransaction.target,
+            subjectId: subjectMember.id
+        });
+
         if (type !== TransactionType.DEPOSIT || source !== MemberTransactionDeposit.DONATE) {
             await this.membersService.atomicIncrementBalance(subjectMember,
                 type === TransactionType.DEPOSIT ?
                     decimalAmount : decimalAmount.negated());
         }
         if (type === TransactionType.DEPOSIT && source !== MemberTransactionDeposit.MAGIC) {
-            await this.spaceTransactionsService.create({
+            const spaceTransaction = await this.spaceTransactionsService.create({
                 type: TransactionType.DEPOSIT,
                 amount: decimalAmount,
                 date: new Date(date),
                 source: source === MemberTransactionDeposit.DONATE ? SpaceTransactionDeposit.DONATE :
                     (source === MemberTransactionDeposit.TOPUP ?
                         SpaceTransactionDeposit.TOPUP : SpaceTransactionDeposit.MAGIC),
+                comment,
                 actor,
                 createdAt: new Date(),
                 relatedMemberTransaction: memberTransaction
             });
             await this.membersService.atomicIncrementBalance(spaceMember, decimalAmount);
+            await this.auditLogService.create("create-space-transaction", actor, {
+                id: spaceTransaction.id,
+                type: spaceTransaction.type,
+                amount: spaceTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
+                comment: spaceTransaction.comment,
+                date: spaceTransaction.date.toISOString(),
+                source: spaceTransaction.source,
+                target: spaceTransaction.target,
+                relatedMemberTransaction: memberTransaction.id
+            });
         }
 
         return MemberTransactionsController.mapToDTO(memberTransaction);

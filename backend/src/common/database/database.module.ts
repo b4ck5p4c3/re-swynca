@@ -10,6 +10,7 @@ import {Membership} from "./entities/membership.entity";
 import {MembershipSubscription} from "./entities/membership-subscription.entity";
 import {TelegramMetadata} from "./entities/telegram-metadata.entity";
 import {GitHubMetadata} from "./entities/github-metadata.entity";
+import {AuditLog} from "./entities/audit-log.entity";
 
 @Module({
     imports: [
@@ -21,7 +22,8 @@ import {GitHubMetadata} from "./entities/github-metadata.entity";
                 entities: [Member, LogtoBinding, ACSKey,
                     SpaceTransaction, MemberTransaction,
                     Membership, MembershipSubscription,
-                    TelegramMetadata, GitHubMetadata],
+                    TelegramMetadata, GitHubMetadata,
+                    AuditLog],
                 synchronize: true
             }),
             inject: [ConfigService]

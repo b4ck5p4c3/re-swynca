@@ -15,6 +15,9 @@ import Decimal from "decimal.js";
 import {CustomValidationError} from "../common/exceptions";
 import {Membership} from "../common/database/entities/membership.entity";
 import {ErrorApiResponse} from "../common/api-responses";
+import {MembersService} from "../members/members.service";
+import {AuditLogService} from "../audit-log/audit-log.service";
+import {UserId} from "../auth/user-id.decorator";
 
 class MembershipDTO {
     @ApiProperty({format: "uuid"})
@@ -48,7 +51,9 @@ class CreateUpdateMembershipDTO {
 @ApiTags("memberships")
 @Controller("memberships")
 export class MembershipsController {
-    constructor(private membershipService: MembershipsService) {
+    constructor(private membershipService: MembershipsService,
+                private membersService: MembersService,
+                private auditLogService: AuditLogService) {
     }
 
     private static mapToDTO(membership: Membership): MembershipDTO {
@@ -93,7 +98,11 @@ export class MembershipsController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async create(@Body() request: CreateUpdateMembershipDTO): Promise<MembershipDTO> {
+    async create(@UserId() actorId: string, @Body() request: CreateUpdateMembershipDTO): Promise<MembershipDTO> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const decimalAmount = new Decimal(request.amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
         if (decimalAmount.lessThanOrEqualTo(0)) {
             throw new CustomValidationError("Membership amount must be > 0");
@@ -101,11 +110,21 @@ export class MembershipsController {
         if (decimalAmount.precision() > MONEY_PRECISION - MONEY_DECIMAL_PLACES) {
             throw new CustomValidationError(`Membership amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
         }
-        return MembershipsController.mapToDTO(await this.membershipService.create({
+
+        const membership = await this.membershipService.create({
             title: request.title,
             amount: decimalAmount,
             active: request.active
-        }));
+        });
+
+        await this.auditLogService.create("create-membership", actor, {
+            id: membership.id,
+            title: membership.title,
+            amount: membership.amount.toFixed(MONEY_DECIMAL_PLACES),
+            active: membership.active
+        });
+
+        return MembershipsController.mapToDTO(membership);
     }
 
     @Patch(":id")
@@ -124,7 +143,12 @@ export class MembershipsController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async updateMembership(@Param("id") id: string, @Body() request: CreateUpdateMembershipDTO): Promise<MembershipDTO> {
+    async updateMembership(@UserId() actorId: string, @Param("id") id: string,
+                           @Body() request: CreateUpdateMembershipDTO): Promise<MembershipDTO> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const decimalAmount = new Decimal(request.amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
         if (decimalAmount.lessThanOrEqualTo(0)) {
             throw new CustomValidationError("Membership amount must be > 0");
@@ -142,6 +166,13 @@ export class MembershipsController {
         membership.active = request.active;
 
         await this.membershipService.update(membership);
+
+        await this.auditLogService.create("update-membership", actor, {
+            id: membership.id,
+            title: membership.title,
+            amount: membership.amount.toFixed(MONEY_DECIMAL_PLACES),
+            active: membership.active
+        });
 
         return MembershipsController.mapToDTO(membership);
     }

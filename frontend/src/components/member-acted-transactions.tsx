@@ -7,6 +7,7 @@ import {ArrowDownZA, ArrowUpAZ} from "lucide-react";
 import {getMemberTransactionTypeText} from "@/lib/utils";
 import {Paginator} from "@/components/paginator";
 import {Skeleton} from "@/components/ui/skeleton";
+import {Money} from "@/components/money";
 
 const TRANSACTIONS_PER_PAGE = 10;
 
@@ -91,7 +92,8 @@ export function MemberActedTransactions({memberId}: { memberId: string }) {
                         memberTransactions.data.transactions.map(transaction =>
                             <TableRow>
                                 <TableCell>{new Date(transaction.date).toLocaleString()}</TableCell>
-                                <TableCell>{transaction.amount}</TableCell>
+                                <TableCell><Money amount={transaction.amount}
+                                                  negate={transaction.type === "withdrawal"}/></TableCell>
                                 <TableCell>{transaction.comment ?? "-"}</TableCell>
                                 <TableCell>{getMemberTransactionTypeText(transaction)}</TableCell>
                                 <TableCell><a className={"underline"} href={`/dashboard/members/${transaction.subject.id}`}

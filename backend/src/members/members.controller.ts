@@ -19,6 +19,8 @@ import {TelegramMetadatasService} from "../telegram-metadatas/telegram-metadatas
 import {LOGTO_GITHUB_CONNECTOR_TARGET, LogtoManagementService} from "../logto-management/logto-management.service";
 import {LogtoBindingsService} from "../logto-bindings/logto-bindings.service";
 import {MONEY_DECIMAL_PLACES} from "../common/money";
+import {AuditLogService} from "../audit-log/audit-log.service";
+import {UserId} from "../auth/user-id.decorator";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -75,7 +77,7 @@ class CreateUpdateMemberDTO {
 class UpdateTelegramMetadataDTO {
     @ApiProperty()
     @IsNotEmpty()
-    @Matches("^(\d{1,20})$")
+    @Matches("^(\\d{1,20})$")
     telegramId: string;
 }
 
@@ -99,7 +101,7 @@ export class MembersController {
     constructor(private membersService: MembersService, private githubMetadataService: GitHubMetadatasService,
                 private githubService: GitHubService, private telegramMetadataService: TelegramMetadatasService,
                 private logtoManagementService: LogtoManagementService,
-                private logtoBindingsService: LogtoBindingsService) {
+                private logtoBindingsService: LogtoBindingsService, private auditLogService: AuditLogService) {
     }
 
     static mapToDTO(member: Member): MemberDTO {
@@ -175,7 +177,11 @@ export class MembersController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async create(@Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
+    async create(@UserId() actorId: string, @Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         if (await this.membersService.existsByEmail(request.email)) {
             throw new HttpException("Member with this email already exists", HttpStatus.BAD_REQUEST);
         }
@@ -198,6 +204,13 @@ export class MembersController {
             member
         });
 
+        await this.auditLogService.create("create-member", actor, {
+            id: member.id,
+            name: member.name,
+            email: member.email,
+            logtoId: logtoId
+        });
+
         return MembersController.mapToDTO(await this.membersService.findById(member.id));
     }
 
@@ -217,7 +230,11 @@ export class MembersController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async update(@Param("id") id: string, @Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
+    async update(@UserId() actorId: string, @Param("id") id: string, @Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const member = await this.membersService.findById(id);
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
@@ -244,6 +261,12 @@ export class MembersController {
 
         await this.membersService.update(member);
 
+        await this.auditLogService.create("update-member", actor, {
+            id: member.id,
+            name: member.name,
+            email: member.email
+        });
+
         return MembersController.mapToDTO(member);
     }
 
@@ -263,7 +286,12 @@ export class MembersController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async freeze(@Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
+    async freeze(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         const member = await this.membersService.findById(id);
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
@@ -281,6 +309,11 @@ export class MembersController {
         member.status = request.status;
 
         await this.membersService.update(member);
+
+        await this.auditLogService.create(request.status === "frozen" ? "freeze-member" : "unfreeze-member",
+            actor, {
+                id: member.id
+            });
 
         return MembersController.mapToDTO(member);
     }
@@ -300,7 +333,11 @@ export class MembersController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async updateTelegramMetadata(@Param("id") id: string, @Body() request: UpdateTelegramMetadataDTO): Promise<void> {
+    async updateTelegramMetadata(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateTelegramMetadataDTO): Promise<void> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const member = await this.membersService.findById(id);
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
@@ -314,11 +351,17 @@ export class MembersController {
             await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
         }
 
-        await this.telegramMetadataService.create({
+        const telegramMetadata = await this.telegramMetadataService.create({
             telegramId: request.telegramId,
             telegramName: "Unknown",
             member
         });
+
+        await this.auditLogService.create("update-member-telegram-metadata",
+            actor, {
+                memberId: member.id,
+                telegramId: telegramMetadata.telegramId
+            });
     }
 
     @Delete(":id/telegram")
@@ -333,7 +376,11 @@ export class MembersController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async deleteTelegramMetadata(@Param("id") id: string): Promise<void> {
+    async deleteTelegramMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const member = await this.membersService.findById(id);
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
@@ -342,6 +389,11 @@ export class MembersController {
             throw new HttpException("Member does not have Telegram metadata", HttpStatus.NOT_FOUND);
         }
         await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
+
+        await this.auditLogService.create("delete-member-telegram-metadata",
+            actor, {
+                memberId: member.id
+            });
     }
 
     @Patch(":id/github")
@@ -359,7 +411,11 @@ export class MembersController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async updateGitHubMetadata(@Param("id") id: string, @Body() request: UpdateGitHubMetadataDTO): Promise<void> {
+    async updateGitHubMetadata(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateGitHubMetadataDTO): Promise<void> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const member = await this.membersService.findById(id);
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
@@ -385,11 +441,18 @@ export class MembersController {
             await this.githubMetadataService.remove(member.githubMetadata.githubId);
         }
 
-        await this.githubMetadataService.create({
+        const githubMetadata = await this.githubMetadataService.create({
             githubId,
             githubUsername: request.githubUsername,
             member
         });
+
+        await this.auditLogService.create("update-member-github-metadata",
+            actor, {
+                memberId: member.id,
+                githubId: githubMetadata.githubId,
+                githubUsername: githubMetadata.githubUsername
+            });
     }
 
     @Delete(":id/github")
@@ -404,7 +467,11 @@ export class MembersController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async deleteGitHubMetadata(@Param("id") id: string): Promise<void> {
+    async deleteGitHubMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const member = await this.membersService.findById(id);
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
@@ -418,5 +485,10 @@ export class MembersController {
         }
         await this.logtoManagementService.deleteUserSocialIdentity(logtoBinding.logtoId, LOGTO_GITHUB_CONNECTOR_TARGET);
         await this.githubMetadataService.remove(member.githubMetadata.githubId);
+
+        await this.auditLogService.create("delete-member-github-metadata",
+            actor, {
+                memberId: member.id
+            });
     }
 }

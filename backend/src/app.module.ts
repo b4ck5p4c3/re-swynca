@@ -12,6 +12,7 @@ import {AppJwtModule} from "./common/jwt/app-jwt.module";
 import {AppHttpModule} from "./common/http/app-http.module";
 import {SpaceSeederModule} from "./space-seeder/space-seeder.module";
 import {SpaceModule} from "./space/space.module";
+import {AuditLogModule} from "./audit-log/audit-log.module";
 
 @Module({
     imports: [
@@ -20,6 +21,8 @@ import {SpaceModule} from "./space/space.module";
         AppHttpModule,
 
         DatabaseModule,
+
+        AuditLogModule,
 
         MembershipsModule,
         MembersModule,

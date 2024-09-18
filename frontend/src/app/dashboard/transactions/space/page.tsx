@@ -11,6 +11,7 @@ import {ArrowDownZA, ArrowUpAZ, Plus} from "lucide-react";
 import {Paginator} from "@/components/paginator";
 import {Button} from "@/components/ui/button";
 import {CreateSpaceTransactionDialog} from "@/components/dialogs/create-space-transaction";
+import {Money} from "@/components/money";
 
 const TRANSACTIONS_PER_PAGE = 20;
 
@@ -120,7 +121,8 @@ export default function SpaceTransactionsPage() {
                         spaceTransactions.data.transactions.map(transaction =>
                             <TableRow>
                                 <TableCell>{new Date(transaction.date).toLocaleString()}</TableCell>
-                                <TableCell>{transaction.amount}</TableCell>
+                                <TableCell><Money amount={transaction.amount}
+                                                  negate={transaction.type === "withdrawal"}/></TableCell>
                                 <TableCell>{transaction.comment ?? "-"} {transaction.relatedMemberTransactionSubject ?
                                     <>from <a className={"underline"}
                                               href={`/dashboard/members/${transaction.relatedMemberTransactionSubject.id}`}

@@ -8,6 +8,7 @@ import {MEMBER_QUERY_KEY} from "@/lib/cache-tags";
 import {getCurrentMemberId} from "@/lib/auth-storage";
 import {Skeleton} from "@/components/ui/skeleton";
 import {useRouter} from "next/navigation";
+import {Money} from "@/components/money";
 
 export function SelfUserBlock() {
     const client = getClient();
@@ -42,7 +43,7 @@ export function SelfUserBlock() {
         </Avatar>
         <div>{selfMember.data.name}</div>
         <div className={"w-4"}/>
-        <div>{selfMember.data.balance}</div>
+        <div><Money amount={selfMember.data.balance}/></div>
     </div> : <div className={"flex flex-row items-center gap-2"}>
         <Skeleton className={"w-[40px] h-[40px] rounded-full"}/>
         <Skeleton className={"w-[100px] h-[24px]"}/>

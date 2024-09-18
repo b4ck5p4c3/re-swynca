@@ -2,6 +2,7 @@ import {Controller, Get, HttpException, HttpStatus} from "@nestjs/common";
 import {ApiCookieAuth, ApiDefaultResponse, ApiOkResponse, ApiOperation, ApiProperty, ApiTags} from "@nestjs/swagger";
 import {MembersService, SPACE_MEMBER_ID} from "../members/members.service";
 import {ErrorApiResponse} from "../common/api-responses";
+import {MONEY_DECIMAL_PLACES} from "../common/money";
 
 class SpaceBalanceDTO {
     @ApiProperty()
@@ -15,7 +16,7 @@ export class SpaceController {
     constructor(private membersService: MembersService) {
     }
 
-    @Get()
+    @Get("balance")
     @ApiOperation({
         summary: "Get space balance"
     })
@@ -34,7 +35,7 @@ export class SpaceController {
             throw new HttpException("Space member not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return {
-            balance: spaceMember.balance.toFixed(2)
+            balance: spaceMember.balance.toFixed(MONEY_DECIMAL_PLACES)
         };
     }
 }

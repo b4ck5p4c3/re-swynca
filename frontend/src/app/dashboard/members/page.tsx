@@ -11,6 +11,7 @@ import {useRouter} from "next/navigation";
 import {Button} from "@/components/ui/button";
 import {useState} from "react";
 import {CreateMemberDialog} from "@/components/dialogs/create-member";
+import {Money} from "@/components/money";
 
 export default function MembersPage() {
     const client = getClient();
@@ -51,7 +52,7 @@ export default function MembersPage() {
                     <TableCell>{member.name}</TableCell>
                     <TableCell>{member.email}</TableCell>
                     <TableCell>{new Date(member.joinedAt).toLocaleDateString()}</TableCell>
-                    <TableCell>{member.balance}</TableCell>
+                    <TableCell><Money amount={member.balance}/></TableCell>
                     <TableCell className={"flex flex-row gap-2 justify-end"}>
                         {member.githubMetadata ? <GitHubLink username={member.githubMetadata.githubUsername}/> : <></>}
                         {member.telegramMetadata ? <TelegramLink id={member.telegramMetadata.telegramId}/> : <></>}

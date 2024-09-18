@@ -14,6 +14,8 @@ import {MembershipSubscriptionsService} from "./membership-subscriptions.service
 import {MembershipSubscription} from "src/common/database/entities/membership-subscription.entity";
 import {MembersService} from "src/members/members.service";
 import {MembershipsService} from "src/memberships/memberships.service";
+import {AuditLogService} from "../audit-log/audit-log.service";
+import {UserId} from "../auth/user-id.decorator";
 
 class MembershipSubscriptionDTO {
     @ApiProperty({format: "uuid"})
@@ -48,7 +50,8 @@ class SubscribeDTO {
 @Controller("membership-subscriptions")
 export class MembershipSubscriptionsController {
     constructor(private membershipSubscriptionsService: MembershipSubscriptionsService,
-                private membersService: MembersService, private membershipService: MembershipsService) {
+                private membersService: MembersService, private membershipService: MembershipsService,
+                private auditLogService: AuditLogService) {
     }
 
     private static mapToDTO(membershipSubscription: MembershipSubscription): MembershipSubscriptionDTO {
@@ -113,7 +116,11 @@ export class MembershipSubscriptionsController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async subscribe(@Body() request: SubscribeDTO): Promise<MembershipSubscriptionDTO> {
+    async subscribe(@UserId() actorId: string, @Body() request: SubscribeDTO): Promise<MembershipSubscriptionDTO> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const {memberId, membershipId} = request;
         const member = await this.membersService.findById(memberId);
         if (!member) {
@@ -131,7 +138,15 @@ export class MembershipSubscriptionsController {
             throw new HttpException("Member already subscribed to this membership", HttpStatus.BAD_REQUEST);
         }
 
-        return MembershipSubscriptionsController.mapToDTO(await this.membershipSubscriptionsService.create(member, membership));
+        const membershipSubscription = await this.membershipSubscriptionsService.create(member, membership);
+
+        await this.auditLogService.create("subscribe-member", actor, {
+            memberId: member.id,
+            membershipId: membership.id,
+            membershipSubscriptionId: membershipSubscription.id
+        });
+
+        return MembershipSubscriptionsController.mapToDTO(membershipSubscription);
     }
 
     @Delete(":id")
@@ -146,7 +161,11 @@ export class MembershipSubscriptionsController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async unsubscribe(@Param("id") id: string): Promise<void> {
+    async unsubscribe(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const membershipSubscription = await this.membershipSubscriptionsService.findById(id);
         if (!membershipSubscription) {
             throw new HttpException("Membership subscription not found", HttpStatus.NOT_FOUND);
@@ -156,5 +175,9 @@ export class MembershipSubscriptionsController {
         }
         membershipSubscription.declinedAt = new Date();
         await this.membershipSubscriptionsService.update(membershipSubscription);
+
+        await this.auditLogService.create("unsubscribe-member", actor, {
+            membershipSubscriptionId: membershipSubscription.id
+        });
     }
 }

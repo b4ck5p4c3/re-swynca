@@ -5,10 +5,11 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {MembershipSubscription} from "../common/database/entities/membership-subscription.entity";
 import {MembershipsModule} from "../memberships/memberships.module";
 import {MembersModule} from "../members/members.module";
+import {AuditLogModule} from "../audit-log/audit-log.module";
 
 @Module({
     imports: [TypeOrmModule.forFeature([MembershipSubscription]),
-        MembershipsModule, MembersModule],
+        MembershipsModule, MembersModule, AuditLogModule],
     controllers: [MembershipSubscriptionsController],
     providers: [MembershipSubscriptionsService]
 })

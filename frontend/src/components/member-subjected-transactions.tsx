@@ -7,6 +7,7 @@ import {MEMBER_TRANSACTIONS_QUERY_KEY} from "@/lib/cache-tags";
 import {ArrowDownZA, ArrowUpAZ} from "lucide-react";
 import {getMemberTransactionTypeText} from "@/lib/utils";
 import {Paginator} from "@/components/paginator";
+import {Money} from "./money";
 
 const TRANSACTIONS_PER_PAGE = 10;
 
@@ -91,10 +92,12 @@ export function MemberSubjectedTransactions({memberId}: { memberId: string }) {
                         memberTransactions.data.transactions.map(transaction =>
                             <TableRow>
                                 <TableCell>{new Date(transaction.date).toLocaleString()}</TableCell>
-                                <TableCell>{transaction.amount}</TableCell>
+                                <TableCell><Money amount={transaction.amount}
+                                                  negate={transaction.type === "withdrawal"}/></TableCell>
                                 <TableCell>{transaction.comment ?? "-"}</TableCell>
                                 <TableCell>{getMemberTransactionTypeText(transaction)}</TableCell>
-                                <TableCell><a className={"underline"} href={`/dashboard/members/${transaction.actor.id}`}
+                                <TableCell><a className={"underline"}
+                                              href={`/dashboard/members/${transaction.actor.id}`}
                                               target={"_blank"}>{transaction.actor.name}</a></TableCell>
                                 <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
                             </TableRow>) : <>

@@ -5,10 +5,11 @@ import {ConfigModule} from "@nestjs/config";
 import {AuthModule} from "../auth/auth.module";
 import {HttpModule} from "@nestjs/axios";
 import {LogtoBindingsModule} from "../logto-bindings/logto-bindings.module";
+import {AuditLogModule} from "../audit-log/audit-log.module";
 
 @Module({
     imports: [ConfigModule, AuthModule, LogtoBindingsModule,
-        HttpModule],
+        HttpModule, AuditLogModule],
     controllers: [LogtoAuthController],
     providers: [LogtoAuthService]
 })

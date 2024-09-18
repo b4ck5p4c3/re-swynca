@@ -13,6 +13,8 @@ import {IsEnum, IsNotEmpty, IsUUID} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
 import {ACSKeysService} from "./acs-keys.service";
 import {MembersService} from "src/members/members.service";
+import {AuditLogService} from "../audit-log/audit-log.service";
+import {UserId} from "../auth/user-id.decorator";
 
 class CreateACSKeyDTO {
     @ApiProperty({enum: ACSKeyType})
@@ -54,7 +56,8 @@ class ACSKeyDTO {
 @ApiTags("acs-keys")
 @Controller("acs-keys")
 export class ACSKeysController {
-    constructor(private acsKeysService: ACSKeysService, private membersService: MembersService) {
+    constructor(private acsKeysService: ACSKeysService, private membersService: MembersService,
+                private auditLogService: AuditLogService) {
     }
 
     private static mapToDTO(acsKey: ACSKey): ACSKeyDTO {
@@ -100,7 +103,11 @@ export class ACSKeysController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async create(@Body() request: CreateACSKeyDTO): Promise<ACSKeyDTO> {
+    async create(@UserId() actorId: string, @Body() request: CreateACSKeyDTO): Promise<ACSKeyDTO> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         const {type, key, name, memberId} = request;
         const member = await this.membersService.findById(memberId);
         if (!member) {
@@ -114,6 +121,13 @@ export class ACSKeysController {
             key,
             name,
             member
+        });
+        await this.auditLogService.create("create-acs-key", actor, {
+            id: acsKey.id,
+            type: acsKey.type,
+            key: acsKey.key,
+            name: acsKey.name,
+            memberId: member.id
         });
         return ACSKeysController.mapToDTO(acsKey);
     }
@@ -130,7 +144,14 @@ export class ACSKeysController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async remove(@Param("id") id: string): Promise<void> {
+    async remove(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
+        const actor = await this.membersService.findById(actorId);
+        if (!actor) {
+            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         await this.acsKeysService.remove(id);
+        await this.auditLogService.create("delete-acs-key", actor, {
+            id
+        });
     }
 }

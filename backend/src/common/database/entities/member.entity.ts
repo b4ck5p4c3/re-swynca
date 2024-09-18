@@ -9,6 +9,7 @@ import {GitHubMetadata} from "./github-metadata.entity";
 import {MONEY_DECIMAL_PLACES, MONEY_PRECISION} from "../../money";
 import {DecimalTransformer} from "../transformers/decimal.transformer";
 import Decimal from "decimal.js";
+import {AuditLog} from "./audit-log.entity";
 
 export enum MemberStatus {
     ACTIVE = "active",
@@ -59,4 +60,7 @@ export class Member {
 
     @OneToOne(() => GitHubMetadata, githubMetadata => githubMetadata.member, {nullable: true})
     githubMetadata?: GitHubMetadata;
+
+    @OneToMany(() => AuditLog, auditLog => auditLog.actor)
+    auditLogs: AuditLog[];
 }

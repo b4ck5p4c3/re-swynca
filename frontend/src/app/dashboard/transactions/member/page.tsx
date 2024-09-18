@@ -29,6 +29,7 @@ import {Popover, PopoverTrigger} from "@/components/ui/popover";
 import {PopoverContent} from "@/components/ui/popover";
 import {commandScore} from "@/lib/command-score";
 import {getCurrentMemberId} from "@/lib/auth-storage";
+import {Money} from "@/components/money";
 
 const TRANSACTIONS_PER_PAGE = 20;
 
@@ -172,11 +173,12 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                                         <ChevronsUpDown className={"ml-2 h-4 w-4 shrink-0 opacity-50"}/>
                                                     </Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent className={"min-ww-[200px] p-0"} style={{width: memberSelectButtonRef.current?.clientWidth}}>
+                                                <PopoverContent className={"min-ww-[200px] p-0"}
+                                                                style={{width: memberSelectButtonRef.current?.clientWidth}}>
                                                     <Command filter={(value, search, keywords) => {
                                                         const label = members.data ? formatMemberLabel(
                                                             members.data.find((member) =>
-                                                            member.id === value)) ?? "" : "";
+                                                                member.id === value)) ?? "" : "";
                                                         return commandScore(label, search, keywords);
                                                     }}>
                                                         <CommandInput placeholder={"Search member..."}/>
@@ -391,7 +393,8 @@ export default function MemberTransactionsPage() {
                         memberTransactions.data.transactions.map(transaction =>
                             <TableRow>
                                 <TableCell>{new Date(transaction.date).toLocaleString()}</TableCell>
-                                <TableCell>{transaction.amount}</TableCell>
+                                <TableCell><Money amount={transaction.amount}
+                                                  negate={transaction.type === "withdrawal"}/></TableCell>
                                 <TableCell>{transaction.comment ?? "-"}</TableCell>
                                 <TableCell>{getMemberTransactionTypeText(transaction)}</TableCell>
                                 <TableCell><a className={"underline"}

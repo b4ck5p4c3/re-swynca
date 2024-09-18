@@ -7,6 +7,7 @@ import {ConfigService} from "@nestjs/config";
 import {CustomValidationError} from "../common/exceptions";
 import {AuthService} from "../auth/auth.service";
 import {NoAuth} from "../auth/no-auth.decorator";
+import {AuditLogService} from "../audit-log/audit-log.service";
 
 @Controller("logto-auth")
 export class LogtoAuthController {
@@ -15,7 +16,7 @@ export class LogtoAuthController {
     private readonly baseUrl: string;
 
     constructor(private logtoAuthService: LogtoAuthService, private configService: ConfigService,
-                private authService: AuthService) {
+                private authService: AuthService, private auditLogService: AuditLogService) {
         this.baseUrl = this.configService.getOrThrow("BASE_URL");
         const redirectUrl = new URL(this.baseUrl);
         redirectUrl.pathname = `${Reflect.getMetadata(PATH_METADATA, LogtoAuthController)}/${
@@ -46,6 +47,8 @@ export class LogtoAuthController {
         if (!member) {
             throw new HttpException(`Member '${logtoId}' not found`, HttpStatus.NOT_FOUND);
         }
+
+        await this.auditLogService.create("logto-authorize", member, undefined);
 
         const token = await this.authService.createToken(member.id);
         this.authService.setResponseAuthorizationCookie(response, token);

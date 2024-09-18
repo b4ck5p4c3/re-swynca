@@ -3,6 +3,7 @@ import {Repository} from "typeorm";
 import {GitHubMetadata} from "../common/database/entities/github-metadata.entity";
 import {Injectable} from "@nestjs/common";
 import {DeepPartial} from "typeorm/common/DeepPartial";
+import {AuditLogService} from "../audit-log/audit-log.service";
 
 @Injectable()
 export class GitHubMetadatasService {

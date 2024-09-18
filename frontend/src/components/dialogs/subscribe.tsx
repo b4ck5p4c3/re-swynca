@@ -10,6 +10,7 @@ import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Button} from "@/components/ui/button";
+import {Money} from "@/components/money";
 
 const subscribeForm = z.object({
     membershipId: z.string()
@@ -80,7 +81,7 @@ export function SubscribeDialog({open, onClose, availableMemberships, memberId}:
                                                     {
                                                         availableMemberships.map(membership =>
                                                             <SelectItem value={membership.id}>
-                                                                {membership.title} - {membership.amount}
+                                                                {membership.title} - <Money amount={membership.amount}/>
                                                             </SelectItem>
                                                         )
                                                     }

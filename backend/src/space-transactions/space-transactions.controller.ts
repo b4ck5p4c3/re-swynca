@@ -25,6 +25,8 @@ import {UserId} from "src/auth/user-id.decorator";
 import {MemberDTO, MembersController} from "../members/members.controller";
 import {getCountAndOffset, getOrderObject} from "../common/utils";
 import {of} from "rxjs";
+import {AuditLog} from "../common/database/entities/audit-log.entity";
+import {AuditLogService} from "../audit-log/audit-log.service";
 
 class SpaceTransactionDTO {
     @ApiProperty({format: "uuid"})
@@ -99,7 +101,8 @@ class SpaceTransactionsDTO {
 @Controller("space-transactions")
 @ApiTags("space-transactions")
 export class SpaceTransactionsController {
-    constructor(private spaceTransactionsService: SpaceTransactionsService, private membersService: MembersService) {
+    constructor(private spaceTransactionsService: SpaceTransactionsService, private membersService: MembersService,
+                private auditLogService: AuditLogService) {
     }
 
     private static mapToDTO(spaceTransaction: SpaceTransaction): SpaceTransactionDTO {
@@ -241,6 +244,16 @@ export class SpaceTransactionsController {
         await this.membersService.atomicIncrementBalance(spaceMember,
             request.type === TransactionType.DEPOSIT ?
                 decimalAmount : decimalAmount.negated());
+
+        await this.auditLogService.create("create-space-transaction", actor, {
+            id: spaceTransaction.id,
+            type: spaceTransaction.type,
+            amount: spaceTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
+            comment: spaceTransaction.comment,
+            date: spaceTransaction.date.toISOString(),
+            source: spaceTransaction.source,
+            target: spaceTransaction.target
+        });
 
         return SpaceTransactionsController.mapToDTO(spaceTransaction);
     };

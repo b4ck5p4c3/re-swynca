@@ -10,6 +10,7 @@ import {MembershipDTO} from "@/lib/types";
 import React, {useState} from "react";
 import {CreateMembershipDialog} from "@/components/dialogs/create-membership";
 import {UpdateMembershipDialog} from "@/components/dialogs/update-membership";
+import { Money } from "@/components/money";
 
 export default function MembershipsPage() {
     const [createMembershipDialogOpened, setCreateMembershipDialogOpened] = useState(false);
@@ -48,7 +49,7 @@ export default function MembershipsPage() {
                         setUpdateMembershipDialogOpened(true);
                     }}>
                         <TableCell>{membership.title}</TableCell>
-                        <TableCell>{membership.amount}</TableCell>
+                        <TableCell><Money amount={membership.amount}/></TableCell>
                         <TableCell>
                             <Badge className={"w-full justify-center"}
                                    variant={membership.active ? "default" : "destructive"}>

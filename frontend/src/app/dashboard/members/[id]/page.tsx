@@ -27,6 +27,7 @@ import {Paginator} from "@/components/paginator";
 import {getMemberTransactionTypeText} from "@/lib/utils";
 import {MemberSubjectedTransactions} from "@/components/member-subjected-transactions";
 import {MemberActedTransactions} from "@/components/member-acted-transactions";
+import {Money} from "@/components/money";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
     "pan": "💳",
@@ -166,7 +167,7 @@ export default function MemberPage() {
                 <Skeleton className={"h-[24px] w-[200px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"Joined at"}>{member.data ? new Date(member.data.joinedAt).toLocaleDateString() :
                 <Skeleton className={"h-[24px] w-[90px]"}/>}</MemberInfoRow>
-            <MemberInfoRow title={"Balance"}>{member.data ? member.data.balance :
+            <MemberInfoRow title={"Balance"}>{member.data ? <Money amount={member.data.balance}/> :
                 <Skeleton className={"h-[24px] w-[50px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"Status"}>{member.data ?
                 <div className={"flex flex-row gap-2"}>
