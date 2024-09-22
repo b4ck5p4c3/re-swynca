@@ -25,7 +25,6 @@ export default function DashboardLayout({children,}: Readonly<{ children: React.
                         <MenuEntry url={"/dashboard/transactions"}>Transactions</MenuEntry>
                         <MenuEntry url={"/dashboard/members"}>Members</MenuEntry>
                         <MenuEntry url={"/dashboard/memberships"}>Memberships</MenuEntry>
-                        <MenuEntry url={"/dashboard/audit-log"}>Audit Log</MenuEntry>
                     </Menu>
                     <SelfUserBlock/>
                 </div>

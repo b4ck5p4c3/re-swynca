@@ -107,10 +107,12 @@ export function UpdateMembershipDialog({open, onClose, current}: DefaultDialogPr
                             name="active"
                             render={({field}) => (
                                 <FormItem>
-                                    <FormControl>
-                                        <Switch checked={field.value} onCheckedChange={field.onChange}/>
-                                    </FormControl>
-                                    <FormLabel>Is active?</FormLabel>
+                                    <div className={"flex flex-row gap-2 items-center"}>
+                                        <FormControl>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange}/>
+                                        </FormControl>
+                                        <FormLabel>Is active?</FormLabel>
+                                    </div>
                                     <FormMessage/>
                                 </FormItem>
                             )}
