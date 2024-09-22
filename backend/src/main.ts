@@ -28,8 +28,6 @@ async function bootstrap() {
         .build();
     const document = SwaggerModule.createDocument(app, config);
 
-    console.info(process.env);
-
     if (process.env.NODE_ENV === "development") {
         await fsPromises.writeFile(path.join(process.cwd(), "openapi.json"), JSON.stringify(document, null, 4));
     }

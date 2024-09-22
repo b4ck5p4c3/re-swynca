@@ -1,60 +1,6 @@
 {
     "openapi": "3.0.0",
     "paths": {
-        "/api/audit-log": {
-            "get": {
-                "operationId": "AuditLogController_findAll",
-                "summary": "Get all audit log entries",
-                "parameters": [
-                    {
-                        "name": "offset",
-                        "required": true,
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "count",
-                        "required": true,
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuditLogEntriesDTO"
-                                }
-                            }
-                        }
-                    },
-                    "default": {
-                        "description": "Erroneous response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorApiResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "audit-log"
-                ],
-                "security": [
-                    {
-                        "cookie": []
-                    }
-                ]
-            }
-        },
         "/api/memberships": {
             "get": {
                 "operationId": "MembershipsController_findAll",
@@ -1487,6 +1433,64 @@
             }
         },
         "schemas": {
+            "MembershipDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "title",
+                    "amount",
+                    "active"
+                ]
+            },
+            "ErrorApiResponse": {
+                "type": "object",
+                "properties": {
+                    "statusCode": {
+                        "type": "number"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "statusCode",
+                    "message"
+                ]
+            },
+            "CreateUpdateMembershipDTO": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "title",
+                    "amount",
+                    "active"
+                ]
+            },
             "TelegramMetadataDTO": {
                 "type": "object",
                 "properties": {
@@ -1559,114 +1563,6 @@
                     "status",
                     "balance",
                     "joinedAt"
-                ]
-            },
-            "AuditLogEntryDTO": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "action": {
-                        "type": "string"
-                    },
-                    "metadata": {
-                        "type": "object"
-                    },
-                    "actor": {
-                        "$ref": "#/components/schemas/MemberDTO"
-                    },
-                    "nearTransactionHash": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "id",
-                    "createdAt",
-                    "action",
-                    "metadata",
-                    "actor"
-                ]
-            },
-            "AuditLogEntriesDTO": {
-                "type": "object",
-                "properties": {
-                    "count": {
-                        "type": "number"
-                    },
-                    "entries": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/AuditLogEntryDTO"
-                        }
-                    }
-                },
-                "required": [
-                    "count",
-                    "entries"
-                ]
-            },
-            "ErrorApiResponse": {
-                "type": "object",
-                "properties": {
-                    "statusCode": {
-                        "type": "number"
-                    },
-                    "message": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "statusCode",
-                    "message"
-                ]
-            },
-            "MembershipDTO": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "format": "uuid"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "amount": {
-                        "type": "string"
-                    },
-                    "active": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "id",
-                    "title",
-                    "amount",
-                    "active"
-                ]
-            },
-            "CreateUpdateMembershipDTO": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string"
-                    },
-                    "amount": {
-                        "type": "string"
-                    },
-                    "active": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "title",
-                    "amount",
-                    "active"
                 ]
             },
             "CreateUpdateMemberDTO": {

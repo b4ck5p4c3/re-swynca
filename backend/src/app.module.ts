@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {Module} from "@nestjs/common";
 import {AppConfigModule} from "./common/config/app-config.module";
 import {DatabaseModule} from "./common/database/database.module";
 import {MembershipsModule} from "./memberships/memberships.module";
@@ -13,9 +13,12 @@ import {AppHttpModule} from "./common/http/app-http.module";
 import {SpaceSeederModule} from "./space-seeder/space-seeder.module";
 import {SpaceModule} from "./space/space.module";
 import {AuditLogModule} from "./audit-log/audit-log.module";
+import {BaseAuditLogModule} from "./base-audit-log/base-audit-log.module";
+import {ScheduleModule} from "@nestjs/schedule";
 
 @Module({
     imports: [
+        ScheduleModule.forRoot(),
         AppConfigModule,
         AppJwtModule,
         AppHttpModule,
@@ -23,6 +26,7 @@ import {AuditLogModule} from "./audit-log/audit-log.module";
         DatabaseModule,
 
         AuditLogModule,
+        BaseAuditLogModule,
 
         MembershipsModule,
         MembersModule,

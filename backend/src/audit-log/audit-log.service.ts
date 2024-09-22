@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {AuditLog} from "../common/database/entities/audit-log.entity";
-import {FindOptionsOrder, Repository} from "typeorm";
+import {FindOptionsOrder, IsNull, Repository} from "typeorm";
 import {Member} from "../common/database/entities/member.entity";
 import {ACSKeyType} from "../common/database/entities/acs-key.entity";
 import {MONEY_DECIMAL_PLACES} from "../common/money";
@@ -133,5 +133,33 @@ export class AuditLogService {
                 createdAt: "desc"
             }
         });
+    }
+
+    async existsWithoutNearTransaction(): Promise<boolean> {
+        return await this.auditLogRepository.exists({
+            where: {
+                nearTransactionHash: IsNull()
+            }
+        });
+    }
+
+    async findAllWithoutNearTransaction(offset: number, count: number): Promise<AuditLog[]> {
+        return await this.auditLogRepository.find({
+            where: {
+                nearTransactionHash: IsNull()
+            },
+            order: {
+                createdAt: "asc"
+            },
+            relations: {
+                actor: true
+            },
+            skip: offset,
+            take: count
+        });
+    }
+
+    async update(auditLog: AuditLog): Promise<AuditLog> {
+        return await this.auditLogRepository.save(auditLog);
     }
 }
