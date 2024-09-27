@@ -35,7 +35,7 @@ export function TelegramMetadata({metadata, member}: {
     return <>
         {metadata ? <div className={"flex flex-row gap-2"}>
             {metadata.telegramName ?
-                <a href={`tg://user?id=${metadata.telegramId}`} className={"underline leading-8"}>
+                <a href={`https://t.me/${metadata.telegramName}`} className={"underline leading-8"}>
                     {metadata.telegramName ? metadata.telegramName : "Unknown"} ({metadata.telegramId})
                 </a> :
                 <span className={"leading-8"}>Username not linked ({metadata.telegramId})</span>
