@@ -3,7 +3,6 @@ import {
     ApiBody,
     ApiCookieAuth,
     ApiDefaultResponse,
-    ApiNoContentResponse,
     ApiOkResponse,
     ApiOperation,
     ApiProperty,
@@ -26,6 +25,7 @@ import {MONEY_DECIMAL_PLACES} from "../common/money";
 import {AuditLogService} from "../audit-log/audit-log.service";
 import {UserId} from "../auth/user-id.decorator";
 import {ConfigService} from "@nestjs/config";
+import {EmptyResponse} from "../common/utils";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -334,15 +334,17 @@ export class MembersController {
     @ApiBody({
         type: UpdateTelegramMetadataDTO
     })
-    @ApiNoContentResponse({
-        description: "Successful response"
+    @ApiOkResponse({
+        description: "Successful response",
+        type: EmptyResponse
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async updateTelegramMetadata(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateTelegramMetadataDTO): Promise<void> {
+    async updateTelegramMetadata(@UserId() actorId: string, @Param("id") id: string,
+                                 @Body() request: UpdateTelegramMetadataDTO): Promise<EmptyResponse> {
         const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -352,7 +354,7 @@ export class MembersController {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
         }
         if (member.telegramMetadata && request.telegramId === member.telegramMetadata.telegramId) {
-            return;
+            return {};
         }
 
         if (await this.telegramMetadataService.existsByTelegramId(request.telegramId)) {
@@ -381,21 +383,24 @@ export class MembersController {
                 memberId: member.id,
                 telegramId: telegramMetadata.telegramId
             });
+
+        return {};
     }
 
     @Delete(":id/telegram")
     @ApiOperation({
         summary: "Delete Telegram metadata for member"
     })
-    @ApiNoContentResponse({
-        description: "Successful response"
+    @ApiOkResponse({
+        description: "Successful response",
+        type: EmptyResponse
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async deleteTelegramMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
+    async deleteTelegramMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
         const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -418,6 +423,7 @@ export class MembersController {
             actor, {
                 memberId: member.id
             });
+        return {};
     }
 
     async removeMemberFromGitHubOrganization(member: Member): Promise<void> {
@@ -440,15 +446,17 @@ export class MembersController {
     @ApiBody({
         type: UpdateGitHubMetadataDTO
     })
-    @ApiNoContentResponse({
+    @ApiOkResponse({
         description: "Successful response",
+        type: EmptyResponse
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async updateGitHubMetadata(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateGitHubMetadataDTO): Promise<void> {
+    async updateGitHubMetadata(@UserId() actorId: string, @Param("id") id: string,
+                               @Body() request: UpdateGitHubMetadataDTO): Promise<EmptyResponse> {
         const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -463,7 +471,7 @@ export class MembersController {
         }
 
         if (member.githubMetadata && githubId === member.githubMetadata.githubId) {
-            return;
+            return {};
         }
 
         if (await this.githubMetadataService.existsByGithubId(githubId)) {
@@ -498,21 +506,24 @@ export class MembersController {
                 githubId: githubMetadata.githubId,
                 githubUsername: githubMetadata.githubUsername
             });
+
+        return {};
     }
 
     @Delete(":id/github")
     @ApiOperation({
         summary: "Delete GitHub metadata for member"
     })
-    @ApiNoContentResponse({
-        description: "Successful response"
+    @ApiOkResponse({
+        description: "Successful response",
+        type: EmptyResponse
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async deleteGitHubMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
+    async deleteGitHubMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
         const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -538,5 +549,7 @@ export class MembersController {
             actor, {
                 memberId: member.id
             });
+
+        return {};
     }
 }

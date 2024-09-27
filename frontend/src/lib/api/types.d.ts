@@ -422,6 +422,7 @@ export interface components {
         UpdateTelegramMetadataDTO: {
             telegramId: string;
         };
+        EmptyResponse: Record<string, never>;
         UpdateGitHubMetadataDTO: {
             githubUsername: string;
         };
@@ -819,11 +820,13 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
+                };
             };
             /** @description Erroneous response */
             default: {
@@ -852,11 +855,13 @@ export interface operations {
         };
         responses: {
             /** @description Successful response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
+                };
             };
             /** @description Erroneous response */
             default: {
@@ -881,11 +886,13 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
+                };
             };
             /** @description Erroneous response */
             default: {
@@ -914,11 +921,13 @@ export interface operations {
         };
         responses: {
             /** @description Successful response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
+                };
             };
             /** @description Erroneous response */
             default: {
@@ -1007,11 +1016,13 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
+                };
             };
             /** @description Erroneous response */
             default: {
@@ -1373,11 +1384,13 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
+                };
             };
             /** @description Erroneous response */
             default: {

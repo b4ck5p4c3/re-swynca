@@ -32,3 +32,5 @@ export function getCountAndOffset(count: string | undefined, offset: string | un
     let realOffset = parseIntOrDefault(offset, 0);
     return [Math.min(maxCount, Math.max(0, realCount)), Math.max(realOffset, 0)];
 }
+
+export class EmptyResponse {}

@@ -408,8 +408,15 @@
                     }
                 },
                 "responses": {
-                    "204": {
-                        "description": "Successful response"
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyResponse"
+                                }
+                            }
+                        }
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -445,8 +452,15 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Successful response"
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyResponse"
+                                }
+                            }
+                        }
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -494,8 +508,15 @@
                     }
                 },
                 "responses": {
-                    "204": {
-                        "description": "Successful response"
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyResponse"
+                                }
+                            }
+                        }
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -531,8 +552,15 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Successful response"
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyResponse"
+                                }
+                            }
+                        }
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -666,8 +694,15 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Successful response"
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyResponse"
+                                }
+                            }
+                        }
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -1317,8 +1352,15 @@
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Successful response"
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyResponse"
+                                }
+                            }
+                        }
                     },
                     "default": {
                         "description": "Erroneous response",
@@ -1606,6 +1648,10 @@
                 "required": [
                     "telegramId"
                 ]
+            },
+            "EmptyResponse": {
+                "type": "object",
+                "properties": {}
             },
             "UpdateGitHubMetadataDTO": {
                 "type": "object",

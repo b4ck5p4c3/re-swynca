@@ -15,6 +15,7 @@ import {ACSKeysService} from "./acs-keys.service";
 import {MembersService} from "src/members/members.service";
 import {AuditLogService} from "../audit-log/audit-log.service";
 import {UserId} from "../auth/user-id.decorator";
+import {EmptyResponse} from "../common/utils";
 
 class CreateACSKeyDTO {
     @ApiProperty({enum: ACSKeyType})
@@ -136,15 +137,16 @@ export class ACSKeysController {
     @ApiOperation({
         summary: "Delete ACS key"
     })
-    @ApiNoContentResponse({
-        description: "Successful response"
+    @ApiOkResponse({
+        description: "Successful response",
+        type: EmptyResponse
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async remove(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
+    async remove(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
         const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -153,5 +155,6 @@ export class ACSKeysController {
         await this.auditLogService.create("delete-acs-key", actor, {
             id
         });
+        return {};
     }
 }

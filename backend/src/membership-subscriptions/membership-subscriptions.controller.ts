@@ -16,6 +16,7 @@ import {MembersService} from "src/members/members.service";
 import {MembershipsService} from "src/memberships/memberships.service";
 import {AuditLogService} from "../audit-log/audit-log.service";
 import {UserId} from "../auth/user-id.decorator";
+import {EmptyResponse} from "../common/utils";
 
 class MembershipSubscriptionDTO {
     @ApiProperty({format: "uuid"})
@@ -153,15 +154,16 @@ export class MembershipSubscriptionsController {
     @ApiOperation({
         summary: "Unsubscribe member from membership"
     })
-    @ApiNoContentResponse({
-        description: "Successful response"
+    @ApiOkResponse({
+        description: "Successful response",
+        type: EmptyResponse
     })
     @ApiCookieAuth()
     @ApiDefaultResponse({
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async unsubscribe(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
+    async unsubscribe(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
         const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -179,5 +181,6 @@ export class MembershipSubscriptionsController {
         await this.auditLogService.create("unsubscribe-member", actor, {
             membershipSubscriptionId: membershipSubscription.id
         });
+        return {};
     }
 }
