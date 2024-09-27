@@ -265,7 +265,7 @@ export class MemberTransactionsController {
         if (decimalAmount.precision() > MONEY_PRECISION - MONEY_DECIMAL_PLACES) {
             throw new CustomValidationError(`Transaction amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
         }
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
         }

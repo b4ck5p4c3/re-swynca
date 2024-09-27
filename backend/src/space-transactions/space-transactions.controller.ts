@@ -225,7 +225,7 @@ export class SpaceTransactionsController {
         if (type === TransactionType.WITHDRAWAL && spaceMember.balance.lt(decimalAmount)) {
             throw new HttpException("Space balance is lower than transaction amount", HttpStatus.BAD_REQUEST);
         }
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
         }

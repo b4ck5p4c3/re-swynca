@@ -117,7 +117,7 @@ export class MembershipSubscriptionsController {
         type: ErrorApiResponse
     })
     async subscribe(@UserId() actorId: string, @Body() request: SubscribeDTO): Promise<MembershipSubscriptionDTO> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -162,7 +162,7 @@ export class MembershipSubscriptionsController {
         type: ErrorApiResponse
     })
     async unsubscribe(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }

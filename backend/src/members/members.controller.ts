@@ -187,7 +187,7 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async create(@UserId() actorId: string, @Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -240,7 +240,7 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async update(@UserId() actorId: string, @Param("id") id: string, @Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -296,7 +296,7 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async freeze(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -343,7 +343,7 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async updateTelegramMetadata(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateTelegramMetadataDTO): Promise<void> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -393,7 +393,7 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async deleteTelegramMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -446,7 +446,7 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async updateGitHubMetadata(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateGitHubMetadataDTO): Promise<void> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -506,7 +506,7 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async deleteGitHubMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<void> {
-        const actor = await this.membersService.findById(actorId);
+        const actor = await this.membersService.findByIdUnfiltered(actorId);
         if (!actor) {
             throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
