@@ -469,12 +469,12 @@ export class MembersController {
         }
 
         if (member.githubMetadata) {
-            await this.removeMemberFromGitHubOrganization(member);
+            // await this.removeMemberFromGitHubOrganization(member);
             await this.githubMetadataService.remove(member.githubMetadata.githubId);
         }
 
-        await this.githubService.setOrganizationMemberForUser(this.githubOrganizationName,
-            request.githubUsername, "owner");
+        /* await this.githubService.setOrganizationMemberForUser(this.githubOrganizationName,
+            request.githubUsername, "owner"); */
 
         await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
             LOGTO_GITHUB_CONNECTOR_TARGET, githubId, {});
@@ -522,7 +522,7 @@ export class MembersController {
             throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
         }
 
-        await this.removeMemberFromGitHubOrganization(member);
+        // await this.removeMemberFromGitHubOrganization(member);
 
         await this.logtoManagementService.deleteUserSocialIdentity(logtoBinding.logtoId, LOGTO_GITHUB_CONNECTOR_TARGET);
         await this.githubMetadataService.remove(member.githubMetadata.githubId);
