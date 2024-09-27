@@ -35,7 +35,6 @@ export function MemberActedTransactions({memberId}: { memberId: string }) {
     const [offset, setOffset] = useState(0);
     const [sortBy, setSortBy] = useState<"date" | "createdAt">("date");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-    const [doQuery, setDoQuery] = useState(true);
 
     const client = getClient();
 
@@ -57,7 +56,6 @@ export function MemberActedTransactions({memberId}: { memberId: string }) {
             return response.data!;
         },
         retry: false,
-        enabled: doQuery,
         queryKey: [MEMBER_TRANSACTIONS_QUERY_KEY, memberId, "acted", sortBy, sortDirection, offset]
     });
 
@@ -90,7 +88,7 @@ export function MemberActedTransactions({memberId}: { memberId: string }) {
                 {
                     memberTransactions.data ?
                         memberTransactions.data.transactions.map(transaction =>
-                            <TableRow>
+                            <TableRow key={transaction.id}>
                                 <TableCell>{new Date(transaction.date).toLocaleString()}</TableCell>
                                 <TableCell><Money amount={transaction.amount}
                                                   negate={transaction.type === "withdrawal"}/></TableCell>
@@ -100,7 +98,7 @@ export function MemberActedTransactions({memberId}: { memberId: string }) {
                                               target={"_blank"}>{transaction.subject.name}</a></TableCell>
                                 <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
                             </TableRow>) : <>
-                            {[...Array(10)].map(_ => <EmptyTableRow/>)}
+                            {[...Array(10)].map((value, index) => <EmptyTableRow key={index}/>)}
                         </>
                 }
             </TableBody>

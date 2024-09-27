@@ -47,7 +47,7 @@ export default function MembershipsPage() {
                     <TableRow className={"cursor-pointer"} onClick={() => {
                         setCurrentUpdatingMembership(membership);
                         setUpdateMembershipDialogOpened(true);
-                    }}>
+                    }} key={membership.id}>
                         <TableCell>{membership.title}</TableCell>
                         <TableCell><Money amount={membership.amount}/></TableCell>
                         <TableCell>

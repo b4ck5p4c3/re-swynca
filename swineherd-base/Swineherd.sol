@@ -1,17 +1,17 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 
 pragma solidity >=0.7.0 <0.9.0;
 
 contract Swineherd {
 
-    address creator;
+    address auditor;
 
-    constructor() {
-        creator = msg.sender;
+    constructor(address mainAuditor) {
+        auditor = mainAuditor;
     }
 
     function audit(bytes calldata) public payable {
-        require(msg.sender == creator, "Audit logs can be sent only by creator");
+        require(msg.sender == auditor, "Audit logs can be sent only by creator");
         // At least for now, don't do anything
     }
 }

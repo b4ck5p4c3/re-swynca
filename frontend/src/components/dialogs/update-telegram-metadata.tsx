@@ -59,7 +59,7 @@ export function UpdateTelegramMetadataDialog({open, onClose, member}: DefaultDia
                 telegramId: member.telegramMetadata?.telegramId
             });
         }
-    }, [open]);
+    }, [open, form, member]);
 
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>

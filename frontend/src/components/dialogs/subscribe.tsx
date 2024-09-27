@@ -55,7 +55,7 @@ export function SubscribeDialog({open, onClose, availableMemberships, memberId}:
         if (open) {
             form.reset();
         }
-    }, [open]);
+    }, [open, form]);
 
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
@@ -80,7 +80,7 @@ export function SubscribeDialog({open, onClose, availableMemberships, memberId}:
                                                 <SelectGroup>
                                                     {
                                                         availableMemberships.map(membership =>
-                                                            <SelectItem value={membership.id}>
+                                                            <SelectItem value={membership.id} key={membership.id}>
                                                                 {membership.title} - <Money amount={membership.amount}/>
                                                             </SelectItem>
                                                         )

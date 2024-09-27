@@ -66,7 +66,6 @@ export default function SpaceTransactionsPage() {
     const [offset, setOffset] = useState(0);
     const [sortBy, setSortBy] = useState<"date" | "createdAt">("date");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-    const [doQuery, setDoQuery] = useState(true);
     const [createSpaceTransactionDialogOpened, setCreateSpaceTransactionDialogOpened] = useState(false);
 
     const client = getClient();
@@ -86,7 +85,6 @@ export default function SpaceTransactionsPage() {
             return response.data!;
         },
         retry: false,
-        enabled: doQuery,
         queryKey: [SPACE_TRANSACTIONS_QUERY_KEY, sortBy, sortDirection, offset]
     });
 
@@ -119,7 +117,7 @@ export default function SpaceTransactionsPage() {
                 {
                     spaceTransactions.data ?
                         spaceTransactions.data.transactions.map(transaction =>
-                            <TableRow>
+                            <TableRow key={transaction.id}>
                                 <TableCell>{new Date(transaction.date).toLocaleString()}</TableCell>
                                 <TableCell><Money amount={transaction.amount}
                                                   negate={transaction.type === "withdrawal"}/></TableCell>
@@ -134,7 +132,7 @@ export default function SpaceTransactionsPage() {
                                               target={"_blank"}>{transaction.actor.name}</a></TableCell>
                                 <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
                             </TableRow>) : <>
-                            {[...Array(10)].map(_ => <EmptyTableRow/>)}
+                            {[...Array(10)].map((value, index) => <EmptyTableRow key={index}/>)}
                         </>
                 }
             </TableBody>

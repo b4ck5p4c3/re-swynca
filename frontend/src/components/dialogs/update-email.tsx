@@ -58,7 +58,7 @@ export function UpdateEMailDialog({open, onClose, member}: DefaultDialogProps & 
                 email: member.email
             });
         }
-    }, [open]);
+    }, [open, form, member]);
 
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>

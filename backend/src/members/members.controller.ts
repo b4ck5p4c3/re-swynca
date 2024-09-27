@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpException, HttpStatus, Logger, Param, Patch, Post} from "@nestjs/common";
 import {
     ApiBody,
     ApiCookieAuth,
@@ -16,11 +16,16 @@ import {MembersService} from "./members.service";
 import {GitHubMetadatasService} from "../github-metadatas/github-metadatas.service";
 import {GitHubService} from "../github/github.service";
 import {TelegramMetadatasService} from "../telegram-metadatas/telegram-metadatas.service";
-import {LOGTO_GITHUB_CONNECTOR_TARGET, LogtoManagementService} from "../logto-management/logto-management.service";
+import {
+    LOGTO_GITHUB_CONNECTOR_TARGET,
+    LOGTO_TELEGRAM_CONNECTOR_TARGET,
+    LogtoManagementService
+} from "../logto-management/logto-management.service";
 import {LogtoBindingsService} from "../logto-bindings/logto-bindings.service";
 import {MONEY_DECIMAL_PLACES} from "../common/money";
 import {AuditLogService} from "../audit-log/audit-log.service";
 import {UserId} from "../auth/user-id.decorator";
+import {ConfigService} from "@nestjs/config";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -97,11 +102,15 @@ class UpdateStatusDTO {
 @ApiTags("members")
 @Controller("members")
 export class MembersController {
+    private readonly logger = new Logger(MembersController.name);
+    private readonly githubOrganizationName: string;
 
     constructor(private membersService: MembersService, private githubMetadataService: GitHubMetadatasService,
                 private githubService: GitHubService, private telegramMetadataService: TelegramMetadatasService,
                 private logtoManagementService: LogtoManagementService,
-                private logtoBindingsService: LogtoBindingsService, private auditLogService: AuditLogService) {
+                private logtoBindingsService: LogtoBindingsService, private auditLogService: AuditLogService,
+                configService: ConfigService) {
+        this.githubOrganizationName = configService.getOrThrow("GITHUB_ORGANIZATION_NAME");
     }
 
     static mapToDTO(member: Member): MemberDTO {
@@ -347,9 +356,16 @@ export class MembersController {
             throw new HttpException("This Telegram account is already linked", HttpStatus.BAD_REQUEST);
         }
 
+        const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
+        if (!logtoBinding) {
+            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+        }
+
         if (member.telegramMetadata) {
             await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
         }
+        await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
+            LOGTO_TELEGRAM_CONNECTOR_TARGET, request.telegramId, {});
 
         const telegramMetadata = await this.telegramMetadataService.create({
             telegramId: request.telegramId,
@@ -388,12 +404,30 @@ export class MembersController {
         if (!member.telegramMetadata) {
             throw new HttpException("Member does not have Telegram metadata", HttpStatus.NOT_FOUND);
         }
+        const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
+        if (!logtoBinding) {
+            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+        }
+        await this.logtoManagementService.deleteUserSocialIdentity(logtoBinding.logtoId, LOGTO_TELEGRAM_CONNECTOR_TARGET);
         await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
 
         await this.auditLogService.create("delete-member-telegram-metadata",
             actor, {
                 memberId: member.id
             });
+    }
+
+    async removeMemberFromGitHubOrganization(member: Member): Promise<void> {
+        try {
+            const oldGitHubId = member.githubMetadata.githubId;
+            const oldGitHubUsername = await this.githubService.getUsernameById(oldGitHubId);
+            if (oldGitHubUsername) {
+                await this.githubService.removeOrganizationMemberForUser(this.githubOrganizationName, oldGitHubUsername);
+            }
+        } catch (e) {
+            this.logger.warn(`Failed to remove old GitHub user from organization (${
+                member.githubMetadata.githubId}/${member.githubMetadata.githubUsername}), user ${member.id}/${member.name}`);
+        }
     }
 
     @Patch(":id/github")
@@ -434,12 +468,16 @@ export class MembersController {
             throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
         }
 
-        await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
-            LOGTO_GITHUB_CONNECTOR_TARGET, githubId, {});
-
         if (member.githubMetadata) {
+            await this.removeMemberFromGitHubOrganization(member);
             await this.githubMetadataService.remove(member.githubMetadata.githubId);
         }
+
+        await this.githubService.setOrganizationMemberForUser(this.githubOrganizationName,
+            request.githubUsername, "owner");
+
+        await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
+            LOGTO_GITHUB_CONNECTOR_TARGET, githubId, {});
 
         const githubMetadata = await this.githubMetadataService.create({
             githubId,
@@ -483,6 +521,9 @@ export class MembersController {
         if (!logtoBinding) {
             throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
         }
+
+        await this.removeMemberFromGitHubOrganization(member);
+
         await this.logtoManagementService.deleteUserSocialIdentity(logtoBinding.logtoId, LOGTO_GITHUB_CONNECTOR_TARGET);
         await this.githubMetadataService.remove(member.githubMetadata.githubId);
 

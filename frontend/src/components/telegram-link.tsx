@@ -1,4 +1,3 @@
-import {GitHubLogoIcon} from "@radix-ui/react-icons";
 import Image from "next/image";
 import telegram from "@/static/images/telegram.svg";
 

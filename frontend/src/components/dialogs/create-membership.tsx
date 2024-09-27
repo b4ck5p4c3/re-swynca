@@ -57,7 +57,7 @@ export function CreateMembershipDialog({open, onClose}: DefaultDialogProps) {
         if (open) {
             form.reset();
         }
-    }, [open]);
+    }, [open, form]);
 
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>

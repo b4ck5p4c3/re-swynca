@@ -22,13 +22,13 @@ export function GitHubMetadata({metadata, member}: {
             R(await client.DELETE("/api/members/{id}/github", {
                 params: {
                     path: {
-                        id: member.id
+                        id: memberId
                     }
                 }
             }));
         },
         onSuccess: async (_: void, memberId: string) => {
-            await queryClient.refetchQueries({queryKey: [MEMBER_QUERY_KEY, member.id]});
+            await queryClient.refetchQueries({queryKey: [MEMBER_QUERY_KEY, memberId]});
         }
     });
 

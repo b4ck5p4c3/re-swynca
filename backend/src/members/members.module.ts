@@ -9,10 +9,12 @@ import {TelegramMetadatasModule} from "../telegram-metadatas/telegram-metadatas.
 import {LogtoManagementModule} from "../logto-management/logto-management.module";
 import {LogtoBindingsModule} from "../logto-bindings/logto-bindings.module";
 import {AuditLogModule} from "../audit-log/audit-log.module";
+import {ConfigModule} from "@nestjs/config";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Member]), GitHubModule, GitHubMetadatasModule,
-        TelegramMetadatasModule, LogtoManagementModule, LogtoBindingsModule, AuditLogModule],
+        TelegramMetadatasModule, LogtoManagementModule, LogtoBindingsModule, AuditLogModule,
+        ConfigModule],
     controllers: [MembersController],
     providers: [MembersService],
     exports: [MembersService]

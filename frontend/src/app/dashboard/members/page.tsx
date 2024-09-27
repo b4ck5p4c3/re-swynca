@@ -47,7 +47,7 @@ export default function MembersPage() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {members.data ? members.data.map(member => <TableRow className={"cursor-pointer"}
+                {members.data ? members.data.map(member => <TableRow key={member.id} className={"cursor-pointer"}
                                                                      onClick={() => router.push(`/dashboard/members/${member.id}`)}>
                     <TableCell>{member.name}</TableCell>
                     <TableCell>{member.email}</TableCell>

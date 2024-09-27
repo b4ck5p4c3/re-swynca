@@ -59,7 +59,7 @@ export function UpdateGitHubMetadataDialog({open, onClose, member}: DefaultDialo
                 githubUsername: member.githubMetadata?.githubUsername
             });
         }
-    }, [open]);
+    }, [open, form, member]);
 
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>

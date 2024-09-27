@@ -34,6 +34,7 @@ interface LogtoCreateUserResponse {
 
 const LOGTO_MANAGEMENT_API_ID = "https://default.logto.app/api";
 
+export const LOGTO_TELEGRAM_CONNECTOR_TARGET = "telegram";
 export const LOGTO_GITHUB_CONNECTOR_TARGET = "github";
 
 @Injectable()

@@ -4,11 +4,11 @@ import {Button} from "@/components/ui/button";
 import React from "react";
 import {usePathname, useRouter} from "next/navigation";
 
-export function MenuEntry({url, children}: { url: string, children: React.ReactNode; }) {
+export function MenuEntry({url, matches, children}: { url: string, matches?: string[], children: React.ReactNode; }) {
     const router = useRouter();
     const path = usePathname();
 
-    return <Button variant={path == url ? "secondary" : "ghost"}
+    return <Button variant={(path === url || (matches && matches.find(match => match === path))) ? "secondary" : "ghost"}
                    onClick={() => router.push(url)}>{children}</Button>
 }
 

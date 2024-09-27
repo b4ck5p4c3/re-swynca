@@ -73,15 +73,25 @@ export class BaseAuditLogService implements OnModuleInit {
     private baseSignerAddress: string;
     private baseContractAddress: string;
     private readonly baseJsonRpcProviderUrl: string;
+    private enabled: boolean;
 
     constructor(private configService: ConfigService, private auditLogService: AuditLogService,
                 private baseTransactionSignerService: BaseTransactionSignerService) {
+        if (!configService.get("BASE_AUDIT_LOG_ENABLED")) {
+            this.enabled = false;
+            this.logger.warn("Base audit log is disabled");
+            return;
+        }
+        this.enabled = true;
         this.baseSignerAddress = configService.getOrThrow("BASE_SIGNER_ADDRESS");
         this.baseContractAddress = configService.getOrThrow("BASE_CONTRACT_ADDRESS");
         this.baseJsonRpcProviderUrl = configService.getOrThrow("BASE_JSON_RPC_PROVIDER_URL");
     }
 
     async onModuleInit(): Promise<void> {
+        if (!this.enabled) {
+            return;
+        }
         this.auditLogEncryptionPublicKey = await importSPKI(readFileSync(
             this.configService.getOrThrow("AUDIT_LOG_ENCRYPTION_PUBLIC_KEY_PATH"))
             .toString("utf-8"), "X25519");
@@ -187,8 +197,11 @@ export class BaseAuditLogService implements OnModuleInit {
         return transactionHash;
     }
 
-    @Interval(60 * 1000 * 1000)
+    @Interval(60 * 1000)
     async pushAuditLogs(): Promise<void> {
+        if (!this.enabled) {
+            return;
+        }
         if (this.isCurrentlyPushing) {
             return;
         }

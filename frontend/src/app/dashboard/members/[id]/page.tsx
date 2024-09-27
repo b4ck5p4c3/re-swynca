@@ -1,39 +1,35 @@
 "use client";
 
+import React, {useState} from "react";
+import {getClient, R} from "@/lib/api/client";
 import {useParams} from "next/navigation";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {getClient, R} from "@/lib/api/client";
 import {
     MEMBER_ACS_KEYS_QUERY_KEY,
     MEMBER_QUERY_KEY,
-    MEMBER_SUBSCRIPTIONS_QUERY_KEY, MEMBER_TRANSACTIONS_QUERY_KEY,
+    MEMBER_SUBSCRIPTIONS_QUERY_KEY,
     MEMBERSHIPS_QUERY_KEY
 } from "@/lib/cache-tags";
-import React, {useState} from "react";
-import {Skeleton} from "@/components/ui/skeleton";
-import {Separator} from "@/components/ui/separator";
-import {Button} from "@/components/ui/button";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {MemberInfoRow} from "@/components/member-info-row";
+import {Button} from "@/components/ui/button";
+import {Pencil, Trash} from "lucide-react";
+import {Skeleton} from "@/components/ui/skeleton";
+import {Money} from "@/components/money";
+import {Separator} from "@/components/ui/separator";
+import {TelegramMetadata} from "@/components/telegram-metadata";
+import {GitHubMetadata} from "@/components/github-metadata";
+import {MemberSubjectedTransactions} from "@/components/member-subjected-transactions";
+import {MemberActedTransactions} from "@/components/member-acted-transactions";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {SubscribeDialog} from "@/components/dialogs/subscribe";
 import {CreateACSKeyDialog} from "@/components/dialogs/create-acs-key";
 import {UpdateNameDialog} from "@/components/dialogs/update-name";
 import {UpdateEMailDialog} from "@/components/dialogs/update-email";
-import {GitHubMetadata} from "@/components/github-metadata";
-import {TelegramMetadata} from "@/components/telegram-metadata";
-import {ArrowDownZA, ArrowUpAZ, Pencil, Trash} from "lucide-react";
-import {MemberDTO} from "@/lib/types";
-import {Paginator} from "@/components/paginator";
-import {getMemberTransactionTypeText} from "@/lib/utils";
-import {MemberSubjectedTransactions} from "@/components/member-subjected-transactions";
-import {MemberActedTransactions} from "@/components/member-acted-transactions";
-import {Money} from "@/components/money";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
     "pan": "💳",
     "uid": "🔑"
 };
-
 
 export default function MemberPage() {
     const [subscribeDialogOpened, setSubscribeDialogOpened] = useState(false);
@@ -213,7 +209,7 @@ export default function MemberPage() {
                     {memberships.data && memberSubscriptions.data ? memberSubscriptions.data.slice(0)
                             .sort((a, b) => new Date(b.subscribedAt).getTime() - new Date(a.subscribedAt).getTime())
                             .map(subscription =>
-                                <TableRow>
+                                <TableRow key={subscription.id}>
                                     <TableCell>{memberships.data.find(membership =>
                                         membership.id === subscription.membershipId)?.title ?? "???"}</TableCell>
                                     <TableCell>{memberships.data.find(membership =>
@@ -250,7 +246,7 @@ export default function MemberPage() {
                 </TableHeader>
                 <TableBody>
                     {memberAcsKeys.data ? memberAcsKeys.data.map(acsKey =>
-                            <TableRow className={"cursor-pointer"}>
+                            <TableRow className={"cursor-pointer"} key={acsKey.id}>
                                 <TableCell>{acsKey.name}</TableCell>
                                 <TableCell>{ACS_KEY_TYPE_MAPPING[acsKey.type]}</TableCell>
                                 <TableCell>{acsKey.key}</TableCell>

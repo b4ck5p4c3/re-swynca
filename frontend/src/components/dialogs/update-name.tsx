@@ -59,7 +59,7 @@ export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & {
                 name: member.name
             });
         }
-    }, [open]);
+    }, [open, form, member]);
 
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>

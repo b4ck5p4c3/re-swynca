@@ -66,7 +66,7 @@ export function UpdateMembershipDialog({open, onClose, current}: DefaultDialogPr
                 active: current.active
             });
         }
-    }, [open]);
+    }, [open, form, current]);
 
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>

@@ -5,7 +5,7 @@ import youMember from "@/static/images/you_member.svg";
 import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import {useQuery} from "@tanstack/react-query";
 import {getClient, R} from "@/lib/api/client";
-import {AUTH_SELF_QUERY_KEY, SPACE_BALANCE_QUERY_KEY} from "@/lib/cache-tags";
+import {SPACE_BALANCE_QUERY_KEY} from "@/lib/cache-tags";
 import {Skeleton} from "@/components/ui/skeleton";
 import {moneyToDecimal} from "@/lib/money";
 import {Money} from "@/components/money";
