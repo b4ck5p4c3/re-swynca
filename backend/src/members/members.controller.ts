@@ -351,6 +351,9 @@ export class MembersController {
         if (!member) {
             throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
         }
+        if (member.telegramMetadata && request.telegramId === member.telegramMetadata.telegramId) {
+            return;
+        }
 
         if (await this.telegramMetadataService.existsByTelegramId(request.telegramId)) {
             throw new HttpException("This Telegram account is already linked", HttpStatus.BAD_REQUEST);
@@ -459,7 +462,7 @@ export class MembersController {
             throw new HttpException("Invalid GitHub username", HttpStatus.BAD_REQUEST);
         }
 
-        if (githubId === member.githubMetadata.githubId) {
+        if (member.githubMetadata && githubId === member.githubMetadata.githubId) {
             return;
         }
 
