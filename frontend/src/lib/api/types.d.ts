@@ -390,7 +390,7 @@ export interface components {
         };
         TelegramMetadataDTO: {
             telegramId: string;
-            telegramName: string;
+            telegramName?: string;
         };
         GitHubMetadataDTO: {
             githubId: string;

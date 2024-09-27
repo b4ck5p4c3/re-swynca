@@ -39,8 +39,8 @@ class TelegramMetadataDTO {
     @ApiProperty()
     telegramId: string;
 
-    @ApiProperty()
-    telegramName: string;
+    @ApiProperty({required: false})
+    telegramName?: string;
 }
 
 export class MemberDTO {
@@ -374,7 +374,7 @@ export class MembersController {
 
         const telegramMetadata = await this.telegramMetadataService.create({
             telegramId: request.telegramId,
-            telegramName: "Unknown",
+            telegramName: null,
             member
         });
 

@@ -8,7 +8,7 @@ import {MemberDTO} from "@/lib/types";
 import {Pencil, Plus, Trash} from "lucide-react";
 
 export function TelegramMetadata({metadata, member}: {
-    metadata?: { telegramId: string; telegramName: string },
+    metadata?: { telegramId: string; telegramName?: string },
     member: MemberDTO
 }) {
     const [updateTelegramMetadataDialogOpened, setUpdateTelegramMetadataDialogOpened] = useState(false);
@@ -35,7 +35,7 @@ export function TelegramMetadata({metadata, member}: {
     return <>
         {metadata ? <div className={"flex flex-row gap-2"}>
             <a href={`tg://user?id=${metadata.telegramId}`} className={"underline leading-8"}>
-                {metadata.telegramName} ({metadata.telegramId})
+                {metadata.telegramName ? metadata.telegramName : "Unknown"} ({metadata.telegramId})
             </a>
             <Button className={"w-8 p-0 h-8"} onClick={() => setUpdateTelegramMetadataDialogOpened(true)}>
                 <Pencil className={"w-4 h-4"}/></Button>
