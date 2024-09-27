@@ -34,9 +34,12 @@ export function TelegramMetadata({metadata, member}: {
 
     return <>
         {metadata ? <div className={"flex flex-row gap-2"}>
-            <a href={`tg://user?id=${metadata.telegramId}`} className={"underline leading-8"}>
-                {metadata.telegramName ? metadata.telegramName : "Unknown"} ({metadata.telegramId})
-            </a>
+            {metadata.telegramName ?
+                <a href={`tg://user?id=${metadata.telegramId}`} className={"underline leading-8"}>
+                    {metadata.telegramName ? metadata.telegramName : "Unknown"} ({metadata.telegramId})
+                </a> :
+                <span className={"leading-8"}>Username not linked ({metadata.telegramId})</span>
+            }
             <Button className={"w-8 p-0 h-8"} onClick={() => setUpdateTelegramMetadataDialogOpened(true)}>
                 <Pencil className={"w-4 h-4"}/></Button>
             <Button variant={"destructive"} className={"w-8 p-0 h-8"} onClick={() =>

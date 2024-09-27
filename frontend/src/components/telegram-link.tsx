@@ -1,9 +1,9 @@
 import Image from "next/image";
 import telegram from "@/static/images/telegram.svg";
 
-export function TelegramLink({id}: { id: string }) {
-    return <a onClick={e => e.stopPropagation()}
-              href={`tg://user?id=${id}`} target={"_blank"}>
+export function TelegramLink({username}: { username?: string }) {
+    return username ? <a onClick={e => e.stopPropagation()}
+              href={`https://t.me/${username}`} target={"_blank"}>
         <Image alt={"telegram"} src={telegram} width={24} height={24}/>
-    </a>;
+    </a> : <Image className={"grayscale"} alt={"telegram"} src={telegram} width={24} height={24}/>;
 }

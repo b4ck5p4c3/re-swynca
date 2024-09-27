@@ -55,7 +55,7 @@ export default function MembersPage() {
                     <TableCell><Money amount={member.balance}/></TableCell>
                     <TableCell className={"flex flex-row gap-2 justify-end"}>
                         {member.githubMetadata ? <GitHubLink username={member.githubMetadata.githubUsername}/> : <></>}
-                        {member.telegramMetadata ? <TelegramLink id={member.telegramMetadata.telegramId}/> : <></>}
+                        {member.telegramMetadata ? <TelegramLink username={member.telegramMetadata.telegramName}/> : <></>}
                     </TableCell>
                     <TableCell>
                         <Badge className={"w-full justify-center"}
