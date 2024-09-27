@@ -459,6 +459,10 @@ export class MembersController {
             throw new HttpException("Invalid GitHub username", HttpStatus.BAD_REQUEST);
         }
 
+        if (githubId === member.githubMetadata.githubId) {
+            return;
+        }
+
         if (await this.githubMetadataService.existsByGithubId(githubId)) {
             throw new HttpException("This GitHub account is already linked", HttpStatus.BAD_REQUEST);
         }
