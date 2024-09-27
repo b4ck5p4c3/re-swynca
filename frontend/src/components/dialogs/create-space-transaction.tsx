@@ -67,7 +67,8 @@ export function CreateSpaceTransactionDialog({open, onClose}: DefaultDialogProps
                 type: "deposit",
                 source: "donate",
                 target: "basic",
-                date: new Date().toISOString().replace(/:\d\d\.\d\d\dZ$/, "")
+                date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000)
+                    .toISOString().replace(/:\d\d\.\d\d\dZ$/, "")
             });
         }
     }, [open, form]);
