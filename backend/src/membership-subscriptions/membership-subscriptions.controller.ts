@@ -17,6 +17,8 @@ import {MembershipsService} from "src/memberships/memberships.service";
 import {AuditLogService} from "../audit-log/audit-log.service";
 import {UserId} from "../auth/user-id.decorator";
 import {EmptyResponse} from "../common/utils";
+import {Errors} from "../common/errors";
+import {getValidActor} from "../common/actor-helper";
 
 class MembershipSubscriptionDTO {
     @ApiProperty({format: "uuid"})
@@ -118,25 +120,22 @@ export class MembershipSubscriptionsController {
         type: ErrorApiResponse
     })
     async subscribe(@UserId() actorId: string, @Body() request: SubscribeDTO): Promise<MembershipSubscriptionDTO> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const {memberId, membershipId} = request;
         const member = await this.membersService.findById(memberId);
         if (!member) {
-            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         const membership = await this.membershipService.findById(membershipId);
         if (!membership) {
-            throw new HttpException("Membership not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBERSHIP_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         if (!membership.active) {
-            throw new HttpException("Membership is frozen", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.MEMBERSHIP_FROZEN, HttpStatus.BAD_REQUEST);
         }
 
         if (await this.membershipSubscriptionsService.existsByMemberAndMembershipWithNotDeclined(member, membership)) {
-            throw new HttpException("Member already subscribed to this membership", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.MEMBER_ALREADY_SUBSCRIBED, HttpStatus.BAD_REQUEST);
         }
 
         const membershipSubscription = await this.membershipSubscriptionsService.create(member, membership);
@@ -164,16 +163,13 @@ export class MembershipSubscriptionsController {
         type: ErrorApiResponse
     })
     async unsubscribe(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const membershipSubscription = await this.membershipSubscriptionsService.findById(id);
         if (!membershipSubscription) {
-            throw new HttpException("Membership subscription not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBERSHIP_SUBSCRIPTION_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         if (membershipSubscription.declinedAt) {
-            throw new HttpException("Membership subscription already declined", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.MEMBERSHIP_SUBSCRIPTION_ALREADY_DECLINED, HttpStatus.BAD_REQUEST);
         }
         membershipSubscription.declinedAt = new Date();
         await this.membershipSubscriptionsService.update(membershipSubscription);

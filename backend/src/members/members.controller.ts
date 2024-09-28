@@ -26,6 +26,8 @@ import {AuditLogService} from "../audit-log/audit-log.service";
 import {UserId} from "../auth/user-id.decorator";
 import {ConfigService} from "@nestjs/config";
 import {EmptyResponse} from "../common/utils";
+import {Errors} from "../common/errors";
+import {getValidActor} from "../common/actor-helper";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -165,7 +167,7 @@ export class MembersController {
     async findById(@Param("id") id: string): Promise<MemberDTO> {
         const member = await this.membersService.findById(id);
         if (!member) {
-            throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         return MembersController.mapToDTO(member);
     }
@@ -187,12 +189,9 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async create(@UserId() actorId: string, @Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         if (await this.membersService.existsByEmail(request.email)) {
-            throw new HttpException("Member with this email already exists", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.MEMBER_EMAIL_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
         }
 
         const logtoId = await this.logtoManagementService.createUser({
@@ -240,23 +239,20 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async update(@UserId() actorId: string, @Param("id") id: string, @Body() request: CreateUpdateMemberDTO): Promise<MemberDTO> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const member = await this.membersService.findById(id);
         if (!member) {
-            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
 
         const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
         if (!logtoBinding) {
-            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
         }
 
         if (request.email !== member.email) {
             if (await this.membersService.existsByEmail(request.email)) {
-                throw new HttpException("Member with such email already exists", HttpStatus.BAD_REQUEST);
+                throw new HttpException(Errors.MEMBER_EMAIL_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -296,20 +292,17 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async freeze(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
 
         const member = await this.membersService.findById(id);
         if (!member) {
-            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
 
         const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
 
         if (!logtoBinding) {
-            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
         }
 
         await this.logtoManagementService.updateUserSuspensionStatus(logtoBinding.logtoId,
@@ -345,25 +338,22 @@ export class MembersController {
     })
     async updateTelegramMetadata(@UserId() actorId: string, @Param("id") id: string,
                                  @Body() request: UpdateTelegramMetadataDTO): Promise<EmptyResponse> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const member = await this.membersService.findById(id);
         if (!member) {
-            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         if (member.telegramMetadata && request.telegramId === member.telegramMetadata.telegramId) {
             return {};
         }
 
         if (await this.telegramMetadataService.existsByTelegramId(request.telegramId)) {
-            throw new HttpException("This Telegram account is already linked", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.MEMBER_TELEGRAM_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
         }
 
         const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
         if (!logtoBinding) {
-            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
         }
 
         if (member.telegramMetadata) {
@@ -401,20 +391,17 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async deleteTelegramMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const member = await this.membersService.findById(id);
         if (!member) {
-            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         if (!member.telegramMetadata) {
-            throw new HttpException("Member does not have Telegram metadata", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NO_TELERGAM_METADATA, HttpStatus.NOT_FOUND);
         }
         const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
         if (!logtoBinding) {
-            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
         }
         await this.logtoManagementService.deleteUserSocialIdentity(logtoBinding.logtoId, LOGTO_TELEGRAM_CONNECTOR_TARGET);
         await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
@@ -457,17 +444,14 @@ export class MembersController {
     })
     async updateGitHubMetadata(@UserId() actorId: string, @Param("id") id: string,
                                @Body() request: UpdateGitHubMetadataDTO): Promise<EmptyResponse> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const member = await this.membersService.findById(id);
         if (!member) {
-            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         const githubId = await this.githubService.getIdByUsername(request.githubUsername);
         if (!githubId) {
-            throw new HttpException("Invalid GitHub username", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.INVALID_GITHUB_USERNAME, HttpStatus.BAD_REQUEST);
         }
 
         if (member.githubMetadata && githubId === member.githubMetadata.githubId) {
@@ -475,12 +459,12 @@ export class MembersController {
         }
 
         if (await this.githubMetadataService.existsByGithubId(githubId)) {
-            throw new HttpException("This GitHub account is already linked", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.MEMBER_GITHUB_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
         }
 
         const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
         if (!logtoBinding) {
-            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
         }
 
         if (member.githubMetadata) {
@@ -524,20 +508,17 @@ export class MembersController {
         type: ErrorApiResponse
     })
     async deleteGitHubMetadata(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const member = await this.membersService.findById(id);
         if (!member) {
-            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         if (!member.githubMetadata) {
-            throw new HttpException("Member does not have GitHub metadata", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NO_GITHUB_METADATA, HttpStatus.NOT_FOUND);
         }
         const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
         if (!logtoBinding) {
-            throw new HttpException("Member does not have Logto binding", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
         }
 
         // await this.removeMemberFromGitHubOrganization(member);

@@ -16,6 +16,8 @@ import {MembersService} from "src/members/members.service";
 import {AuditLogService} from "../audit-log/audit-log.service";
 import {UserId} from "../auth/user-id.decorator";
 import {EmptyResponse} from "../common/utils";
+import {Errors} from "../common/errors";
+import {getValidActor} from "../common/actor-helper";
 
 class CreateACSKeyDTO {
     @ApiProperty({enum: ACSKeyType})
@@ -105,17 +107,14 @@ export class ACSKeysController {
         type: ErrorApiResponse
     })
     async create(@UserId() actorId: string, @Body() request: CreateACSKeyDTO): Promise<ACSKeyDTO> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const {type, key, name, memberId} = request;
         const member = await this.membersService.findById(memberId);
         if (!member) {
-            throw new HttpException("Member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         if (await this.acsKeysService.existsByKey(key)) {
-            throw new HttpException("This key already exists", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.ACS_KEY_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
         }
         const acsKey = await this.acsKeysService.create({
             type,
@@ -147,10 +146,7 @@ export class ACSKeysController {
         type: ErrorApiResponse
     })
     async remove(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         await this.acsKeysService.remove(id);
         await this.auditLogService.create("delete-acs-key", actor, {
             id

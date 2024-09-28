@@ -8,6 +8,7 @@ import {CustomValidationError} from "../common/exceptions";
 import {AuthService} from "../auth/auth.service";
 import {NoAuth} from "../auth/no-auth.decorator";
 import {AuditLogService} from "../audit-log/audit-log.service";
+import {Errors} from "../common/errors";
 
 @Controller("logto-auth")
 export class LogtoAuthController {
@@ -45,7 +46,7 @@ export class LogtoAuthController {
         const member = await this.logtoAuthService.getMemberFromLogtoId(logtoId);
 
         if (!member) {
-            throw new HttpException(`Member '${logtoId}' not found`, HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
 
         await this.auditLogService.create("logto-authorize", member, undefined);

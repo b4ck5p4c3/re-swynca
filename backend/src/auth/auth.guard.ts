@@ -4,6 +4,7 @@ import {AuthService} from "./auth.service";
 import express from "express";
 import {Reflector} from "@nestjs/core";
 import {NO_AUTH_KEY} from "./no-auth.decorator";
+import {Errors} from "../common/errors";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,13 +25,13 @@ export class AuthGuard implements CanActivate {
         const token = this.authService.getHeaderAuthorizationToken(request) ??
             this.authService.getCookieAuthorizationToken(request);
         if (!token) {
-            throw new HttpException("Not authorized", HttpStatus.UNAUTHORIZED);
+            throw new HttpException(Errors.NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
         const userId = await this.authService.validateAndGetUserIdFromToken(token);
 
         if (!userId) {
-            throw new HttpException("Not authorized", HttpStatus.UNAUTHORIZED);
+            throw new HttpException(Errors.NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
         request["userId"] = userId;

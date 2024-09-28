@@ -8,7 +8,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import {TransactionType} from "../common/database/entities/common";
-import {IsDate, IsEnum, IsISO8601, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsUUID} from "class-validator";
+import {IsEnum, IsISO8601, IsNotEmpty, IsNumberString, IsOptional} from "class-validator";
 import {
     SpaceTransaction,
     SpaceTransactionDeposit,
@@ -20,13 +20,12 @@ import {MembersService, SPACE_MEMBER_ID} from "src/members/members.service";
 import Decimal from "decimal.js";
 import {CustomValidationError} from "src/common/exceptions";
 import {MONEY_DECIMAL_PLACES, MONEY_PRECISION} from "src/common/money";
-import {MemberTransactionsController} from "src/member-transactions/member-transactions.controller";
 import {UserId} from "src/auth/user-id.decorator";
 import {MemberDTO, MembersController} from "../members/members.controller";
 import {getCountAndOffset, getOrderObject} from "../common/utils";
-import {of} from "rxjs";
-import {AuditLog} from "../common/database/entities/audit-log.entity";
 import {AuditLogService} from "../audit-log/audit-log.service";
+import {Errors} from "../common/errors";
+import {getValidActor} from "../common/actor-helper";
 
 class SpaceTransactionDTO {
     @ApiProperty({format: "uuid"})
@@ -209,7 +208,7 @@ export class SpaceTransactionsController {
         const {type, amount, comment, date, source, target} = request;
 
         if (source && target) {
-            throw new HttpException("Target and source can't be defined at the same time", HttpStatus.BAD_REQUEST);
+            throw new CustomValidationError("Transaction target and source can't be defined at the same time");
         }
         const decimalAmount = new Decimal(amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
         if (decimalAmount.lessThanOrEqualTo(0)) {
@@ -220,15 +219,12 @@ export class SpaceTransactionsController {
         }
         const spaceMember = await this.membersService.findByIdUnfiltered(SPACE_MEMBER_ID);
         if (!spaceMember) {
-            throw new HttpException("Space member does not exist", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(Errors.SPACE_MEMBER_NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (type === TransactionType.WITHDRAWAL && spaceMember.balance.lt(decimalAmount)) {
-            throw new HttpException("Space balance is lower than transaction amount", HttpStatus.BAD_REQUEST);
+            throw new HttpException(Errors.SPACE_BALANCE_IS_TOO_LOW, HttpStatus.BAD_REQUEST);
         }
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
 
         const spaceTransaction = await this.spaceTransactionsService.create({
             type,

@@ -18,6 +18,8 @@ import {ErrorApiResponse} from "../common/api-responses";
 import {MembersService} from "../members/members.service";
 import {AuditLogService} from "../audit-log/audit-log.service";
 import {UserId} from "../auth/user-id.decorator";
+import {Errors} from "../common/errors";
+import {getValidActor} from "../common/actor-helper";
 
 class MembershipDTO {
     @ApiProperty({format: "uuid"})
@@ -99,10 +101,7 @@ export class MembershipsController {
         type: ErrorApiResponse
     })
     async create(@UserId() actorId: string, @Body() request: CreateUpdateMembershipDTO): Promise<MembershipDTO> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const decimalAmount = new Decimal(request.amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
         if (decimalAmount.lessThanOrEqualTo(0)) {
             throw new CustomValidationError("Membership amount must be > 0");
@@ -145,10 +144,7 @@ export class MembershipsController {
     })
     async updateMembership(@UserId() actorId: string, @Param("id") id: string,
                            @Body() request: CreateUpdateMembershipDTO): Promise<MembershipDTO> {
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const actor = await getValidActor(this.membersService, actorId);
         const decimalAmount = new Decimal(request.amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
         if (decimalAmount.lessThanOrEqualTo(0)) {
             throw new CustomValidationError("Membership amount must be > 0");
@@ -158,7 +154,7 @@ export class MembershipsController {
         }
         const membership = await this.membershipService.findById(id);
         if (!membership) {
-            throw new HttpException("Membership not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.MEMBERSHIP_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
 
         membership.title = request.title;

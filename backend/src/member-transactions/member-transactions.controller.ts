@@ -27,6 +27,8 @@ import {SpaceTransaction, SpaceTransactionDeposit} from "../common/database/enti
 import {MemberDTO, MembersController} from "../members/members.controller";
 import {SpaceTransactionsService} from "../space-transactions/space-transactions.service";
 import {AuditLogService} from "../audit-log/audit-log.service";
+import {Errors} from "../common/errors";
+import {getValidActor} from "../common/actor-helper";
 
 class MemberTransactionDTO {
     @ApiProperty({format: "uuid"})
@@ -252,12 +254,13 @@ export class MemberTransactionsController {
         type: ErrorApiResponse
     })
     async create(@UserId() actorId: string, @Body() request: CreateMemberTransactionDTO): Promise<MemberTransactionDTO> {
+        const actor = await getValidActor(this.membersService, actorId);
         const {
             type, amount, comment, date, source
             , target, subjectId
         } = request;
         if (source && target) {
-            throw new HttpException("Target and source can't be defined at the same time", HttpStatus.BAD_REQUEST);
+            throw new CustomValidationError("Transaction target and source can't be defined at the same time");
         }
         const decimalAmount = new Decimal(amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);if (decimalAmount.lessThanOrEqualTo(0)) {
             throw new CustomValidationError("Transaction amount must be > 0");
@@ -265,17 +268,13 @@ export class MemberTransactionsController {
         if (decimalAmount.precision() > MONEY_PRECISION - MONEY_DECIMAL_PLACES) {
             throw new CustomValidationError(`Transaction amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
         }
-        const actor = await this.membersService.findByIdUnfiltered(actorId);
-        if (!actor) {
-            throw new HttpException("Actor not found", HttpStatus.NOT_FOUND);
-        }
         const subjectMember = await this.membersService.findById(subjectId);
         if (!subjectMember) {
-            throw new HttpException("Subject member not found", HttpStatus.NOT_FOUND);
+            throw new HttpException(Errors.SUBJECT_MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         const spaceMember = await this.membersService.findByIdUnfiltered(SPACE_MEMBER_ID);
         if (!spaceMember) {
-            throw new HttpException("Space member does not exist", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(Errors.SPACE_MEMBER_NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
 
