@@ -1,6 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {ConfigService} from "@nestjs/config";
 import {HttpService} from "@nestjs/axios";
+import {AxiosError} from "axios";
 
 @Injectable()
 export class GitHubService {
@@ -12,15 +13,23 @@ export class GitHubService {
     }
 
     async getIdByUsername(username: string): Promise<string | null> {
-        const response = await this.httpService.axiosRef.get<{ id: string }>(
-            `https://api.github.com/users/${encodeURIComponent(username)}`, {
-                auth: {
-                    username: this.githubToken,
-                    password: ""
-                }
-            });
+        try {
+            const response = await this.httpService.axiosRef.get<{ id: string }>(
+                `https://api.github.com/users/${encodeURIComponent(username)}`, {
+                    auth: {
+                        username: this.githubToken,
+                        password: ""
+                    }
+                });
 
-        return response.data.id.toString();
+            return response.data.id.toString();
+        } catch (e) {
+            if (e instanceof AxiosError) {
+                if (e.status === 404) {
+                    return null;
+                }
+            }
+        }
     }
 
     async getUsernameById(id: string): Promise<string | null> {
