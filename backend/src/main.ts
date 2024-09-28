@@ -33,7 +33,7 @@ async function bootstrap() {
     }
 
     SwaggerModule.setup('swagger', app, document, {
-        useGlobalPrefix: false
+        useGlobalPrefix: true
     });
 
     await app.listen(3001);
