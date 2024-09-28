@@ -12,9 +12,9 @@ export class GitHubService {
         this.githubToken = configService.getOrThrow("GITHUB_TOKEN");
     }
 
-    async getIdByUsername(username: string): Promise<string | null> {
+    async getIdByUsername(username: string): Promise<{ id: string, username: string } | null> {
         try {
-            const response = await this.httpService.axiosRef.get<{ id: string }>(
+            const response = await this.httpService.axiosRef.get<{ id: string, login: string }>(
                 `https://api.github.com/users/${encodeURIComponent(username)}`, {
                     auth: {
                         username: this.githubToken,
@@ -22,7 +22,10 @@ export class GitHubService {
                     }
                 });
 
-            return response.data.id.toString();
+            return {
+                id: response.data.id.toString(),
+                username: response.data.login.toString()
+            };
         } catch (e) {
             if (e instanceof AxiosError) {
                 if (e.status === 404) {

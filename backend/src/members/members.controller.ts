@@ -449,16 +449,16 @@ export class MembersController {
         if (!member) {
             throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        const githubId = await this.githubService.getIdByUsername(request.githubUsername);
-        if (!githubId) {
+        const githubInfo = await this.githubService.getIdByUsername(request.githubUsername);
+        if (!githubInfo) {
             throw new HttpException(Errors.INVALID_GITHUB_USERNAME, HttpStatus.BAD_REQUEST);
         }
 
-        if (member.githubMetadata && githubId === member.githubMetadata.githubId) {
+        if (member.githubMetadata && githubInfo.id === member.githubMetadata.githubId) {
             return {};
         }
 
-        if (await this.githubMetadataService.existsByGithubId(githubId)) {
+        if (await this.githubMetadataService.existsByGithubId(githubInfo.id)) {
             throw new HttpException(Errors.MEMBER_GITHUB_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
         }
 
@@ -476,11 +476,11 @@ export class MembersController {
             request.githubUsername, "owner"); */
 
         await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
-            LOGTO_GITHUB_CONNECTOR_TARGET, githubId, {});
+            LOGTO_GITHUB_CONNECTOR_TARGET, githubInfo.id, {});
 
         const githubMetadata = await this.githubMetadataService.create({
-            githubId,
-            githubUsername: request.githubUsername,
+            githubId: githubInfo.id,
+            githubUsername: githubInfo.username,
             member
         });
 
