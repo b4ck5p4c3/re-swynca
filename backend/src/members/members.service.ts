@@ -13,6 +13,10 @@ export class MembersService {
     constructor(@InjectRepository(Member) private membersRepository: Repository<Member>) {
     }
 
+    async count(): Promise<number> {
+        return await this.membersRepository.count();
+    }
+
     async findAll(): Promise<Member[]> {
         return await this.membersRepository.find({
             relations: {

@@ -142,6 +142,43 @@
                 ]
             }
         },
+        "/api/members/stats": {
+            "get": {
+                "operationId": "MembersController_stats",
+                "summary": "Get stats of all members",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberStatsDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "members"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
         "/api/members": {
             "get": {
                 "operationId": "MembersController_findAll",
@@ -1192,6 +1229,43 @@
                 ]
             }
         },
+        "/api/membership-subscriptions/stats": {
+            "get": {
+                "operationId": "MembershipSubscriptionsController_stats",
+                "summary": "Get all membership subscriptions statistics",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MembershipSubscriptionStatsDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "membership-subscriptions"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
         "/api/membership-subscriptions/member/{memberId}": {
             "get": {
                 "operationId": "MembershipSubscriptionsController_findAllByMemberId",
@@ -1531,6 +1605,17 @@
                     "title",
                     "amount",
                     "active"
+                ]
+            },
+            "MemberStatsDTO": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "count"
                 ]
             },
             "TelegramMetadataDTO": {
@@ -1968,6 +2053,17 @@
                     "type",
                     "amount",
                     "date"
+                ]
+            },
+            "MembershipSubscriptionStatsDTO": {
+                "type": "object",
+                "properties": {
+                    "totalActiveAmount": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "totalActiveAmount"
                 ]
             },
             "MembershipSubscriptionDTO": {

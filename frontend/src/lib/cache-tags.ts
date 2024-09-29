@@ -7,3 +7,5 @@ export const MEMBER_SUBSCRIPTIONS_QUERY_KEY = "member-subscriptions";
 export const SPACE_TRANSACTIONS_QUERY_KEY = "space-transactions";
 export const MEMBER_TRANSACTIONS_QUERY_KEY = "member-transactions";
 export const SPACE_BALANCE_QUERY_KEY = "space-balance";
+export const MEMBERS_STATS_QUERY_KEY = "members-stats";
+export const MEMBER_SUBSCRIPTIONS_STATS_QUERY_KEY = "member-subscriptions-stats";

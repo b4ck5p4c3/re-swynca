@@ -39,6 +39,23 @@ export interface paths {
         patch: operations["MembershipsController_updateMembership"];
         trace?: never;
     };
+    "/api/members/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get stats of all members */
+        get: operations["MembersController_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/members": {
         parameters: {
             query?: never;
@@ -266,6 +283,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/membership-subscriptions/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all membership subscriptions statistics */
+        get: operations["MembershipSubscriptionsController_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/membership-subscriptions/member/{memberId}": {
         parameters: {
             query?: never;
@@ -387,6 +421,9 @@ export interface components {
             title: string;
             amount: string;
             active: boolean;
+        };
+        MemberStatsDTO: {
+            count: number;
         };
         TelegramMetadataDTO: {
             telegramId: string;
@@ -514,6 +551,9 @@ export interface components {
             /** @enum {string} */
             target?: "magic" | "basic" | "purchases";
         };
+        MembershipSubscriptionStatsDTO: {
+            totalActiveAmount: string;
+        };
         MembershipSubscriptionDTO: {
             /** Format: uuid */
             id: string;
@@ -632,6 +672,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MembershipDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberStatsDTO"];
                 };
             };
             /** @description Erroneous response */
@@ -1264,6 +1333,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SpaceTransactionsDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembershipSubscriptionsController_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MembershipSubscriptionStatsDTO"];
                 };
             };
             /** @description Erroneous response */

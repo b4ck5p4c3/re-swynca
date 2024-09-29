@@ -4,6 +4,7 @@ import {MembershipSubscription} from "src/common/database/entities/membership-su
 import {IsNull, Not, Repository} from "typeorm";
 import {Member} from "../common/database/entities/member.entity";
 import {Membership} from "../common/database/entities/membership.entity";
+import Decimal from "decimal.js";
 
 @Injectable()
 export class MembershipSubscriptionsService {
@@ -66,5 +67,15 @@ export class MembershipSubscriptionsService {
 
     async update(subscription: MembershipSubscription): Promise<MembershipSubscription> {
         return await this.membershipSubscriptionRepository.save(subscription);
+    }
+
+    async getSumOfActive(): Promise<Decimal> {
+        // WARN - custom query
+        const result = await this.membershipSubscriptionRepository.createQueryBuilder()
+            .select(`sum(${Membership.name}.amount)`, "totalAmount")
+            .leftJoin(`${MembershipSubscription.name}.membership`, Membership.name)
+            .where(`${MembershipSubscription.name}.declinedAt is null`)
+            .getRawOne<{ totalAmount: string }>();
+        return new Decimal(result.totalAmount ?? 0);
     }
 }

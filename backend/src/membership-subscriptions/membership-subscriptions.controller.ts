@@ -19,6 +19,7 @@ import {UserId} from "../auth/user-id.decorator";
 import {EmptyResponse} from "../common/utils";
 import {Errors} from "../common/errors";
 import {getValidActor} from "../common/actor-helper";
+import {MONEY_DECIMAL_PLACES} from "../common/money";
 
 class MembershipSubscriptionDTO {
     @ApiProperty({format: "uuid"})
@@ -49,6 +50,11 @@ class SubscribeDTO {
     membershipId: string;
 }
 
+class MembershipSubscriptionStatsDTO {
+    @ApiProperty()
+    totalActiveAmount: string;
+}
+
 @ApiTags("membership-subscriptions")
 @Controller("membership-subscriptions")
 export class MembershipSubscriptionsController {
@@ -65,6 +71,26 @@ export class MembershipSubscriptionsController {
             subscribedAt: membershipSubscription.subscribedAt.toISOString(),
             declinedAt: membershipSubscription.declinedAt ?
                 membershipSubscription.declinedAt.toISOString() : undefined
+        };
+    }
+
+    @Get("stats")
+    @ApiOperation({
+        summary: "Get all membership subscriptions statistics"
+    })
+    @ApiOkResponse({
+        description: "Successful response",
+        type: MembershipSubscriptionStatsDTO
+    })
+    @ApiCookieAuth()
+    @ApiDefaultResponse({
+        description: "Erroneous response",
+        type: ErrorApiResponse
+    })
+    async stats(): Promise<MembershipSubscriptionStatsDTO> {
+        return {
+            totalActiveAmount: (await this.membershipSubscriptionsService.getSumOfActive())
+                .toFixed(MONEY_DECIMAL_PLACES)
         };
     }
 

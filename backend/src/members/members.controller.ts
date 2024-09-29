@@ -101,6 +101,11 @@ class UpdateStatusDTO {
     status: MemberStatus;
 }
 
+class MemberStatsDTO {
+    @ApiProperty()
+    count: number;
+}
+
 @ApiTags("members")
 @Controller("members")
 export class MembersController {
@@ -131,6 +136,25 @@ export class MembersController {
                 githubId: member.githubMetadata.githubId,
                 githubUsername: member.githubMetadata.githubUsername
             } : undefined
+        };
+    }
+
+    @Get("stats")
+    @ApiOperation({
+        summary: "Get stats of all members"
+    })
+    @ApiOkResponse({
+        description: "Successful response",
+        type: MemberStatsDTO
+    })
+    @ApiCookieAuth()
+    @ApiDefaultResponse({
+        description: "Erroneous response",
+        type: ErrorApiResponse
+    })
+    async stats(): Promise<MemberStatsDTO> {
+        return {
+            count: await this.membersService.count()
         };
     }
 
