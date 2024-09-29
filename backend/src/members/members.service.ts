@@ -14,7 +14,9 @@ export class MembersService {
     }
 
     async count(): Promise<number> {
-        return await this.membersRepository.count();
+        return await this.membersRepository.countBy({
+            id: Not(SPACE_MEMBER_ID)
+        });
     }
 
     async findAll(): Promise<Member[]> {
