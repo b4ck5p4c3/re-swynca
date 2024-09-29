@@ -66,7 +66,7 @@ export default function MemberTransactionsPage() {
         queryKey: [MEMBER_TRANSACTIONS_QUERY_KEY, sortBy, sortDirection, offset]
     });
 
-    return <div className={"flex flex-col gap-6 mb-10"}>
+    return <div className={"flex flex-col gap-6"}>
         <Button onClick={() => setCreateMemberTransactionDialogOpened(true)}><Plus className={"w-6 h-6"}/></Button>
         <Table>
             <TableHeader>

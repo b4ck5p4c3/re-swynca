@@ -33,14 +33,17 @@ export function GitHubMetadata({metadata, member}: {
     });
 
     return <>
-        {metadata ? <div className={"flex flex-row gap-2"}>
+        {metadata ? <div className={"flex xs:flex-row flex-col gap-2"}>
             <a href={`https://github.com/${metadata.githubUsername}`} className={"underline leading-8"}>
                 {metadata.githubUsername} ({metadata.githubId})
             </a>
-            <Button className={"w-8 p-0 h-8"}
-                    onClick={() => setUpdateGitHubMetadataDialogOpened(true)}><Pencil className={"w-4 h-4"}/></Button>
-            <Button variant={"destructive"} className={"w-8 p-0 h-8"}
-                    onClick={() => deleteGitHubMetadata.mutate(member.id)}><Trash className={"w-4 h-4"}/></Button>
+            <div className={"flex flex-row gap-2"}>
+                <Button className={"w-8 p-0 h-8"}
+                        onClick={() => setUpdateGitHubMetadataDialogOpened(true)}><Pencil
+                    className={"w-4 h-4"}/></Button>
+                <Button variant={"destructive"} className={"w-8 p-0 h-8"}
+                        onClick={() => deleteGitHubMetadata.mutate(member.id)}><Trash className={"w-4 h-4"}/></Button>
+            </div>
         </div> : <div className={"flex flex-row gap-2"}>
             <span className={"leading-8"}>Not linked</span>
             <Button className={"w-8 p-0 h-8"}

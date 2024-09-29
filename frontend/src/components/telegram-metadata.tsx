@@ -33,17 +33,17 @@ export function TelegramMetadata({metadata, member}: {
     });
 
     return <>
-        {metadata ? <div className={"flex flex-row gap-2"}>
+        {metadata ? <div className={"flex flex-col xs:flex-row gap-2"}>
             {metadata.telegramName ?
                 <a href={`https://t.me/${metadata.telegramName}`} className={"underline leading-8"}>
                     {metadata.telegramName ? metadata.telegramName : "Unknown"} ({metadata.telegramId})
                 </a> :
                 <span className={"leading-8"}>Username not linked ({metadata.telegramId})</span>
             }
-            <Button className={"w-8 p-0 h-8"} onClick={() => setUpdateTelegramMetadataDialogOpened(true)}>
+            <div className={"flex flex-row gap-2"}><Button className={"w-8 p-0 h-8"} onClick={() => setUpdateTelegramMetadataDialogOpened(true)}>
                 <Pencil className={"w-4 h-4"}/></Button>
             <Button variant={"destructive"} className={"w-8 p-0 h-8"} onClick={() =>
-                deleteTelegramMetadata.mutate(member.id)}><Trash className={"w-4 h-4"}/></Button>
+                deleteTelegramMetadata.mutate(member.id)}><Trash className={"w-4 h-4"}/></Button></div>
         </div> : <div className={"flex flex-row gap-2"}>
             <span className={"leading-8"}>Not linked</span>
             <Button className={"w-8 p-0 h-8"} onClick={() => setUpdateTelegramMetadataDialogOpened(true)}>

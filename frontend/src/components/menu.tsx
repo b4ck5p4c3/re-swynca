@@ -8,12 +8,12 @@ export function MenuEntry({url, matches, children}: { url: string, matches?: str
     const router = useRouter();
     const path = usePathname();
 
-    return <Button variant={(path === url || (matches && matches.find(match => match === path))) ? "secondary" : "ghost"}
+    return <Button className={"flex-1"} variant={(path === url || (matches && matches.find(match => match === path))) ? "secondary" : "ghost"}
                    onClick={() => router.push(url)}>{children}</Button>
 }
 
 export function Menu({children}: { children: React.ReactNode }) {
-    return <div className={"flex flex-row gap-6"}>
+    return <div className={"flex sm:flex-row gap-2 w-full flex-col"}>
         {children}
     </div>;
 }

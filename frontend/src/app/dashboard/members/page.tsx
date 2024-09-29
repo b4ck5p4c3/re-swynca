@@ -35,7 +35,7 @@ export default function MembersPage() {
             <div className={"flex-1"}/>
             <Button onClick={() => setCreateMemberDialogOpened(true)}>Create</Button>
         </div>
-        <Table className={"mb-20"}>
+        <Table>
             <TableHeader>
                 <TableRow>
                     <TableHead>Name</TableHead>

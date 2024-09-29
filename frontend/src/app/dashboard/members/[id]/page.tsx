@@ -148,14 +148,14 @@ export default function MemberPage() {
     });
 
     return <div>
-        <div className={"flex flex-col gap-4 mb-10"}>
-            <MemberInfoRow title={"Name"}>{member.data ? <div className={"flex flex-row gap-2"}>
+        <div className={"flex flex-col gap-4"}>
+            <MemberInfoRow collapseWhenSm={true} title={"Name"}>{member.data ? <div className={"flex flex-row gap-2"}>
                     <div className={"leading-8"}>{member.data.name}</div>
                     <Button className={"w-8 p-0 h-8"}
                             onClick={() => setUpdateNameDialogOpened(true)}><Pencil className={"w-4 h-4"}/></Button>
                 </div> :
                 <Skeleton className={"h-[32px] w-[100px]"}/>}</MemberInfoRow>
-            <MemberInfoRow title={"E-Mail"}>{member.data ? <div className={"flex flex-row gap-2"}>
+            <MemberInfoRow collapseWhenSm={true} title={"E-Mail"}>{member.data ? <div className={"flex flex-row gap-2"}>
                     <div className={"leading-8"}>{member.data.email}</div>
                     <Button className={"w-8 p-0 h-8"}
                             onClick={() => setUpdateEMailDialogOpened(true)}><Pencil className={"w-4 h-4"}/></Button>
@@ -176,14 +176,14 @@ export default function MemberPage() {
                 </div> :
                 <Skeleton className={"h-[36px] w-[60px]"}/>}</MemberInfoRow>
             <Separator/>
-            <MemberInfoRow title={"Telegram"}>{member.data ?
+            <MemberInfoRow collapseWhenSm={true} title={"Telegram"}>{member.data ?
                 <TelegramMetadata metadata={member.data.telegramMetadata} member={member.data}/> :
                 <Skeleton className={"h-[32px] w-[120px]"}/>}</MemberInfoRow>
-            <MemberInfoRow title={"GitHub"}>{member.data ?
+            <MemberInfoRow collapseWhenSm={true} title={"GitHub"}>{member.data ?
                 <GitHubMetadata metadata={member.data.githubMetadata} member={member.data}/> :
                 <Skeleton className={"h-[32px] w-[80px]"}/>}</MemberInfoRow>
             <Separator/>
-            <div className={"flex flex-row gap-4"}>
+            <div className={"flex flex-col 2xl:flex-row gap-4"}>
                 <MemberSubjectedTransactions memberId={id}/>
                 <MemberActedTransactions memberId={id}/>
             </div>

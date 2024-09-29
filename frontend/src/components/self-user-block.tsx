@@ -42,7 +42,7 @@ export function SelfUserBlock() {
             <AvatarFallback>{selfMember.data.name.replace(/[a-zа-я0-9\s\-]/g, '')}</AvatarFallback>
         </Avatar>
         <div>{selfMember.data.name}</div>
-        <div className={"w-4"}/>
+        <div className={"w-1"}/>
         <div><Money amount={selfMember.data.balance}/></div>
     </div> : <div className={"flex flex-row items-center gap-2"}>
         <Skeleton className={"w-[40px] h-[40px] rounded-full"}/>

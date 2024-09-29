@@ -25,5 +25,5 @@ export function Money({amount, className, negate}: {
     const displayedAmount = negate ? realAmount.negated() : realAmount;
 
     return <span className={displayedAmount.isNegative() ? cn(className, "text-red-600") : className}>
-        {moneyToNumberFormat(displayedAmount)} {currencySymbol}</span>
+        {moneyToNumberFormat(displayedAmount)}&nbsp;{currencySymbol}</span>
 }

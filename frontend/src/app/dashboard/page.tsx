@@ -46,46 +46,46 @@ export default function DashboardPage() {
 
     return <div className={"flex flex-col gap-10"}>
         <div className={"flex flex-row gap-6 items-center justify-center"}>
-            <div className={"text-7xl font-semibold"}>You member</div>
+            <div className={"sm:text-7xl xs:text-6xl text-4xl font-semibold"}>You member</div>
             <Image src={youMember} alt={"you member"} className={"w-[80px]"}/>
         </div>
-        <div className={"grid grid-cols-3 gap-10"}>
+        <div className={"grid md:grid-cols-2 xl:grid-cols-3 gap-10"}>
             <Card>
                 <CardHeader>
-                    <div className={"text-4xl font-semibold"}>Balance:</div>
+                    <div className={"xs:text-4xl text-3xl font-semibold"}>Balance:</div>
                 </CardHeader>
                 <CardContent>
-                    {spaceBalance.data ? <div className={"text-5xl"}><Money
+                    {spaceBalance.data ? <div className={"xs:text-5xl text-4xl"}><Money
                             amount={spaceBalance.data.balance}/></div> :
                         <Skeleton className={"h-[3rem] w-[200px]"}/>}
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader>
-                    <div className={"text-4xl font-semibold"}>Payment:</div>
+                    <div className={"xs:text-4xl text-3xl font-semibold"}>Payment:</div>
                 </CardHeader>
                 <CardContent>
-                    <div className={"text-5xl"}><Money
+                    <div className={"xs:text-5xl text-4xl"}><Money
                         amount={process.env.NEXT_PUBLIC_REQUIRED_PAYMENT ?? "0"}/></div>
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader>
-                    <div className={"text-4xl font-semibold"}>Required:</div>
+                    <div className={"xs:text-4xl text-3xl font-semibold"}>Required:</div>
                 </CardHeader>
                 <CardContent>
                     {spaceBalance.data ?
-                        <div className={"text-5xl"}><Money amount={moneyToDecimal(spaceBalance.data.balance).minus(
+                        <div className={"xs:text-5xl text-4xl"}><Money amount={moneyToDecimal(spaceBalance.data.balance).minus(
                             moneyToDecimal(process.env.NEXT_PUBLIC_REQUIRED_PAYMENT ?? "0"))}/></div> :
                         <Skeleton className={"h-[3rem] w-[200px]"}/>}
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader>
-                    <div className={"text-4xl font-semibold"}>Members:</div>
+                    <div className={"xs:text-4xl text-3xl font-semibold"}>Members:</div>
                 </CardHeader>
                 <CardContent>
-                    {memberStats.data ? <div className={"text-5xl"}>
+                    {memberStats.data ? <div className={"xs:text-5xl text-4xl"}>
                             {memberStats.data.count}
                         </div> :
                         <Skeleton className={"h-[3rem] w-[50px]"}/>}
@@ -93,17 +93,17 @@ export default function DashboardPage() {
             </Card>
             <Card>
                 <CardHeader>
-                    <div className={"text-4xl font-semibold"}>Monthly target:</div>
+                    <div className={"xs:text-4xl text-3xl font-semibold"}>Monthly target:</div>
                 </CardHeader>
                 <CardContent>
-                    {membershipSubscriptionStats.data ? <div className={"text-5xl"}><Money
+                    {membershipSubscriptionStats.data ? <div className={"xs:text-5xl text-4xl"}><Money
                             amount={membershipSubscriptionStats.data.totalActiveAmount}/></div> :
                         <Skeleton className={"h-[3rem] w-[200px]"}/>}
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader>
-                    <div className={"text-4xl font-semibold"}>More stats coming soon</div>
+                    <div className={"xs:text-4xl text-3xl font-semibold"}>More stats coming soon</div>
                 </CardHeader>
                 <CardContent>
                 </CardContent>

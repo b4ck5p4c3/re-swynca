@@ -30,7 +30,7 @@ export default function MembershipsPage() {
 
     return <div className={"flex flex-col gap-6"}>
         <div className={"flex flex-row"}>
-            <div className={"text-3xl font-semibold"}>Memberships</div>
+            <div className={"text-2xl sm:text-3xl font-semibold"}>Memberships</div>
             <div className={"flex-1"}/>
             <Button onClick={() => setCreateMembershipDialogOpened(true)}>Create</Button>
         </div>
