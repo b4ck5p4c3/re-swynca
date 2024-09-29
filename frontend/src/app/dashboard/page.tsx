@@ -6,7 +6,6 @@ import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import {useQuery} from "@tanstack/react-query";
 import {getClient, R} from "@/lib/api/client";
 import {
-    MEMBER_SUBSCRIPTIONS_QUERY_KEY,
     MEMBER_SUBSCRIPTIONS_STATS_QUERY_KEY,
     MEMBERS_STATS_QUERY_KEY,
     SPACE_BALANCE_QUERY_KEY
