@@ -210,6 +210,12 @@ export class SpaceTransactionsController {
         if (source && target) {
             throw new CustomValidationError("Transaction target and source can't be defined at the same time");
         }
+        if (request.type === TransactionType.DEPOSIT && !request.source) {
+            throw new CustomValidationError("Transaction source must be defined for deposit transaction");
+        }
+        if (request.type === TransactionType.WITHDRAWAL && !request.target) {
+            throw new CustomValidationError("Transaction target must be defined for withdrawal transaction");
+        }
         const decimalAmount = new Decimal(amount).toDecimalPlaces(MONEY_DECIMAL_PLACES);
         if (decimalAmount.lessThanOrEqualTo(0)) {
             throw new CustomValidationError("Transaction amount must be > 0");
