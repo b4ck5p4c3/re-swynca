@@ -94,8 +94,7 @@ type AuditLogEntry = {
     },
     "update-member-github-metadata": {
         memberId: string,
-        githubId: string,
-        githubUsername: string
+        githubId: string
     },
     "delete-member-github-metadata": {
         memberId: string

@@ -28,4 +28,10 @@ export class TelegramMetadatasService {
             telegramId
         });
     }
+
+    async updateByTelegramId(telegramId: string, telegramMetadataData: DeepPartial<TelegramMetadata>) {
+        await this.telegramMetadataRepository.update({
+            telegramId
+        }, telegramMetadataData);
+    }
 }

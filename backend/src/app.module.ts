@@ -15,6 +15,8 @@ import {SpaceModule} from "./space/space.module";
 import {AuditLogModule} from "./audit-log/audit-log.module";
 import {BaseAuditLogModule} from "./base-audit-log/base-audit-log.module";
 import {ScheduleModule} from "@nestjs/schedule";
+import {TelegramListenerController} from "./telegram-listener/telegram-listener.controller";
+import {TelegramListenerModule} from "./telegram-listener/telegram-listener.module";
 
 @Module({
     imports: [
@@ -38,7 +40,9 @@ import {ScheduleModule} from "@nestjs/schedule";
 
         LogtoAuthModule,
 
-        SpaceSeederModule
+        SpaceSeederModule,
+
+        TelegramListenerModule
     ],
     controllers: [],
     providers: [],

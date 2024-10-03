@@ -511,8 +511,7 @@ export class MembersController {
         await this.auditLogService.create("update-member-github-metadata",
             actor, {
                 memberId: member.id,
-                githubId: githubMetadata.githubId,
-                githubUsername: githubMetadata.githubUsername
+                githubId: githubMetadata.githubId
             });
 
         return {};
