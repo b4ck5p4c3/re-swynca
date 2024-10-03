@@ -23,6 +23,7 @@ export class TelegramListenerController {
     @NoAuth()
     @UseGuards(TelegramListenerGuard)
     async botCallback(@Body() request: TelegramWebhookData): Promise<"OK"> {
+        console.info(request);
         if (request.message?.from?.id && request.message?.from?.username) {
             await this.telegramMetadatasService.updateByTelegramId(request.message.from.id, {
                 telegramName: request.message.from.username
