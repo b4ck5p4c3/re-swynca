@@ -2,7 +2,7 @@ import {Body, Controller, HttpCode, Logger, Post, UseGuards} from "@nestjs/commo
 import {TelegramMetadatasService} from "../telegram-metadatas/telegram-metadatas.service";
 import {NoAuth} from "../auth/no-auth.decorator";
 import {ApiExcludeEndpoint} from "@nestjs/swagger";
-import {TelegramListenerGuard} from "./telegram-listener.guard";
+import {TelegramListenerAuthGuard} from "./telegram-listener-auth.guard";
 
 class TelegramWebhookData {
     message?: {
@@ -21,7 +21,7 @@ export class TelegramListenerController {
     @Post("/bot")
     @ApiExcludeEndpoint()
     @NoAuth()
-    @UseGuards(TelegramListenerGuard)
+    @UseGuards(TelegramListenerAuthGuard)
     @HttpCode(200)
     async botCallback(@Body() request: TelegramWebhookData): Promise<"OK"> {
         console.info(request);

@@ -1,9 +1,9 @@
-import {Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, UseGuards} from "@nestjs/common";
 import {ACSKey, ACSKeyType} from "../common/database/entities/acs-key.entity";
 import {
     ApiBody,
     ApiCookieAuth,
-    ApiDefaultResponse, ApiNoContentResponse,
+    ApiDefaultResponse, ApiExcludeEndpoint, ApiNoContentResponse,
     ApiOkResponse,
     ApiOperation,
     ApiProperty,
@@ -18,6 +18,8 @@ import {UserId} from "../auth/user-id.decorator";
 import {EmptyResponse} from "../common/utils";
 import {Errors} from "../common/errors";
 import {getValidActor} from "../common/actor-helper";
+import {NoAuth} from "../auth/no-auth.decorator";
+import {ACSKeysApiAuthGuard} from "./acs-keys-api-auth.guard";
 
 class CreateACSKeyDTO {
     @ApiProperty({enum: ACSKeyType})
@@ -71,6 +73,18 @@ export class ACSKeysController {
             name: acsKey.name,
             memberId: acsKey.member.id
         };
+    }
+
+    @Get("system")
+    @ApiExcludeEndpoint()
+    @NoAuth()
+    @UseGuards(ACSKeysApiAuthGuard)
+    async findAllForACSSystem(): Promise<object> {
+        const result: Record<string, string> = {};
+        for (const acsKey of await this.acsKeysService.find()) {
+            result[acsKey.key] = acsKey.member.id;
+        }
+        return result;
     }
 
     @Get("member/:memberId")

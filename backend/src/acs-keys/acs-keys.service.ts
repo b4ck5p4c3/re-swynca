@@ -8,7 +8,15 @@ export class ACSKeysService {
     constructor(@InjectRepository(ACSKey) private acsKeyRepository: Repository<ACSKey>) {
     }
 
-    async findAllByMemberId(id: string): Promise<ACSKey[] | null> {
+    async find(): Promise<ACSKey[]> {
+        return await this.acsKeyRepository.find({
+            relations: {
+                member: true
+            }
+        });
+    }
+
+    async findAllByMemberId(id: string): Promise<ACSKey[]> {
         return await this.acsKeyRepository.find({
             where: {
                 member: {
