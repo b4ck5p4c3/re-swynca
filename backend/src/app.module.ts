@@ -16,6 +16,7 @@ import {BaseAuditLogModule} from "./base-audit-log/base-audit-log.module";
 import {ScheduleModule} from "@nestjs/schedule";
 import {TelegramListenerModule} from "./telegram-listener/telegram-listener.module";
 import {ApiKeysModule} from "./api-keys/api-keys.module";
+import {ApiKeysControllerModule} from "./api-keys/api-keys-controller.module";
 
 @Module({
     imports: [
@@ -35,7 +36,7 @@ import {ApiKeysModule} from "./api-keys/api-keys.module";
         SpaceTransactionsModule,
         MembershipSubscriptionsModule,
         SpaceModule,
-        ApiKeysModule,
+        ApiKeysControllerModule,
 
         LogtoAuthModule,
 
