@@ -11,6 +11,7 @@ import {SessionStorageModule} from "../session-storage/session-storage.module";
     imports: [TypeOrmModule.forFeature([ApiKey]), MembersModule, AuditLogModule, SessionStorageModule],
     providers: [ApiKeysService],
     controllers: [ApiKeysController],
+    exports: [ApiKeysService]
 })
 export class ApiKeysModule {
 }

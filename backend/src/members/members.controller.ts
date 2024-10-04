@@ -29,6 +29,7 @@ import {EmptyResponse} from "../common/utils";
 import {Errors} from "../common/errors";
 import {getValidActor} from "../common/actor-helper";
 import {SessionStorageService} from "../session-storage/session-storage.service";
+import {ApiKeysService} from "../api-keys/api-keys.service";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -117,7 +118,8 @@ export class MembersController {
                 private githubService: GitHubService, private telegramMetadataService: TelegramMetadatasService,
                 private logtoManagementService: LogtoManagementService,
                 private logtoBindingsService: LogtoBindingsService, private auditLogService: AuditLogService,
-                configService: ConfigService, private sessionStorageService: SessionStorageService) {
+                configService: ConfigService, private sessionStorageService: SessionStorageService,
+                private apiKeysService: ApiKeysService) {
         this.githubOrganizationName = configService.getOrThrow("GITHUB_ORGANIZATION_NAME");
     }
 
@@ -333,7 +335,11 @@ export class MembersController {
         await this.logtoManagementService.updateUserSuspensionStatus(logtoBinding.logtoId,
             request.status === "frozen");
 
-        await this.sessionStorageService.revokeAllByUserId(member.id);
+        if (request.status === "frozen") {
+            await this.sessionStorageService.revokeAllByUserId(member.id);
+        } else {
+            await this.apiKeysService.initializeApiKeysInStorage();
+        }
 
         member.status = request.status;
 

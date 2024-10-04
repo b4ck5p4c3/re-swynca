@@ -11,11 +11,12 @@ import {LogtoBindingsModule} from "../logto-bindings/logto-bindings.module";
 import {AuditLogModule} from "../audit-log/audit-log.module";
 import {ConfigModule} from "@nestjs/config";
 import {SessionStorageModule} from "../session-storage/session-storage.module";
+import {ApiKeysModule} from "../api-keys/api-keys.module";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Member]), GitHubModule, GitHubMetadatasModule,
         TelegramMetadatasModule, LogtoManagementModule, LogtoBindingsModule, AuditLogModule,
-        ConfigModule, SessionStorageModule],
+        ConfigModule, SessionStorageModule, ApiKeysModule],
     controllers: [MembersController],
     providers: [MembersService],
     exports: [MembersService]

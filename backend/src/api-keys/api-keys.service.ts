@@ -50,10 +50,16 @@ export class ApiKeysService implements OnModuleInit {
         await this.apiKeyRepository.delete(id);
     }
 
-    async onModuleInit(): Promise<void> {
+    async initializeApiKeysInStorage(): Promise<void> {
         const keys = await this.find();
         for (const key of keys) {
-            await this.sessionStorageService.add(key.key, key.member.id);
+            if (key.member.status === "active") {
+                await this.sessionStorageService.add(key.key, key.member.id);
+            }
         }
+    }
+
+    async onModuleInit(): Promise<void> {
+        await this.initializeApiKeysInStorage();
     }
 }
