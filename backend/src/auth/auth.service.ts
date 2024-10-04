@@ -12,7 +12,7 @@ export class AuthService {
     private readonly sessionTtl: number;
 
     constructor(private sessionStorageService: SessionStorageService, private configService: ConfigService) {
-        this.sessionTtl = configService.getOrThrow<number>("SESSION_TTL")
+        this.sessionTtl = configService.getOrThrow("SESSION_TTL");
     }
 
     async createToken(userId: string, ttl?: number): Promise<string> {
