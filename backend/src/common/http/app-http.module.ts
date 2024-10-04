@@ -7,7 +7,7 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
         HttpModule.registerAsync({
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
-                timeout: configService.getOrThrow("HTTP_TIMEOUT"),
+                timeout: parseInt(configService.getOrThrow("HTTP_TIMEOUT")),
                 maxRedirects: 0
             }),
             inject: [ConfigService]
