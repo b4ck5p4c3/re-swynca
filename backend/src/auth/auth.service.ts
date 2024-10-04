@@ -1,19 +1,24 @@
 import {Injectable} from "@nestjs/common";
 import express from "express";
-import {JwtService} from "@nestjs/jwt";
 import * as process from "node:process";
+import {SessionStorageService} from "../session-storage/session-storage.service";
+import {randomBytes} from "crypto";
+import {ConfigService} from "@nestjs/config";
 
 export const SESSION_COOKIE_NAME = "session";
 
 @Injectable()
 export class AuthService {
-    constructor(private jwtService: JwtService) {
+    private readonly sessionTtl: number;
+
+    constructor(private sessionStorageService: SessionStorageService, private configService: ConfigService) {
+        this.sessionTtl = configService.getOrThrow<number>("SESSION_TTL")
     }
 
     async createToken(userId: string, ttl?: number): Promise<string> {
-        return await this.jwtService.signAsync({sub: userId}, ttl ? {
-            expiresIn: ttl
-        } : undefined);
+        const token = `session_${randomBytes(32).toString("hex")}`;
+        await this.sessionStorageService.add(token, userId, ttl ?? this.sessionTtl);
+        return token;
     }
 
     setResponseAuthorizationCookie(response: express.Response, token: string): void {
@@ -45,11 +50,7 @@ export class AuthService {
         return undefined;
     }
 
-    async validateAndGetUserIdFromToken(token: string): Promise<string | undefined> {
-        try {
-            return (await this.jwtService.verifyAsync<{ sub: string }>(token)).sub;
-        } catch (e) {
-            return undefined;
-        }
+    async validateAndGetUserIdFromToken(token: string): Promise<string | null> {
+        return await this.sessionStorageService.findByToken(token);
     }
 }

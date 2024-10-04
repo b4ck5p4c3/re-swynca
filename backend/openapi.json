@@ -366,7 +366,7 @@
         },
         "/api/members/{id}/status": {
             "patch": {
-                "operationId": "MembersController_freeze",
+                "operationId": "MembersController_updateStatus",
                 "summary": "Freeze/unfreeze member",
                 "parameters": [
                     {
@@ -1494,6 +1494,127 @@
                 ]
             }
         },
+        "/api/api-keys": {
+            "get": {
+                "operationId": "ApiKeysController_findMy",
+                "summary": "Get your API keys",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ApiKeyDTO"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "api-keys"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "ApiKeysController_create",
+                "summary": "Create new API key",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiKeyDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "api-keys"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
+        "/api/api-keys/{id}": {
+            "delete": {
+                "operationId": "ApiKeysController_remove",
+                "summary": "Delete API key",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "api-keys"
+                ],
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ]
+            }
+        },
         "/api/auth/self": {
             "get": {
                 "operationId": "AuthController_getSelf",
@@ -2123,6 +2244,22 @@
                 },
                 "required": [
                     "balance"
+                ]
+            },
+            "ApiKeyDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "key": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "key"
                 ]
             },
             "SelfAuthInfoDTO": {

@@ -8,21 +8,19 @@ import {MemberTransactionsModule} from "./member-transactions/member-transaction
 import {SpaceTransactionsModule} from "./space-transactions/space-transactions.module";
 import {MembershipSubscriptionsModule} from "./membership-subscriptions/membership-subscriptions.module";
 import {LogtoAuthModule} from "./logto-auth/logto-auth.module";
-import {AppJwtModule} from "./common/jwt/app-jwt.module";
 import {AppHttpModule} from "./common/http/app-http.module";
 import {SpaceSeederModule} from "./space-seeder/space-seeder.module";
 import {SpaceModule} from "./space/space.module";
 import {AuditLogModule} from "./audit-log/audit-log.module";
 import {BaseAuditLogModule} from "./base-audit-log/base-audit-log.module";
 import {ScheduleModule} from "@nestjs/schedule";
-import {TelegramListenerController} from "./telegram-listener/telegram-listener.controller";
 import {TelegramListenerModule} from "./telegram-listener/telegram-listener.module";
+import {ApiKeysModule} from "./api-keys/api-keys.module";
 
 @Module({
     imports: [
         ScheduleModule.forRoot(),
         AppConfigModule,
-        AppJwtModule,
         AppHttpModule,
 
         DatabaseModule,
@@ -37,6 +35,7 @@ import {TelegramListenerModule} from "./telegram-listener/telegram-listener.modu
         SpaceTransactionsModule,
         MembershipSubscriptionsModule,
         SpaceModule,
+        ApiKeysModule,
 
         LogtoAuthModule,
 

@@ -60,7 +60,6 @@ export class GitHubService {
     }
 
     async removeOrganizationMemberForUser(organization: string, username: string): Promise<void> {
-        console.info("WUT?");
         await this.httpService.axiosRef.delete(
             `https://api.github.com/orgs/${organization}/memberships/${encodeURIComponent(username)}`, {
                 auth: {

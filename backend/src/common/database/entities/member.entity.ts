@@ -10,6 +10,7 @@ import {MONEY_DECIMAL_PLACES, MONEY_PRECISION} from "../../money";
 import {DecimalTransformer} from "../transformers/decimal.transformer";
 import Decimal from "decimal.js";
 import {AuditLog} from "./audit-log.entity";
+import {ApiKey} from "./api-key.entity";
 
 export enum MemberStatus {
     ACTIVE = "active",
@@ -63,4 +64,7 @@ export class Member {
 
     @OneToMany(() => AuditLog, auditLog => auditLog.actor)
     auditLogs: AuditLog[];
+
+    @OneToMany(() => ApiKey, apiKey => apiKey.member)
+    apiKeys: ApiKey[];
 }

@@ -28,6 +28,7 @@ import {ConfigService} from "@nestjs/config";
 import {EmptyResponse} from "../common/utils";
 import {Errors} from "../common/errors";
 import {getValidActor} from "../common/actor-helper";
+import {SessionStorageService} from "../session-storage/session-storage.service";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -116,7 +117,7 @@ export class MembersController {
                 private githubService: GitHubService, private telegramMetadataService: TelegramMetadatasService,
                 private logtoManagementService: LogtoManagementService,
                 private logtoBindingsService: LogtoBindingsService, private auditLogService: AuditLogService,
-                configService: ConfigService) {
+                configService: ConfigService, private sessionStorageService: SessionStorageService) {
         this.githubOrganizationName = configService.getOrThrow("GITHUB_ORGANIZATION_NAME");
     }
 
@@ -315,7 +316,7 @@ export class MembersController {
         description: "Erroneous response",
         type: ErrorApiResponse
     })
-    async freeze(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
+    async updateStatus(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
         const actor = await getValidActor(this.membersService, actorId);
 
         const member = await this.membersService.findById(id);
@@ -331,6 +332,8 @@ export class MembersController {
 
         await this.logtoManagementService.updateUserSuspensionStatus(logtoBinding.logtoId,
             request.status === "frozen");
+
+        await this.sessionStorageService.revokeAllByUserId(member.id);
 
         member.status = request.status;
 
@@ -492,12 +495,12 @@ export class MembersController {
         }
 
         if (member.githubMetadata) {
-            // await this.removeMemberFromGitHubOrganization(member);
+            await this.removeMemberFromGitHubOrganization(member);
             await this.githubMetadataService.remove(member.githubMetadata.githubId);
         }
 
-        /* await this.githubService.setOrganizationMemberForUser(this.githubOrganizationName,
-            request.githubUsername, "owner"); */
+        await this.githubService.setOrganizationMemberForUser(this.githubOrganizationName,
+            request.githubUsername, "owner");
 
         await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
             LOGTO_GITHUB_CONNECTOR_TARGET, githubInfo.id, {});

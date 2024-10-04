@@ -19,4 +19,5 @@ export class Errors {
     static MEMBER_TELEGRAM_ALREADY_EXISTS = "member-telegram-already-exists";
     static INVALID_GITHUB_USERNAME = "invalid-github-username";
     static SPACE_BALANCE_IS_TOO_LOW = "space-balance-is-too-low";
+    static API_KEY_NOT_FOUND = "api-key-not-found";
 }

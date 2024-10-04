@@ -98,6 +98,13 @@ type AuditLogEntry = {
     },
     "delete-member-github-metadata": {
         memberId: string
+    },
+    "create-api-key": {
+        id: string,
+        key: string
+    },
+    "delete-api-key": {
+        id: string
     }
 }
 
