@@ -501,12 +501,12 @@ export class MembersController {
         }
 
         if (member.githubMetadata) {
-            await this.removeMemberFromGitHubOrganization(member);
+            // await this.removeMemberFromGitHubOrganization(member);
             await this.githubMetadataService.remove(member.githubMetadata.githubId);
         }
 
-        await this.githubService.setOrganizationMemberForUser(this.githubOrganizationName,
-            request.githubUsername, "owner");
+        /* await this.githubService.setOrganizationMemberForUser(this.githubOrganizationName,
+            request.githubUsername, "owner"); */
 
         await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
             LOGTO_GITHUB_CONNECTOR_TARGET, githubInfo.id, {});
