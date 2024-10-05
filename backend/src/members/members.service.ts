@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {Member} from "../common/database/entities/member.entity";
 import {InjectRepository} from "@nestjs/typeorm";
-import {DeepPartial, Not, Repository} from "typeorm";
+import {DeepPartial, MoreThanOrEqual, Not, Repository} from "typeorm";
 import Decimal from "decimal.js";
 import {MONEY_DECIMAL_PLACES} from "../common/money";
 
@@ -75,9 +75,36 @@ export class MembersService {
         return await this.membersRepository.save(member);
     }
 
-    async atomicIncrementBalance(member: Member, change: Decimal): Promise<void> {
-        await this.membersRepository.increment({
-            id: member.id
-        }, "balance", change.toFixed(MONEY_DECIMAL_PLACES));
+    async atomicallyIncrementBalance(member: Member, change: Decimal): Promise<void> {
+        const incrementResult = await this.membersRepository.createQueryBuilder()
+            .update(Member)
+            .set({
+                balance: () => "balance + :change"
+            })
+            .where({
+                id: member.id
+            })
+            .setParameter("change", change.toFixed(MONEY_DECIMAL_PLACES))
+            .execute();
+        if (incrementResult.affected !== 1) {
+            throw new Error("Failed to atomically increment balance");
+        }
+    }
+
+    async atomicallyDecrementNonZeroedBalance(member: Member, change: Decimal): Promise<void> {
+        const decrementResult = await this.membersRepository.createQueryBuilder()
+            .update(Member)
+            .set({
+                balance: () => "balance - :change"
+            })
+            .where({
+                id: member.id
+            })
+            .andWhere("balance >= :change")
+            .setParameter("change", change.toFixed(MONEY_DECIMAL_PLACES))
+            .execute();
+        if (decrementResult.affected !== 1) {
+            throw new Error("Failed to atomically decrement non-zeroed balance");
+        }
     }
 }

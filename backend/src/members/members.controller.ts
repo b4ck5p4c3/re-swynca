@@ -283,15 +283,15 @@ export class MembersController {
             }
         }
 
-        await this.logtoManagementService.updateUser(logtoBinding.logtoId, {
-            name: request.name,
-            email: request.email
-        });
-
         member.name = request.name;
         member.email = request.email;
 
         await this.membersService.update(member);
+
+        await this.logtoManagementService.updateUser(logtoBinding.logtoId, {
+            name: request.name,
+            email: request.email
+        });
 
         await this.auditLogService.create("update-member", actor, {
             id: member.id,

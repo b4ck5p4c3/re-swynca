@@ -283,7 +283,6 @@ export class MemberTransactionsController {
             throw new HttpException(Errors.SPACE_MEMBER_NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-
         const memberTransaction = await this.memberTransactionsService.create({
             type,
             amount: decimalAmount,
@@ -295,6 +294,11 @@ export class MemberTransactionsController {
             actor,
             createdAt: new Date()
         });
+        if (type !== TransactionType.DEPOSIT || source !== MemberTransactionDeposit.DONATE) {
+            await this.membersService.atomicallyIncrementBalance(subjectMember,
+                type === TransactionType.DEPOSIT ?
+                    decimalAmount : decimalAmount.negated());
+        }
 
         await this.auditLogService.create("create-member-transaction", actor, {
             id: memberTransaction.id,
@@ -307,11 +311,6 @@ export class MemberTransactionsController {
             subjectId: subjectMember.id
         });
 
-        if (type !== TransactionType.DEPOSIT || source !== MemberTransactionDeposit.DONATE) {
-            await this.membersService.atomicIncrementBalance(subjectMember,
-                type === TransactionType.DEPOSIT ?
-                    decimalAmount : decimalAmount.negated());
-        }
         if (type === TransactionType.DEPOSIT && source !== MemberTransactionDeposit.MAGIC) {
             const spaceTransaction = await this.spaceTransactionsService.create({
                 type: TransactionType.DEPOSIT,
@@ -325,7 +324,7 @@ export class MemberTransactionsController {
                 createdAt: new Date(),
                 relatedMemberTransaction: memberTransaction
             });
-            await this.membersService.atomicIncrementBalance(spaceMember, decimalAmount);
+            await this.membersService.atomicallyIncrementBalance(spaceMember, decimalAmount);
             await this.auditLogService.create("create-space-transaction", actor, {
                 id: spaceTransaction.id,
                 type: spaceTransaction.type,

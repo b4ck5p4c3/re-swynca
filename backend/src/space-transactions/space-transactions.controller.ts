@@ -232,6 +232,14 @@ export class SpaceTransactionsController {
         }
         const actor = await getValidActor(this.membersService, actorId);
 
+        if (request.type === TransactionType.DEPOSIT) {
+            await this.membersService
+                .atomicallyIncrementBalance(spaceMember, decimalAmount);
+        } else {
+            await this.membersService
+                .atomicallyDecrementNonZeroedBalance(spaceMember, decimalAmount);
+        }
+
         const spaceTransaction = await this.spaceTransactionsService.create({
             type,
             amount: decimalAmount,
@@ -242,10 +250,6 @@ export class SpaceTransactionsController {
             createdAt: new Date(),
             actor
         });
-
-        await this.membersService.atomicIncrementBalance(spaceMember,
-            request.type === TransactionType.DEPOSIT ?
-                decimalAmount : decimalAmount.negated());
 
         await this.auditLogService.create("create-space-transaction", actor, {
             id: spaceTransaction.id,
