@@ -46,7 +46,7 @@ export function SubscribeDialog({open, onClose, availableMemberships, memberId}:
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !subscribe.isPending) {
             onClose();
         }
     }
@@ -72,7 +72,8 @@ export function SubscribeDialog({open, onClose, availableMemberships, memberId}:
                                 <FormItem>
                                     <FormLabel>Membership</FormLabel>
                                     <FormControl>
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange}
+                                                disabled={subscribe.isPending}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select membership"/>
                                             </SelectTrigger>
@@ -95,7 +96,7 @@ export function SubscribeDialog({open, onClose, availableMemberships, memberId}:
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Subscribe</Button>
+                        <Button type={"submit"} disabled={subscribe.isPending}>Subscribe</Button>
                     </DialogFooter>
                 </form>
             </Form>

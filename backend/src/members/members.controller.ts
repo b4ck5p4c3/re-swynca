@@ -225,6 +225,7 @@ export class MembersController {
             name: request.name,
             email: request.email
         });
+
         await this.logtoManagementService.updateUserSuspensionStatus(logtoId, true);
 
         const member = await this.membersService.create({
@@ -391,15 +392,18 @@ export class MembersController {
 
         if (member.telegramMetadata) {
             await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
+
+            await this.logtoManagementService.deleteUserSocialIdentity(logtoBinding.logtoId,
+                LOGTO_TELEGRAM_CONNECTOR_TARGET);
         }
-        await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
-            LOGTO_TELEGRAM_CONNECTOR_TARGET, request.telegramId, {});
 
         const telegramMetadata = await this.telegramMetadataService.create({
             telegramId: request.telegramId,
             telegramName: null,
             member
         });
+        await this.logtoManagementService.updateUserSocialIdentity(logtoBinding.logtoId,
+            LOGTO_TELEGRAM_CONNECTOR_TARGET, request.telegramId, {});
 
         await this.auditLogService.create("update-member-telegram-metadata",
             actor, {

@@ -48,7 +48,7 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !addACSKey.isPending) {
             onClose();
         }
     }
@@ -74,7 +74,8 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="My favourite key" {...field} />
+                                        <Input placeholder="My favourite key"
+                                               disabled={addACSKey.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -87,7 +88,8 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                                 <FormItem>
                                     <FormLabel>Type</FormLabel>
                                     <FormControl>
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange}
+                                                disabled={addACSKey.isPending}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select key type"/>
                                             </SelectTrigger>
@@ -110,7 +112,7 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                                 <FormItem>
                                     <FormLabel>Key</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="CAFEBABE" {...field} />
+                                        <Input placeholder="CAFEBABE" disabled={addACSKey.isPending}  {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -118,7 +120,7 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Add</Button>
+                        <Button type={"submit"} disabled={addACSKey.isPending}>Add</Button>
                     </DialogFooter>
                 </form>
             </Form>

@@ -26,7 +26,7 @@ export function UpdateEMailDialog({open, onClose, member}: DefaultDialogProps & 
 
     const queryClient = useQueryClient();
 
-    const updateName = useMutation({
+    const updateEMail = useMutation({
         mutationFn: async (data: UpdateEMailDialogData) => {
             R(await client.PATCH("/api/members/{id}", {
                 body: {
@@ -47,7 +47,7 @@ export function UpdateEMailDialog({open, onClose, member}: DefaultDialogProps & 
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !updateEMail.isPending) {
             onClose();
         }
     }
@@ -66,7 +66,7 @@ export function UpdateEMailDialog({open, onClose, member}: DefaultDialogProps & 
                 <DialogTitle>Update E-Mail</DialogTitle>
             </DialogHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(data => updateName.mutate(data))}>
+                <form onSubmit={form.handleSubmit(data => updateEMail.mutate(data))}>
                     <div className={"flex flex-col gap-4 mb-4"}>
                         <FormField
                             control={form.control}
@@ -75,7 +75,7 @@ export function UpdateEMailDialog({open, onClose, member}: DefaultDialogProps & 
                                 <FormItem>
                                     <FormLabel>E-Mail</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="dev@0x08.in" {...field} />
+                                        <Input placeholder="dev@0x08.in" disabled={updateEMail.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -83,7 +83,7 @@ export function UpdateEMailDialog({open, onClose, member}: DefaultDialogProps & 
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Update</Button>
+                        <Button type={"submit"} disabled={updateEMail.isPending}>Update</Button>
                     </DialogFooter>
                 </form>
             </Form>

@@ -170,7 +170,7 @@ export default function MemberPage() {
                     <div className={"leading-8"}>{member.data.status === "active" ? "Active" : "Frozen"}</div>
                     <Button variant={member.data.status === "active" ? "destructive" : "default"} onClick={() => {
                         updateMemberStatus.mutate(member.data.status === "active" ? "frozen" : "active");
-                    }}>
+                    }} disabled={updateMemberStatus.isPending}>
                         {member.data.status === "active" ? "Freeze" : "Unfreeze"}
                     </Button>
                 </div> :
@@ -218,6 +218,7 @@ export default function MemberPage() {
                                     <TableCell>{subscription.declinedAt ? new Date(subscription.declinedAt).toLocaleDateString() : "-"}</TableCell>
                                     <TableCell>{subscription.declinedAt ? <></> :
                                         <Button variant={"destructive"}
+                                                disabled={unsubscribe.isPending}
                                                 onClick={() => unsubscribe.mutate(subscription.id)}>Unsubscribe</Button>}</TableCell>
                                 </TableRow>) :
                         <TableRow>
@@ -250,7 +251,7 @@ export default function MemberPage() {
                                 <TableCell>{acsKey.name}</TableCell>
                                 <TableCell>{ACS_KEY_TYPE_MAPPING[acsKey.type]}</TableCell>
                                 <TableCell>{acsKey.key}</TableCell>
-                                <TableCell><Button onClick={() => removeACSKey.mutate(acsKey.id)} variant={"destructive"}
+                                <TableCell><Button disabled={removeACSKey.isPending} onClick={() => removeACSKey.mutate(acsKey.id)} variant={"destructive"}
                                                    className={"w-8 p-0 h-8"}><Trash
                                     className={"w-4 h-4"}/></Button></TableCell>
                             </TableRow>) :

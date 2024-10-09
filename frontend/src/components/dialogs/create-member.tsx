@@ -45,7 +45,7 @@ export function CreateMemberDialog({open, onClose}: DefaultDialogProps) {
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !createMember.isPending) {
             onClose();
         }
     }
@@ -71,7 +71,7 @@ export function CreateMemberDialog({open, onClose}: DefaultDialogProps) {
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="New member" {...field} />
+                                        <Input placeholder="New member" disabled={createMember.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -84,7 +84,8 @@ export function CreateMemberDialog({open, onClose}: DefaultDialogProps) {
                                 <FormItem>
                                     <FormLabel>E-Mail</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="new-member@0x08.in" {...field} />
+                                        <Input placeholder="new-member@0x08.in"
+                                               disabled={createMember.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -92,7 +93,7 @@ export function CreateMemberDialog({open, onClose}: DefaultDialogProps) {
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Create</Button>
+                        <Button type={"submit"} disabled={createMember.isPending}>Create</Button>
                     </DialogFooter>
                 </form>
             </Form>

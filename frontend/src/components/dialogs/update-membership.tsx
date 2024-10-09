@@ -53,7 +53,7 @@ export function UpdateMembershipDialog({open, onClose, current}: DefaultDialogPr
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !updateMembership.isPending) {
             onClose();
         }
     }
@@ -83,7 +83,8 @@ export function UpdateMembershipDialog({open, onClose, current}: DefaultDialogPr
                                 <FormItem>
                                     <FormLabel>Title</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Table DLC" {...field} />
+                                        <Input placeholder="Table DLC"
+                                               disabled={updateMembership.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -96,7 +97,7 @@ export function UpdateMembershipDialog({open, onClose, current}: DefaultDialogPr
                                 <FormItem>
                                     <FormLabel>Amount</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="1337.00" {...field} />
+                                        <Input placeholder="1337.00" disabled={updateMembership.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -109,7 +110,8 @@ export function UpdateMembershipDialog({open, onClose, current}: DefaultDialogPr
                                 <FormItem>
                                     <div className={"flex flex-row gap-2 items-center"}>
                                         <FormControl>
-                                            <Switch checked={field.value} onCheckedChange={field.onChange}/>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange}
+                                                    disabled={updateMembership.isPending}/>
                                         </FormControl>
                                         <FormLabel>Is active?</FormLabel>
                                     </div>
@@ -119,7 +121,7 @@ export function UpdateMembershipDialog({open, onClose, current}: DefaultDialogPr
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Update</Button>
+                        <Button type={"submit"} disabled={updateMembership.isPending}>Update</Button>
                     </DialogFooter>
                 </form>
             </Form>

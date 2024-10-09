@@ -48,7 +48,7 @@ export function CreateMembershipDialog({open, onClose}: DefaultDialogProps) {
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !createMembership.isPending) {
             onClose();
         }
     }
@@ -74,7 +74,8 @@ export function CreateMembershipDialog({open, onClose}: DefaultDialogProps) {
                                 <FormItem>
                                     <FormLabel>Title</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Table DLC" {...field} />
+                                        <Input placeholder="Table DLC"
+                                               disabled={createMembership.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -87,7 +88,7 @@ export function CreateMembershipDialog({open, onClose}: DefaultDialogProps) {
                                 <FormItem>
                                     <FormLabel>Amount</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="1337.00" {...field} />
+                                        <Input placeholder="1337.00" disabled={createMembership.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -100,7 +101,8 @@ export function CreateMembershipDialog({open, onClose}: DefaultDialogProps) {
                                 <FormItem>
                                     <div className={"flex flex-row gap-2 items-center"}>
                                         <FormControl>
-                                            <Switch checked={field.value} onCheckedChange={field.onChange}/>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange}
+                                                    disabled={createMembership.isPending}/>
                                         </FormControl>
                                         <FormLabel>Is active?</FormLabel>
                                     </div>
@@ -110,7 +112,7 @@ export function CreateMembershipDialog({open, onClose}: DefaultDialogProps) {
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Create</Button>
+                        <Button type={"submit"} disabled={createMembership.isPending}>Create</Button>
                     </DialogFooter>
                 </form>
             </Form>

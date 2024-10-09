@@ -48,7 +48,7 @@ export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & {
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !updateName.isPending) {
             onClose();
         }
     }
@@ -76,7 +76,7 @@ export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & {
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Dmitry Pepperstein" {...field} />
+                                        <Input placeholder="Dmitry Pepperstein" disabled={updateName.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -84,7 +84,7 @@ export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & {
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Update</Button>
+                        <Button type={"submit"} disabled={updateName.isPending}>Update</Button>
                     </DialogFooter>
                 </form>
             </Form>

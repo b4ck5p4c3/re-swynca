@@ -92,7 +92,7 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !createMemberTransaction.isPending) {
             onClose();
         }
     }
@@ -133,6 +133,7 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                                         aria-expanded={open}
                                                         className={"justify-between w-full"}
                                                         ref={memberSelectButtonRef}
+                                                        disabled={createMemberTransaction.isPending}
                                                     >
                                                         {field.value && members.data
                                                             ? (formatMemberLabel(members.data.find((member) =>
@@ -191,7 +192,8 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                 <FormItem>
                                     <FormLabel>Funds direction</FormLabel>
                                     <FormControl>
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange}
+                                                disabled={createMemberTransaction.isPending}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select type"/>
                                             </SelectTrigger>
@@ -214,7 +216,8 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                 watchType !== "deposit" ? <></> : <FormItem>
                                     <FormLabel>Source</FormLabel>
                                     <FormControl>
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange}
+                                                disabled={createMemberTransaction.isPending}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select source"/>
                                             </SelectTrigger>
@@ -238,7 +241,8 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                 watchType !== "withdrawal" ? <></> : <FormItem>
                                     <FormLabel>Target</FormLabel>
                                     <FormControl>
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select value={field.value} onValueChange={field.onChange}
+                                                disabled={createMemberTransaction.isPending}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select target"/>
                                             </SelectTrigger>
@@ -261,7 +265,8 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                 <FormItem>
                                     <FormLabel>Amount</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="146.00" {...field} />
+                                        <Input placeholder="146.00"
+                                               disabled={createMemberTransaction.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -274,7 +279,8 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                 <FormItem>
                                     <FormLabel>Comment</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="За приятную ночь" {...field} />
+                                        <Input placeholder="Why?"
+                                               disabled={createMemberTransaction.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -287,7 +293,8 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                 <FormItem>
                                     <FormLabel>Date</FormLabel>
                                     <FormControl>
-                                        <Input {...field} type={"datetime-local"}/>
+                                        <Input {...field} disabled={createMemberTransaction.isPending}
+                                               type={"datetime-local"}/>
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -295,7 +302,7 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Create</Button>
+                        <Button type={"submit"} disabled={createMemberTransaction.isPending}>Create</Button>
                     </DialogFooter>
                 </form>
             </Form>

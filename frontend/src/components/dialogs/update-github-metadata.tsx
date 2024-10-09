@@ -48,7 +48,7 @@ export function UpdateGitHubMetadataDialog({open, onClose, member}: DefaultDialo
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !updateGitHubMetadata.isPending) {
             onClose();
         }
     }
@@ -76,7 +76,8 @@ export function UpdateGitHubMetadataDialog({open, onClose, member}: DefaultDialo
                                 <FormItem>
                                     <FormLabel>GitHub username</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="radioegor146" {...field} />
+                                        <Input placeholder="radioegor146"
+                                               disabled={updateGitHubMetadata.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -84,7 +85,7 @@ export function UpdateGitHubMetadataDialog({open, onClose, member}: DefaultDialo
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Update</Button>
+                        <Button type={"submit"} disabled={updateGitHubMetadata.isPending}>Update</Button>
                     </DialogFooter>
                 </form>
             </Form>

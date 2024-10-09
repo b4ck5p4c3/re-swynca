@@ -48,7 +48,7 @@ export function UpdateTelegramMetadataDialog({open, onClose, member}: DefaultDia
     });
 
     function onOpenChange(open: boolean) {
-        if (!open) {
+        if (!open && !updateTelegramMetadata.isPending) {
             onClose();
         }
     }
@@ -76,7 +76,7 @@ export function UpdateTelegramMetadataDialog({open, onClose, member}: DefaultDia
                                 <FormItem>
                                     <FormLabel>Telegram ID</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="1023371337" {...field} />
+                                        <Input placeholder="1023371337" disabled={updateTelegramMetadata.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -84,7 +84,7 @@ export function UpdateTelegramMetadataDialog({open, onClose, member}: DefaultDia
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"}>Update</Button>
+                        <Button type={"submit"} disabled={updateTelegramMetadata.isPending}>Update</Button>
                     </DialogFooter>
                 </form>
             </Form>

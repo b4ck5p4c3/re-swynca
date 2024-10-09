@@ -39,9 +39,11 @@ export function GitHubMetadata({metadata, member}: {
             </a>
             <div className={"flex flex-row gap-2"}>
                 <Button className={"w-8 p-0 h-8"}
+                        disabled={deleteGitHubMetadata.isPending}
                         onClick={() => setUpdateGitHubMetadataDialogOpened(true)}><Pencil
                     className={"w-4 h-4"}/></Button>
                 <Button variant={"destructive"} className={"w-8 p-0 h-8"}
+                        disabled={deleteGitHubMetadata.isPending}
                         onClick={() => deleteGitHubMetadata.mutate(member.id)}><Trash className={"w-4 h-4"}/></Button>
             </div>
         </div> : <div className={"flex flex-row gap-2"}>
