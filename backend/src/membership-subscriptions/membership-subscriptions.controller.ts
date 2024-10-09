@@ -164,24 +164,27 @@ export class MembershipSubscriptionsController {
             throw new HttpException(Errors.MEMBERSHIP_FROZEN, HttpStatus.BAD_REQUEST);
         }
 
-        let membershipSubscription: MembershipSubscription;
-
-        try {
-            membershipSubscription = await this.membershipSubscriptionsService.createActiveIfNotExist(member, membership);
-        } catch (e) {
-            if (e instanceof MembershipSubscriptionAlreadyExistsError) {
+        return MembershipSubscriptionsController.mapToDTO(await this.membershipSubscriptionsService.transaction(async manager => {
+            const activeSubscription = await this.membershipSubscriptionsService.for(manager)
+                .findActiveByMemberIdAndMembershipIdLocked(member.id, membership.id);
+            if (activeSubscription) {
                 throw new HttpException(Errors.MEMBER_ALREADY_SUBSCRIBED, HttpStatus.BAD_REQUEST);
             }
-            throw e;
-        }
 
-        await this.auditLogService.create("subscribe-member", actor, {
-            memberId: member.id,
-            membershipId: membership.id,
-            membershipSubscriptionId: membershipSubscription.id
-        });
+            const membershipSubscription = await this.membershipSubscriptionsService.for(manager).create({
+                member,
+                membership,
+                declinedAt: null
+            });
 
-        return MembershipSubscriptionsController.mapToDTO(membershipSubscription);
+            await this.auditLogService.for(manager).create("subscribe-member", actor, {
+                memberId: member.id,
+                membershipId: membership.id,
+                membershipSubscriptionId: membershipSubscription.id
+            });
+
+            return membershipSubscription;
+        }));
     }
 
     @Delete(":id")
@@ -203,17 +206,14 @@ export class MembershipSubscriptionsController {
         if (!membershipSubscription) {
             throw new HttpException(Errors.MEMBERSHIP_SUBSCRIPTION_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        try {
+        await this.membershipSubscriptionsService.transaction(async manager => {
             membershipSubscription.declinedAt = new Date();
-            await this.membershipSubscriptionsService.updateIfActive(membershipSubscription);
-        } catch (e) {
-            if (e instanceof MembershipSubscriptionAlreadyDeclinedError) {
+            if (!await this.membershipSubscriptionsService.for(manager).updateIfActive(membershipSubscription)) {
                 throw new HttpException(Errors.MEMBERSHIP_SUBSCRIPTION_ALREADY_DECLINED, HttpStatus.BAD_REQUEST);
             }
-            throw e;
-        }
-        await this.auditLogService.create("unsubscribe-member", actor, {
-            membershipSubscriptionId: membershipSubscription.id
+            await this.auditLogService.for(manager).create("unsubscribe-member", actor, {
+                membershipSubscriptionId: membershipSubscription.id
+            });
         });
         return {};
     }

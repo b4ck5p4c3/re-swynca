@@ -1,13 +1,17 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {LogtoBinding} from "../common/database/entities/logto-binding.entity";
-import {DeepPartial, Repository} from "typeorm";
+import {DeepPartial, EntityManager, Repository} from "typeorm";
 import {Member} from "../common/database/entities/member.entity";
 
 @Injectable()
 export class LogtoBindingsService {
     constructor(@InjectRepository(LogtoBinding)
                 private logtoBindingRepository: Repository<LogtoBinding>) {
+    }
+
+    for(manager: EntityManager): LogtoBindingsService {
+        return new LogtoBindingsService(manager.getRepository(LogtoBinding));
     }
 
     async create(logtoBindingData: DeepPartial<LogtoBinding>): Promise<LogtoBinding> {

@@ -110,20 +110,22 @@ export class MembershipsController {
             throw new CustomValidationError(`Membership amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
         }
 
-        const membership = await this.membershipService.create({
-            title: request.title,
-            amount: decimalAmount,
-            active: request.active
-        });
+        return MembershipsController.mapToDTO(await this.membershipService.transaction(async manager => {
+            const membership = await this.membershipService.for(manager).create({
+                title: request.title,
+                amount: decimalAmount,
+                active: request.active
+            });
 
-        await this.auditLogService.create("create-membership", actor, {
-            id: membership.id,
-            title: membership.title,
-            amount: membership.amount.toFixed(MONEY_DECIMAL_PLACES),
-            active: membership.active
-        });
+            await this.auditLogService.for(manager).create("create-membership", actor, {
+                id: membership.id,
+                title: membership.title,
+                amount: membership.amount.toFixed(MONEY_DECIMAL_PLACES),
+                active: membership.active
+            });
 
-        return MembershipsController.mapToDTO(membership);
+            return membership;
+        }));
     }
 
     @Patch(":id")
@@ -152,24 +154,27 @@ export class MembershipsController {
         if (decimalAmount.precision() > MONEY_PRECISION - MONEY_DECIMAL_PLACES) {
             throw new CustomValidationError(`Membership amount must be < 10^${MONEY_PRECISION - MONEY_DECIMAL_PLACES}`);
         }
-        const membership = await this.membershipService.findById(id);
-        if (!membership) {
-            throw new HttpException(Errors.MEMBERSHIP_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
 
-        membership.title = request.title;
-        membership.amount = decimalAmount;
-        membership.active = request.active;
+        return MembershipsController.mapToDTO(await this.membershipService.transaction(async manager => {
+            const membership = await this.membershipService.for(manager).findById(id);
+            if (!membership) {
+                throw new HttpException(Errors.MEMBERSHIP_NOT_FOUND, HttpStatus.NOT_FOUND);
+            }
 
-        await this.membershipService.update(membership);
+            membership.title = request.title;
+            membership.amount = decimalAmount;
+            membership.active = request.active;
 
-        await this.auditLogService.create("update-membership", actor, {
-            id: membership.id,
-            title: membership.title,
-            amount: membership.amount.toFixed(MONEY_DECIMAL_PLACES),
-            active: membership.active
-        });
+            await this.membershipService.for(manager).update(membership);
 
-        return MembershipsController.mapToDTO(membership);
+            await this.auditLogService.for(manager).create("update-membership", actor, {
+                id: membership.id,
+                title: membership.title,
+                amount: membership.amount.toFixed(MONEY_DECIMAL_PLACES),
+                active: membership.active
+            });
+
+            return membership;
+        }));
     }
 }

@@ -130,20 +130,22 @@ export class ACSKeysController {
         if (await this.acsKeysService.existsByKey(key)) {
             throw new HttpException(Errors.ACS_KEY_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
         }
-        const acsKey = await this.acsKeysService.create({
-            type,
-            key,
-            name,
-            member
-        });
-        await this.auditLogService.create("create-acs-key", actor, {
-            id: acsKey.id,
-            type: acsKey.type,
-            key: acsKey.key,
-            name: acsKey.name,
-            memberId: member.id
-        });
-        return ACSKeysController.mapToDTO(acsKey);
+        return ACSKeysController.mapToDTO(await this.acsKeysService.transaction(async (manager) => {
+            const acsKey = await this.acsKeysService.for(manager).create({
+                type,
+                key,
+                name,
+                member
+            });
+            await this.auditLogService.for(manager).create("create-acs-key", actor, {
+                id: acsKey.id,
+                type: acsKey.type,
+                key: acsKey.key,
+                name: acsKey.name,
+                memberId: member.id
+            });
+            return acsKey;
+        }));
     }
 
     @Delete(":id")
@@ -161,9 +163,11 @@ export class ACSKeysController {
     })
     async remove(@UserId() actorId: string, @Param("id") id: string): Promise<EmptyResponse> {
         const actor = await getValidActor(this.membersService, actorId);
-        await this.acsKeysService.remove(id);
-        await this.auditLogService.create("delete-acs-key", actor, {
-            id
+        await this.acsKeysService.transaction(async manager => {
+            await this.acsKeysService.for(manager).remove(id);
+            await this.auditLogService.for(manager).create("delete-acs-key", actor, {
+                id
+            });
         });
         return {};
     }

@@ -67,16 +67,18 @@ export class ApiKeysController {
     async create(@UserId() actorId: string): Promise<ApiKeyDTO> {
         const actor = await getValidActor(this.membersService, actorId);
         const key = `swynca${randomBytes(32).toString("hex")}0b08`;
-        const apiKey = await this.apiKeysService.create({
-            key,
-            member: actor
-        });
-        await this.auditLogService.create("create-api-key", actor, {
-            id: apiKey.id,
-            key: apiKey.key
-        });
-        await this.sessionStorageService.add(key, actor.id);
-        return ApiKeysController.mapToDTO(apiKey);
+        return ApiKeysController.mapToDTO(await this.apiKeysService.transaction(async manager => {
+            const apiKey = await this.apiKeysService.for(manager).create({
+                key,
+                member: actor
+            });
+            await this.sessionStorageService.add(key, actor.id);
+            await this.auditLogService.for(manager).create("create-api-key", actor, {
+                id: apiKey.id,
+                key: apiKey.key
+            });
+            return apiKey;
+        }));
     }
 
     @Delete(":id")
@@ -98,11 +100,13 @@ export class ApiKeysController {
         if (!apiKey) {
             throw new HttpException(Errors.API_KEY_NOT_FOUND, HttpStatus.NOT_FOUND)
         }
-        await this.apiKeysService.remove(id);
-        await this.auditLogService.create("delete-acs-key", actor, {
-            id
+        await this.apiKeysService.transaction(async manager => {
+            await this.apiKeysService.for(manager).remove(id);
+            await this.sessionStorageService.revokeToken(apiKey.key);
+            await this.auditLogService.for(manager).create("delete-acs-key", actor, {
+                id
+            });
         });
-        await this.sessionStorageService.revokeToken(apiKey.key);
         return {};
     }
 }

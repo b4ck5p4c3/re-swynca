@@ -221,33 +221,35 @@ export class MembersController {
             throw new HttpException(Errors.MEMBER_EMAIL_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
         }
 
-        const logtoId = await this.logtoManagementService.createUser({
-            name: request.name,
-            email: request.email
-        });
+        return MembersController.mapToDTO(await this.membersService.transaction(async manager => {
+            const member = await this.membersService.for(manager).create({
+                name: request.name,
+                email: request.email,
+                status: MemberStatus.FROZEN,
+                joinedAt: new Date(),
+            });
 
-        await this.logtoManagementService.updateUserSuspensionStatus(logtoId, true);
+            const logtoId = await this.logtoManagementService.createUser({
+                name: request.name,
+                email: request.email
+            });
 
-        const member = await this.membersService.create({
-            name: request.name,
-            email: request.email,
-            status: MemberStatus.FROZEN,
-            joinedAt: new Date(),
-        });
+            await this.logtoManagementService.updateUserSuspensionStatus(logtoId, true);
 
-        await this.logtoBindingsService.create({
-            logtoId,
-            member
-        });
+            await this.logtoBindingsService.for(manager).create({
+                logtoId,
+                member
+            });
 
-        await this.auditLogService.create("create-member", actor, {
-            id: member.id,
-            name: member.name,
-            email: member.email,
-            logtoId: logtoId
-        });
+            await this.auditLogService.for(manager).create("create-member", actor, {
+                id: member.id,
+                name: member.name,
+                email: member.email,
+                logtoId: logtoId
+            });
 
-        return MembersController.mapToDTO(await this.membersService.findById(member.id));
+            return await this.membersService.for(manager).findById(member.id);
+        }));
     }
 
     @Patch(":id")
@@ -287,20 +289,22 @@ export class MembersController {
         member.name = request.name;
         member.email = request.email;
 
-        await this.membersService.update(member);
+        return MembersController.mapToDTO(await this.membersService.transaction(async manager => {
+            await this.logtoManagementService.updateUser(logtoBinding.logtoId, {
+                name: request.name,
+                email: request.email
+            });
 
-        await this.logtoManagementService.updateUser(logtoBinding.logtoId, {
-            name: request.name,
-            email: request.email
-        });
+            await this.membersService.for(manager).update(member);
 
-        await this.auditLogService.create("update-member", actor, {
-            id: member.id,
-            name: member.name,
-            email: member.email
-        });
+            await this.auditLogService.for(manager).create("update-member", actor, {
+                id: member.id,
+                name: member.name,
+                email: member.email
+            });
 
-        return MembersController.mapToDTO(member);
+            return member;
+        }));
     }
 
     @Patch(":id/status")
@@ -322,39 +326,37 @@ export class MembersController {
     async updateStatus(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
         const actor = await getValidActor(this.membersService, actorId);
 
-        let member: Member;
-
-        try {
-            member = await this.membersService.updateLocked(id, async (manager, member) => {
-                const logtoBinding = await this.logtoBindingsService.findByMemberId(id);
-                if (!logtoBinding) {
-                    throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
-                }
-
-                await this.logtoManagementService.updateUserSuspensionStatus(logtoBinding.logtoId,
-                    request.status === "frozen");
-
-                if (request.status === "frozen") {
-                    await this.sessionStorageService.revokeAllByUserId(id);
-                } else {
-                    await this.apiKeysService.initializeApiKeysInStorage();
-                }
-
-                member.status = request.status;
-
-                await this.auditLogService.for(manager).create(request.status === "frozen" ? "freeze-member" : "unfreeze-member",
-                    actor, {
-                        id: member.id
-                    });
-            });
-        } catch (e) {
-            if (e instanceof MemberNotFoundError) {
+        return MembersController.mapToDTO(await this.membersService.transaction(async (manager) => {
+            const memberWithoutRelations = await this.membersService.for(manager).findByIdLocked(id);
+            if (!memberWithoutRelations) {
                 throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
             }
-            throw e;
-        }
 
-        return MembersController.mapToDTO(member);
+            const member = await this.membersService.for(manager).findById(id);
+
+            const logtoBinding = await this.logtoBindingsService.findByMemberId(id);
+            if (!logtoBinding) {
+                throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
+            }
+
+            await this.logtoManagementService.updateUserSuspensionStatus(logtoBinding.logtoId,
+                request.status === "frozen");
+
+            if (request.status === "frozen") {
+                await this.sessionStorageService.revokeAllByUserId(id);
+            } else {
+                await this.apiKeysService.initializeApiKeysInStorage();
+            }
+
+            await this.auditLogService.for(manager).create(request.status === "frozen" ? "freeze-member" : "unfreeze-member",
+                actor, {
+                    id: member.id
+                });
+
+            member.status = request.status;
+            await this.membersService.for(manager).update(member);
+            return member;
+        }));
     }
 
     @Patch(":id/telegram")

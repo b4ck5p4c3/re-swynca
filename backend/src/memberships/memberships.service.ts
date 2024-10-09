@@ -1,13 +1,17 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Membership} from "../common/database/entities/membership.entity";
-import {Repository} from "typeorm";
+import {EntityManager, Repository} from "typeorm";
 import Decimal from "decimal.js";
 import {DeepPartial} from "typeorm/common/DeepPartial";
 
 @Injectable()
 export class MembershipsService {
     constructor(@InjectRepository(Membership) private membershipRepository: Repository<Membership>) {
+    }
+
+    for(manager: EntityManager): MembershipsService {
+        return new MembershipsService(manager.getRepository(Membership));
     }
 
     async findAll(): Promise<Membership[]> {
@@ -30,5 +34,9 @@ export class MembershipsService {
 
     async update(membership: Membership): Promise<void> {
         await this.membershipRepository.save(membership);
+    }
+
+    async transaction<T>(transactionFn: (manager: EntityManager) => Promise<T>): Promise<T> {
+        return await this.membershipRepository.manager.transaction(transactionFn);
     }
 }

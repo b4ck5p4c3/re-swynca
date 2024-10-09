@@ -1,11 +1,15 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {ACSKey} from "src/common/database/entities/acs-key.entity";
-import {DeepPartial, Repository} from "typeorm";
+import {DeepPartial, EntityManager, Repository} from "typeorm";
 
 @Injectable()
 export class ACSKeysService {
     constructor(@InjectRepository(ACSKey) private acsKeyRepository: Repository<ACSKey>) {
+    }
+
+    for(manager: EntityManager): ACSKeysService {
+        return new ACSKeysService(manager.getRepository(ACSKey));
     }
 
     async find(): Promise<ACSKey[]> {
@@ -43,5 +47,9 @@ export class ACSKeysService {
 
     async remove(id: string): Promise<void> {
         await this.acsKeyRepository.delete(id);
+    }
+
+    async transaction<T>(transactionFn: (manager: EntityManager) => Promise<T>): Promise<T> {
+        return await this.acsKeyRepository.manager.transaction(transactionFn);
     }
 }

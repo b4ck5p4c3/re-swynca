@@ -101,20 +101,8 @@ export class MembersService {
         return await this.membersRepository.save(member);
     }
 
-    async updateLocked(memberId: string, updateFn: (manager: EntityManager, member: Member) => Promise<void>):
-        Promise<Member> {
-        return await this.membersRepository.manager.transaction(async (manager) => {
-            const membersService = this.for(manager);
-            const memberWithoutRelations = await membersService.findByIdLocked(memberId);
-            if (!memberWithoutRelations) {
-                throw new MemberNotFoundError();
-            }
-
-            const member = await membersService.findById(memberId);
-            await updateFn(manager, member);
-            await membersService.update(member);
-            return member;
-        });
+    async transaction<T>(transactionFn: (manager: EntityManager) => Promise<T>): Promise<T> {
+        return await this.membersRepository.manager.transaction(transactionFn);
     }
 
     async atomicallyIncrementBalance(member: Member, change: Decimal): Promise<void> {

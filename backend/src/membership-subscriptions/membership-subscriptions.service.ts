@@ -74,15 +74,12 @@ export class MembershipSubscriptionsService {
         });
     }
 
-    async updateIfActive(subscription: MembershipSubscription): Promise<MembershipSubscription> {
+    async updateIfActive(subscription: MembershipSubscription): Promise<boolean> {
         const updateResult = await this.membershipSubscriptionRepository.update({
             id: subscription.id,
             declinedAt: IsNull()
         }, subscription);
-        if (updateResult.affected !== 1) {
-            throw new MembershipSubscriptionAlreadyDeclinedError();
-        }
-        return subscription;
+        return updateResult.affected !== 1;
     }
 
     async getSumOfActive(): Promise<Decimal> {
@@ -101,19 +98,7 @@ export class MembershipSubscriptionsService {
         return membershipSubscription;
     }
 
-    async createActiveIfNotExist(member: Member, membership: Membership): Promise<MembershipSubscription> {
-        return await this.membershipSubscriptionRepository.manager.transaction(async entityManager => {
-            const membershipSubscriptionsService = this.for(entityManager);
-            const activeSubscription = await membershipSubscriptionsService
-                .findActiveByMemberIdAndMembershipIdLocked(member.id, membership.id);
-            if (activeSubscription) {
-                throw new MembershipSubscriptionAlreadyExistsError();
-            }
-            return await membershipSubscriptionsService.create({
-                member,
-                membership,
-                declinedAt: null
-            });
-        });
+    async transaction<T>(transactionFn: (manager: EntityManager) => Promise<T>): Promise<T> {
+        return await this.membershipSubscriptionRepository.manager.transaction(transactionFn);
     }
 }

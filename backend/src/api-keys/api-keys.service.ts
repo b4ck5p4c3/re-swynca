@@ -1,7 +1,7 @@
 import {Injectable, OnModuleInit} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {ApiKey} from "../common/database/entities/api-key.entity";
-import {DeepPartial, Repository} from "typeorm";
+import {DeepPartial, EntityManager, Repository} from "typeorm";
 import {Member} from "../common/database/entities/member.entity";
 import {SessionStorageService} from "../session-storage/session-storage.service";
 
@@ -9,6 +9,10 @@ import {SessionStorageService} from "../session-storage/session-storage.service"
 export class ApiKeysService implements OnModuleInit {
     constructor(@InjectRepository(ApiKey) private apiKeyRepository: Repository<ApiKey>,
                 private sessionStorageService: SessionStorageService) {
+    }
+
+    for(manager: EntityManager): ApiKeysService {
+        return new ApiKeysService(manager.getRepository(ApiKey), this.sessionStorageService);
     }
 
     async find(): Promise<ApiKey[]> {
@@ -61,5 +65,9 @@ export class ApiKeysService implements OnModuleInit {
 
     async onModuleInit(): Promise<void> {
         await this.initializeApiKeysInStorage();
+    }
+
+    async transaction<T>(transactionFn: (manager: EntityManager) => Promise<T>): Promise<T> {
+        return await this.apiKeyRepository.manager.transaction(transactionFn);
     }
 }
