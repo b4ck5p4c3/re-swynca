@@ -11,7 +11,7 @@ import {
 import {Member, MemberStatus} from "../common/database/entities/member.entity";
 import {IsEmail, IsEnum, IsNotEmpty, IsNumberString, Matches} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
-import {MembersService} from "./members.service";
+import {MemberNotFoundError, MembersService} from "./members.service";
 import {GitHubMetadatasService} from "../github-metadatas/github-metadatas.service";
 import {GitHubService} from "../github/github.service";
 import {TelegramMetadatasService} from "../telegram-metadatas/telegram-metadatas.service";
@@ -322,34 +322,37 @@ export class MembersController {
     async updateStatus(@UserId() actorId: string, @Param("id") id: string, @Body() request: UpdateStatusDTO): Promise<MemberDTO> {
         const actor = await getValidActor(this.membersService, actorId);
 
-        const member = await this.membersService.findById(id);
-        if (!member) {
-            throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
-        }
+        let member: Member;
 
-        const logtoBinding = await this.logtoBindingsService.findByMemberId(member.id);
+        try {
+            member = await this.membersService.updateLocked(id, async (manager, member) => {
+                const logtoBinding = await this.logtoBindingsService.findByMemberId(id);
+                if (!logtoBinding) {
+                    throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
+                }
 
-        if (!logtoBinding) {
-            throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
-        }
+                await this.logtoManagementService.updateUserSuspensionStatus(logtoBinding.logtoId,
+                    request.status === "frozen");
 
-        await this.logtoManagementService.updateUserSuspensionStatus(logtoBinding.logtoId,
-            request.status === "frozen");
+                if (request.status === "frozen") {
+                    await this.sessionStorageService.revokeAllByUserId(id);
+                } else {
+                    await this.apiKeysService.initializeApiKeysInStorage();
+                }
 
-        if (request.status === "frozen") {
-            await this.sessionStorageService.revokeAllByUserId(member.id);
-        } else {
-            await this.apiKeysService.initializeApiKeysInStorage();
-        }
+                member.status = request.status;
 
-        member.status = request.status;
-
-        await this.membersService.update(member);
-
-        await this.auditLogService.create(request.status === "frozen" ? "freeze-member" : "unfreeze-member",
-            actor, {
-                id: member.id
+                await this.auditLogService.for(manager).create(request.status === "frozen" ? "freeze-member" : "unfreeze-member",
+                    actor, {
+                        id: member.id
+                    });
             });
+        } catch (e) {
+            if (e instanceof MemberNotFoundError) {
+                throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
+            }
+            throw e;
+        }
 
         return MembersController.mapToDTO(member);
     }

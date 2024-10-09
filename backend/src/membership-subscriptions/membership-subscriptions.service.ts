@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {MembershipSubscription} from "src/common/database/entities/membership-subscription.entity";
-import {IsNull, Not, Repository} from "typeorm";
+import {DeepPartial, EntityManager, IsNull, Not, Repository} from "typeorm";
 import {Member} from "../common/database/entities/member.entity";
 import {Membership} from "../common/database/entities/membership.entity";
 import Decimal from "decimal.js";
@@ -15,6 +15,10 @@ export class MembershipSubscriptionAlreadyDeclinedError extends Error {
 @Injectable()
 export class MembershipSubscriptionsService {
     constructor(@InjectRepository(MembershipSubscription) private membershipSubscriptionRepository: Repository<MembershipSubscription>) {
+    }
+
+    for(manager: EntityManager): MembershipSubscriptionsService {
+        return new MembershipSubscriptionsService(manager.getRepository(MembershipSubscription))
     }
 
     async findById(id: string): Promise<MembershipSubscription | null> {
@@ -53,6 +57,23 @@ export class MembershipSubscriptionsService {
         });
     }
 
+    async findActiveByMemberIdAndMembershipIdLocked(memberId: string, membershipId: string): Promise<MembershipSubscription | null> {
+        return await this.membershipSubscriptionRepository.findOne({
+            where: {
+                member: {
+                    id: memberId
+                },
+                membership: {
+                    id: membershipId
+                },
+                declinedAt: IsNull()
+            },
+            lock: {
+                mode: "for_no_key_update"
+            }
+        });
+    }
+
     async updateIfActive(subscription: MembershipSubscription): Promise<MembershipSubscription> {
         const updateResult = await this.membershipSubscriptionRepository.update({
             id: subscription.id,
@@ -74,33 +95,25 @@ export class MembershipSubscriptionsService {
         return new Decimal(result.totalAmount ?? 0);
     }
 
+    async create(data: DeepPartial<MembershipSubscription>): Promise<MembershipSubscription> {
+        const membershipSubscription = this.membershipSubscriptionRepository.create(data);
+        await this.membershipSubscriptionRepository.save(membershipSubscription);
+        return membershipSubscription;
+    }
+
     async createActiveIfNotExist(member: Member, membership: Membership): Promise<MembershipSubscription> {
         return await this.membershipSubscriptionRepository.manager.transaction(async entityManager => {
-            const transactionRepository = entityManager.getRepository(MembershipSubscription);
-            const activeSubscription = await transactionRepository.findOne({
-                where: {
-                    member: {
-                        id: member.id
-                    },
-                    membership: {
-                        id: membership.id
-                    },
-                    declinedAt: IsNull()
-                },
-                lock: {
-                    mode: "for_no_key_update"
-                }
-            });
+            const membershipSubscriptionsService = this.for(entityManager);
+            const activeSubscription = await membershipSubscriptionsService
+                .findActiveByMemberIdAndMembershipIdLocked(member.id, membership.id);
             if (activeSubscription) {
                 throw new MembershipSubscriptionAlreadyExistsError();
             }
-            const membershipSubscription = transactionRepository.create({
+            return await membershipSubscriptionsService.create({
                 member,
                 membership,
-                subscribedAt: new Date()
+                declinedAt: null
             });
-            await transactionRepository.save(membershipSubscription);
-            return membershipSubscription;
         });
     }
 }

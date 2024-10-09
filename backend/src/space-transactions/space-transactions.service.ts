@@ -55,6 +55,7 @@ export class SpaceTransactionsService {
             order: orderBy
         });
     }
+
     async create(spaceTransaction: Omit<SpaceTransaction, "id">): Promise<SpaceTransaction> {
         const createdSpaceTransaction = this.spaceTransactionRepository.create(spaceTransaction);
         await this.spaceTransactionRepository.save(createdSpaceTransaction);

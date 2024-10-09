@@ -46,6 +46,9 @@ export class InMemorySessionStorageService extends SessionStorageService {
     }
 
     async revokeAllByUserId(userId: string): Promise<void> {
+        if (!this.userIdMapping[userId]) {
+            return;
+        }
         for (const session of this.userIdMapping[userId]) {
             delete this.storage[session];
         }

@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {AuditLog} from "../common/database/entities/audit-log.entity";
-import {FindOptionsOrder, IsNull, Repository} from "typeorm";
+import {EntityManager, FindOptionsOrder, IsNull, Repository} from "typeorm";
 import {Member} from "../common/database/entities/member.entity";
 import {ACSKeyType} from "../common/database/entities/acs-key.entity";
 import {MONEY_DECIMAL_PLACES} from "../common/money";
@@ -111,6 +111,10 @@ type AuditLogEntry = {
 @Injectable()
 export class AuditLogService {
     constructor(@InjectRepository(AuditLog) private auditLogRepository: Repository<AuditLog>) {
+    }
+
+    for(manager: EntityManager): AuditLogService {
+        return new AuditLogService(manager.getRepository(AuditLog));
     }
 
     async create<TAction extends keyof AuditLogEntry>(action: TAction, actor: Member,
