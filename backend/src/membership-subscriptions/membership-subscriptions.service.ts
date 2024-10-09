@@ -6,6 +6,12 @@ import {Member} from "../common/database/entities/member.entity";
 import {Membership} from "../common/database/entities/membership.entity";
 import Decimal from "decimal.js";
 
+export class MembershipSubscriptionAlreadyExistsError extends Error {
+}
+
+export class MembershipSubscriptionAlreadyDeclinedError extends Error {
+}
+
 @Injectable()
 export class MembershipSubscriptionsService {
     constructor(@InjectRepository(MembershipSubscription) private membershipSubscriptionRepository: Repository<MembershipSubscription>) {
@@ -16,14 +22,6 @@ export class MembershipSubscriptionsService {
             where: {
                 id
             }
-        });
-    }
-
-    async existsByMemberAndMembershipWithNotDeclined(member: Member, membership: Membership): Promise<boolean> {
-        return await this.membershipSubscriptionRepository.existsBy({
-            member,
-            membership,
-            declinedAt: IsNull()
         });
     }
 
@@ -55,18 +53,15 @@ export class MembershipSubscriptionsService {
         });
     }
 
-    async create(member: Member, membership: Membership): Promise<MembershipSubscription> {
-        const membershipSubscription = this.membershipSubscriptionRepository.create({
-            member,
-            membership,
-            subscribedAt: new Date()
-        });
-        await this.membershipSubscriptionRepository.save(membershipSubscription);
-        return membershipSubscription;
-    }
-
-    async update(subscription: MembershipSubscription): Promise<MembershipSubscription> {
-        return await this.membershipSubscriptionRepository.save(subscription);
+    async updateIfActive(subscription: MembershipSubscription): Promise<MembershipSubscription> {
+        const updateResult = await this.membershipSubscriptionRepository.update({
+            id: subscription.id,
+            declinedAt: IsNull()
+        }, subscription);
+        if (updateResult.affected !== 1) {
+            throw new MembershipSubscriptionAlreadyDeclinedError();
+        }
+        return subscription;
     }
 
     async getSumOfActive(): Promise<Decimal> {
@@ -77,5 +72,35 @@ export class MembershipSubscriptionsService {
             .where(`${MembershipSubscription.name}.declinedAt is null`)
             .getRawOne<{ totalAmount: string }>();
         return new Decimal(result.totalAmount ?? 0);
+    }
+
+    async createActiveIfNotExist(member: Member, membership: Membership): Promise<MembershipSubscription> {
+        return await this.membershipSubscriptionRepository.manager.transaction(async entityManager => {
+            const transactionRepository = entityManager.getRepository(MembershipSubscription);
+            const activeSubscription = await transactionRepository.findOne({
+                where: {
+                    member: {
+                        id: member.id
+                    },
+                    membership: {
+                        id: membership.id
+                    },
+                    declinedAt: IsNull()
+                },
+                lock: {
+                    mode: "for_no_key_update"
+                }
+            });
+            if (activeSubscription) {
+                throw new MembershipSubscriptionAlreadyExistsError();
+            }
+            const membershipSubscription = transactionRepository.create({
+                member,
+                membership,
+                subscribedAt: new Date()
+            });
+            await transactionRepository.save(membershipSubscription);
+            return membershipSubscription;
+        });
     }
 }

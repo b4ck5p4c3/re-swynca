@@ -10,7 +10,11 @@ import {
 } from "@nestjs/swagger";
 import {IsNotEmpty, IsUUID} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
-import {MembershipSubscriptionsService} from "./membership-subscriptions.service";
+import {
+    MembershipSubscriptionAlreadyDeclinedError,
+    MembershipSubscriptionAlreadyExistsError,
+    MembershipSubscriptionsService
+} from "./membership-subscriptions.service";
 import {MembershipSubscription} from "src/common/database/entities/membership-subscription.entity";
 import {MembersService} from "src/members/members.service";
 import {MembershipsService} from "src/memberships/memberships.service";
@@ -160,11 +164,16 @@ export class MembershipSubscriptionsController {
             throw new HttpException(Errors.MEMBERSHIP_FROZEN, HttpStatus.BAD_REQUEST);
         }
 
-        if (await this.membershipSubscriptionsService.existsByMemberAndMembershipWithNotDeclined(member, membership)) {
-            throw new HttpException(Errors.MEMBER_ALREADY_SUBSCRIBED, HttpStatus.BAD_REQUEST);
-        }
+        let membershipSubscription: MembershipSubscription;
 
-        const membershipSubscription = await this.membershipSubscriptionsService.create(member, membership);
+        try {
+            membershipSubscription = await this.membershipSubscriptionsService.createActiveIfNotExist(member, membership);
+        } catch (e) {
+            if (e instanceof MembershipSubscriptionAlreadyExistsError) {
+                throw new HttpException(Errors.MEMBER_ALREADY_SUBSCRIBED, HttpStatus.BAD_REQUEST);
+            }
+            throw e;
+        }
 
         await this.auditLogService.create("subscribe-member", actor, {
             memberId: member.id,
@@ -194,12 +203,15 @@ export class MembershipSubscriptionsController {
         if (!membershipSubscription) {
             throw new HttpException(Errors.MEMBERSHIP_SUBSCRIPTION_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        if (membershipSubscription.declinedAt) {
-            throw new HttpException(Errors.MEMBERSHIP_SUBSCRIPTION_ALREADY_DECLINED, HttpStatus.BAD_REQUEST);
+        try {
+            membershipSubscription.declinedAt = new Date();
+            await this.membershipSubscriptionsService.updateIfActive(membershipSubscription);
+        } catch (e) {
+            if (e instanceof MembershipSubscriptionAlreadyDeclinedError) {
+                throw new HttpException(Errors.MEMBERSHIP_SUBSCRIPTION_ALREADY_DECLINED, HttpStatus.BAD_REQUEST);
+            }
+            throw e;
         }
-        membershipSubscription.declinedAt = new Date();
-        await this.membershipSubscriptionsService.update(membershipSubscription);
-
         await this.auditLogService.create("unsubscribe-member", actor, {
             membershipSubscriptionId: membershipSubscription.id
         });

@@ -25,7 +25,8 @@ import {ApiKey} from "./entities/api-key.entity";
                     Membership, MembershipSubscription,
                     TelegramMetadata, GitHubMetadata,
                     AuditLog, ApiKey],
-                synchronize: true
+                synchronize: true,
+                logging: process.env.NODE_ENV === "development"
             }),
             inject: [ConfigService]
         })
