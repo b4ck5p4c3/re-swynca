@@ -101,7 +101,7 @@ export class MembersService {
         return await this.membersRepository.save(member);
     }
 
-    async updateLocked(memberId: string, externalFn: (manager: EntityManager, member: Member) => Promise<void>):
+    async updateLocked(memberId: string, updateFn: (manager: EntityManager, member: Member) => Promise<void>):
         Promise<Member> {
         return await this.membersRepository.manager.transaction(async (manager) => {
             const membersService = this.for(manager);
@@ -111,7 +111,7 @@ export class MembersService {
             }
 
             const member = await membersService.findById(memberId);
-            await externalFn(manager, member);
+            await updateFn(manager, member);
             await membersService.update(member);
             return member;
         });
@@ -133,7 +133,7 @@ export class MembersService {
         }
     }
 
-    async atomicallyDecrementNonZeroedBalance(member: Member, change: Decimal): Promise<void> {
+    async atomicallyDecrementNonZeroableBalance(member: Member, change: Decimal): Promise<void> {
         const decrementResult = await this.membersRepository.createQueryBuilder()
             .update(Member)
             .set({

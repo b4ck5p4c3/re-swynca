@@ -1,13 +1,17 @@
 import {Injectable} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MemberTransaction } from "src/common/database/entities/member-transaction.entity";
-import {FindOptionsOrder, Repository} from "typeorm";
+import {EntityManager, FindOptionsOrder, Repository} from "typeorm";
 import {SpaceTransaction} from "../common/database/entities/space-transaction.entity";
 import {of} from "rxjs";
 
 @Injectable()
 export class MemberTransactionsService {
     constructor(@InjectRepository(MemberTransaction) private memberTransactionRepository: Repository<MemberTransaction>) {
+    }
+
+    for(manager: EntityManager): MemberTransactionsService {
+        return new MemberTransactionsService(manager.getRepository(MemberTransaction));
     }
 
     async countAll(): Promise<number> {
@@ -87,5 +91,9 @@ export class MemberTransactionsService {
         const createdMemberTransaction = this.memberTransactionRepository.create(memberTransaction);
         await this.memberTransactionRepository.save(createdMemberTransaction);
         return createdMemberTransaction;
+    }
+
+    async transaction<T>(transactionFn: (manager: EntityManager) => Promise<T>): Promise<T> {
+        return await this.memberTransactionRepository.manager.transaction(transactionFn);
     }
 }

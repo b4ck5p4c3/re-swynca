@@ -283,59 +283,64 @@ export class MemberTransactionsController {
             throw new HttpException(Errors.SPACE_MEMBER_NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        const memberTransaction = await this.memberTransactionsService.create({
-            type,
-            amount: decimalAmount,
-            comment,
-            date: new Date(date),
-            source,
-            target,
-            subject: subjectMember,
-            actor,
-            createdAt: new Date()
-        });
-        if (type !== TransactionType.DEPOSIT || source !== MemberTransactionDeposit.DONATE) {
-            await this.membersService.atomicallyIncrementBalance(subjectMember,
-                type === TransactionType.DEPOSIT ?
-                    decimalAmount : decimalAmount.negated());
-        }
-
-        await this.auditLogService.create("create-member-transaction", actor, {
-            id: memberTransaction.id,
-            type: memberTransaction.type,
-            amount: memberTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
-            comment: memberTransaction.comment,
-            date: memberTransaction.date.toISOString(),
-            source: memberTransaction.source,
-            target: memberTransaction.target,
-            subjectId: subjectMember.id
-        });
-
-        if (type === TransactionType.DEPOSIT && source !== MemberTransactionDeposit.MAGIC) {
-            const spaceTransaction = await this.spaceTransactionsService.create({
-                type: TransactionType.DEPOSIT,
+        const memberTransaction = await this.memberTransactionsService.transaction(async manager => {
+            const memberTransaction = await this.memberTransactionsService.for(manager).create({
+                type,
                 amount: decimalAmount,
-                date: new Date(date),
-                source: source === MemberTransactionDeposit.DONATE ? SpaceTransactionDeposit.DONATE :
-                    (source === MemberTransactionDeposit.TOPUP ?
-                        SpaceTransactionDeposit.TOPUP : SpaceTransactionDeposit.MAGIC),
                 comment,
+                date: new Date(date),
+                source,
+                target,
+                subject: subjectMember,
                 actor,
-                createdAt: new Date(),
-                relatedMemberTransaction: memberTransaction
+                createdAt: new Date()
             });
-            await this.membersService.atomicallyIncrementBalance(spaceMember, decimalAmount);
-            await this.auditLogService.create("create-space-transaction", actor, {
-                id: spaceTransaction.id,
-                type: spaceTransaction.type,
-                amount: spaceTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
-                comment: spaceTransaction.comment,
-                date: spaceTransaction.date.toISOString(),
-                source: spaceTransaction.source,
-                target: spaceTransaction.target,
-                relatedMemberTransaction: memberTransaction.id
+
+            await this.auditLogService.for(manager).create("create-member-transaction", actor, {
+                id: memberTransaction.id,
+                type: memberTransaction.type,
+                amount: memberTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
+                comment: memberTransaction.comment,
+                date: memberTransaction.date.toISOString(),
+                source: memberTransaction.source,
+                target: memberTransaction.target,
+                subjectId: subjectMember.id
             });
-        }
+            if (type !== TransactionType.DEPOSIT || source !== MemberTransactionDeposit.DONATE) {
+                await this.membersService.for(manager).atomicallyIncrementBalance(subjectMember,
+                    type === TransactionType.DEPOSIT ?
+                        decimalAmount : decimalAmount.negated());
+            }
+
+            if (type === TransactionType.DEPOSIT && source !== MemberTransactionDeposit.MAGIC) {
+                const spaceTransaction = await this.spaceTransactionsService.for(manager).create({
+                    type: TransactionType.DEPOSIT,
+                    amount: decimalAmount,
+                    date: new Date(date),
+                    source: source === MemberTransactionDeposit.DONATE ? SpaceTransactionDeposit.DONATE :
+                        (source === MemberTransactionDeposit.TOPUP ?
+                            SpaceTransactionDeposit.TOPUP : SpaceTransactionDeposit.MAGIC),
+                    comment,
+                    actor,
+                    createdAt: new Date(),
+                    relatedMemberTransaction: memberTransaction
+                });
+                await this.membersService.for(manager).atomicallyIncrementBalance(spaceMember, decimalAmount);
+
+                await this.auditLogService.for(manager).create("create-space-transaction", actor, {
+                    id: spaceTransaction.id,
+                    type: spaceTransaction.type,
+                    amount: spaceTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
+                    comment: spaceTransaction.comment,
+                    date: spaceTransaction.date.toISOString(),
+                    source: spaceTransaction.source,
+                    target: spaceTransaction.target,
+                    relatedMemberTransaction: memberTransaction.id
+                });
+            }
+
+            return memberTransaction;
+        });
 
         return MemberTransactionsController.mapToDTO(memberTransaction);
     };

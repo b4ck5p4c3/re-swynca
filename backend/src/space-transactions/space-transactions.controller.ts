@@ -232,33 +232,37 @@ export class SpaceTransactionsController {
         }
         const actor = await getValidActor(this.membersService, actorId);
 
-        if (request.type === TransactionType.DEPOSIT) {
-            await this.membersService
-                .atomicallyIncrementBalance(spaceMember, decimalAmount);
-        } else {
-            await this.membersService
-                .atomicallyDecrementNonZeroedBalance(spaceMember, decimalAmount);
-        }
+        const spaceTransaction = await this.spaceTransactionsService.transaction(async (manager) => {
+            if (request.type === TransactionType.DEPOSIT) {
+                await this.membersService.for(manager)
+                    .atomicallyIncrementBalance(spaceMember, decimalAmount);
+            } else {
+                await this.membersService.for(manager)
+                    .atomicallyDecrementNonZeroableBalance(spaceMember, decimalAmount);
+            }
 
-        const spaceTransaction = await this.spaceTransactionsService.create({
-            type,
-            amount: decimalAmount,
-            comment,
-            date: new Date(date),
-            source,
-            target,
-            createdAt: new Date(),
-            actor
-        });
+            const spaceTransaction = await this.spaceTransactionsService.for(manager).create({
+                type,
+                amount: decimalAmount,
+                comment,
+                date: new Date(date),
+                source,
+                target,
+                createdAt: new Date(),
+                actor
+            });
 
-        await this.auditLogService.create("create-space-transaction", actor, {
-            id: spaceTransaction.id,
-            type: spaceTransaction.type,
-            amount: spaceTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
-            comment: spaceTransaction.comment,
-            date: spaceTransaction.date.toISOString(),
-            source: spaceTransaction.source,
-            target: spaceTransaction.target
+            await this.auditLogService.for(manager).create("create-space-transaction", actor, {
+                id: spaceTransaction.id,
+                type: spaceTransaction.type,
+                amount: spaceTransaction.amount.toFixed(MONEY_DECIMAL_PLACES),
+                comment: spaceTransaction.comment,
+                date: spaceTransaction.date.toISOString(),
+                source: spaceTransaction.source,
+                target: spaceTransaction.target
+            });
+
+            return spaceTransaction;
         });
 
         return SpaceTransactionsController.mapToDTO(spaceTransaction);
