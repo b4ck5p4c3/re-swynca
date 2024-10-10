@@ -3,7 +3,8 @@ import {ACSKey, ACSKeyType} from "../common/database/entities/acs-key.entity";
 import {
     ApiBody,
     ApiCookieAuth,
-    ApiDefaultResponse, ApiExcludeEndpoint, ApiNoContentResponse,
+    ApiDefaultResponse,
+    ApiExcludeEndpoint,
     ApiOkResponse,
     ApiOperation,
     ApiProperty,
@@ -58,6 +59,11 @@ class ACSKeyDTO {
     name: string;
 }
 
+class ACSKeysSystemResponseDTO {
+    uids: Record<string, string>;
+    pans: Record<string, string>;
+}
+
 @ApiTags("acs-keys")
 @Controller("acs-keys")
 export class ACSKeysController {
@@ -79,10 +85,20 @@ export class ACSKeysController {
     @ApiExcludeEndpoint()
     @NoAuth()
     @UseGuards(ACSKeysApiAuthGuard)
-    async findAllForACSSystem(): Promise<object> {
-        const result: Record<string, string> = {};
+    async findAllForACSSystem(): Promise<ACSKeysSystemResponseDTO> {
+        const result: ACSKeysSystemResponseDTO = {
+            uids: {},
+            pans: {}
+        }
         for (const acsKey of await this.acsKeysService.find()) {
-            result[acsKey.key] = acsKey.member.id;
+            switch (acsKey.type) {
+                case ACSKeyType.PAN:
+                    result.pans[acsKey.key] = acsKey.member.id;
+                    break;
+                case ACSKeyType.UID:
+                    result.uids[acsKey.key] = acsKey.member.id;
+                    break;
+            }
         }
         return result;
     }
