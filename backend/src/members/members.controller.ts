@@ -43,6 +43,7 @@ import {getValidActor} from "../common/actor-helper";
 import {SessionStorageService} from "../session-storage/session-storage.service";
 import {ApiKeysService} from "../api-keys/api-keys.service";
 import {MembersGitHubApiAuthGuard} from "./members-github-api-auth.guard";
+import {NoAuth} from "../auth/no-auth.decorator";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -591,6 +592,7 @@ export class MembersController {
 
     @Get("github")
     @ApiExcludeEndpoint()
+    @NoAuth()
     @UseGuards(MembersGitHubApiAuthGuard)
     async getGithubs(): Promise<string[]> {
         const members = await this.membersService.findAll();
