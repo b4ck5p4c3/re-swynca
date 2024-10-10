@@ -156,6 +156,16 @@ export class MembersController {
         };
     }
 
+    @Get("github")
+    @ApiExcludeEndpoint()
+    @NoAuth()
+    @UseGuards(MembersGitHubApiAuthGuard)
+    async findAllMembersGithubs(): Promise<string[]> {
+        const members = await this.membersService.findAll();
+        return members.map(member => member.githubMetadata?.githubUsername)
+            .filter(githubUsername => githubUsername);
+    }
+
     @Get("stats")
     @ApiOperation({
         summary: "Get stats of all members"
@@ -588,15 +598,5 @@ export class MembersController {
             });
 
         return {};
-    }
-
-    @Get("github")
-    @ApiExcludeEndpoint()
-    @NoAuth()
-    @UseGuards(MembersGitHubApiAuthGuard)
-    async getGithubs(): Promise<string[]> {
-        const members = await this.membersService.findAll();
-        return members.map(member => member.githubMetadata?.githubUsername)
-            .filter(githubUsername => githubUsername);
     }
 }
