@@ -30,7 +30,7 @@ class CreateACSKeyDTO {
 
     @ApiProperty()
     @IsNotEmpty()
-    @Matches("^(((0-9a-fA-F)(0-9a-fA-F)){1,})$")
+    @Matches("^([0-9a-fA-F]+)$")
     key: string;
 
     @ApiProperty()
