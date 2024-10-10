@@ -20,7 +20,7 @@ import {EmptyResponse} from "../common/utils";
 import {Errors} from "../common/errors";
 import {getValidActor} from "../common/actor-helper";
 import {NoAuth} from "../auth/no-auth.decorator";
-import {ACSKeysApiAuthGuard} from "./acs-keys-api-auth.guard";
+import {AcsKeysSystemApiAuthGuard} from "./acs-keys-system-api-auth.guard";
 
 class CreateACSKeyDTO {
     @ApiProperty({enum: ACSKeyType})
@@ -85,7 +85,7 @@ export class ACSKeysController {
     @Get("system")
     @ApiExcludeEndpoint()
     @NoAuth()
-    @UseGuards(ACSKeysApiAuthGuard)
+    @UseGuards(AcsKeysSystemApiAuthGuard)
     async findAllForACSSystem(): Promise<ACSKeysSystemResponseDTO> {
         const result: ACSKeysSystemResponseDTO = {
             uids: {},

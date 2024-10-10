@@ -1,8 +1,20 @@
-import {Body, Controller, Delete, Get, HttpException, HttpStatus, Logger, Param, Patch, Post} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpException,
+    HttpStatus,
+    Logger,
+    Param,
+    Patch,
+    Post,
+    UseGuards
+} from "@nestjs/common";
 import {
     ApiBody,
     ApiCookieAuth,
-    ApiDefaultResponse,
+    ApiDefaultResponse, ApiExcludeEndpoint,
     ApiOkResponse,
     ApiOperation,
     ApiProperty,
@@ -30,6 +42,7 @@ import {Errors} from "../common/errors";
 import {getValidActor} from "../common/actor-helper";
 import {SessionStorageService} from "../session-storage/session-storage.service";
 import {ApiKeysService} from "../api-keys/api-keys.service";
+import {MembersGitHubApiAuthGuard} from "./members-github-api-auth.guard";
 
 class GitHubMetadataDTO {
     @ApiProperty()
@@ -574,5 +587,14 @@ export class MembersController {
             });
 
         return {};
+    }
+
+    @Get("github")
+    @ApiExcludeEndpoint()
+    @UseGuards(MembersGitHubApiAuthGuard)
+    async getGithubs(): Promise<string[]> {
+        const members = await this.membersService.findAll();
+        return members.map(member => member.githubMetadata?.githubUsername)
+            .filter(githubUsername => githubUsername);
     }
 }

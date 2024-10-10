@@ -5,15 +5,15 @@ import {Errors} from "../common/errors";
 import {ConfigService} from "@nestjs/config";
 
 @Injectable()
-export class ACSKeysApiAuthGuard implements CanActivate {
+export class AcsKeysSystemApiAuthGuard implements CanActivate {
 
     private readonly token: string;
 
     constructor(private configService: ConfigService, private reflector: Reflector) {
-        this.token = configService.getOrThrow("ACS_KEYS_API_SECRET_TOKEN")
+        this.token = configService.getOrThrow("ACS_KEYS_SYSTEM_API_SECRET_TOKEN")
     }
 
-    static getACSSystemToken(request: express.Request): string | null {
+    static getACSSystemAuthToken(request: express.Request): string | null {
         if (request.header("Authorization")) {
             const authorizationContents = request.header("Authorization");
             const parts = authorizationContents.split(" ");
@@ -27,7 +27,7 @@ export class ACSKeysApiAuthGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest<express.Request>();
-        const token = ACSKeysApiAuthGuard.getACSSystemToken(request);
+        const token = AcsKeysSystemApiAuthGuard.getACSSystemAuthToken(request);
         if (token != this.token) {
             throw new HttpException(Errors.NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }

@@ -3,7 +3,7 @@ import {MembersService, SPACE_MEMBER_ID} from "../members/members.service";
 import {MemberStatus} from "../common/database/entities/member.entity";
 
 @Injectable()
-export class SpaceSeederService implements OnModuleInit {
+export class SeederService implements OnModuleInit {
     constructor(private membersService: MembersService) {
     }
 

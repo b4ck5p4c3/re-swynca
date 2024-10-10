@@ -12,6 +12,7 @@ import {TelegramMetadata} from "./entities/telegram-metadata.entity";
 import {GitHubMetadata} from "./entities/github-metadata.entity";
 import {AuditLog} from "./entities/audit-log.entity";
 import {ApiKey} from "./entities/api-key.entity";
+import {SwyncaMetadata} from "./entities/swynca-metadata.entity";
 
 @Module({
     imports: [
@@ -24,7 +25,7 @@ import {ApiKey} from "./entities/api-key.entity";
                     SpaceTransaction, MemberTransaction,
                     Membership, MembershipSubscription,
                     TelegramMetadata, GitHubMetadata,
-                    AuditLog, ApiKey],
+                    AuditLog, ApiKey, SwyncaMetadata],
                 synchronize: true,
                 logging: process.env.NODE_ENV === "development"
             }),

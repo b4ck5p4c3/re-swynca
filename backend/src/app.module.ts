@@ -9,7 +9,7 @@ import {SpaceTransactionsModule} from "./space-transactions/space-transactions.m
 import {MembershipSubscriptionsModule} from "./membership-subscriptions/membership-subscriptions.module";
 import {LogtoAuthModule} from "./logto-auth/logto-auth.module";
 import {AppHttpModule} from "./common/http/app-http.module";
-import {SpaceSeederModule} from "./space-seeder/space-seeder.module";
+import {SeederModule} from "./seeder/seeder.module";
 import {SpaceModule} from "./space/space.module";
 import {AuditLogModule} from "./audit-log/audit-log.module";
 import {BaseAuditLogModule} from "./base-audit-log/base-audit-log.module";
@@ -40,7 +40,7 @@ import {ApiKeysControllerModule} from "./api-keys/api-keys-controller.module";
 
         LogtoAuthModule,
 
-        SpaceSeederModule,
+        SeederModule,
 
         TelegramListenerModule
     ],
