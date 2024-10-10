@@ -445,6 +445,7 @@ export class MembersController {
         if (!logtoBinding) {
             throw new HttpException(Errors.MEMBER_NO_LOGTO_BINDING, HttpStatus.NOT_FOUND);
         }
+
         await this.logtoManagementService.deleteUserSocialIdentity(logtoBinding.logtoId, LOGTO_TELEGRAM_CONNECTOR_TARGET);
         await this.telegramMetadataService.remove(member.telegramMetadata.telegramId);
 

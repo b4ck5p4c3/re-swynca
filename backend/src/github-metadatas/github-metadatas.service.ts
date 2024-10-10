@@ -1,5 +1,5 @@
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import {EntityManager, Repository} from "typeorm";
 import {GitHubMetadata} from "../common/database/entities/github-metadata.entity";
 import {Injectable} from "@nestjs/common";
 import {DeepPartial} from "typeorm/common/DeepPartial";
@@ -8,6 +8,10 @@ import {AuditLogService} from "../audit-log/audit-log.service";
 @Injectable()
 export class GitHubMetadatasService {
     constructor(@InjectRepository(GitHubMetadata) private githubMetadataRepository: Repository<GitHubMetadata>) {
+    }
+
+    for(manager: EntityManager): GitHubMetadatasService {
+        return new GitHubMetadatasService(manager.getRepository(GitHubMetadata));
     }
 
     async create(githubMetadataData: DeepPartial<GitHubMetadata>): Promise<GitHubMetadata> {

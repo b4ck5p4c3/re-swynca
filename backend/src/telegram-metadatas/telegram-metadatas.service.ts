@@ -1,11 +1,15 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {DeepPartial, Repository} from "typeorm";
+import {DeepPartial, EntityManager, Repository} from "typeorm";
 import {TelegramMetadata} from "../common/database/entities/telegram-metadata.entity";
 
 @Injectable()
 export class TelegramMetadatasService {
     constructor(@InjectRepository(TelegramMetadata) private telegramMetadataRepository: Repository<TelegramMetadata>) {
+    }
+
+    for(manager: EntityManager): TelegramMetadatasService {
+        return new TelegramMetadatasService(manager.getRepository(TelegramMetadata));
     }
 
     async create(telegramMetadataData: DeepPartial<TelegramMetadata>): Promise<TelegramMetadata> {
