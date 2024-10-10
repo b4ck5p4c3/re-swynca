@@ -10,7 +10,7 @@ import {
     ApiProperty,
     ApiTags
 } from "@nestjs/swagger";
-import {IsEnum, IsNotEmpty, IsUUID} from "class-validator";
+import {IsEnum, IsNotEmpty, IsUUID, Matches} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
 import {ACSKeysService} from "./acs-keys.service";
 import {MembersService} from "src/members/members.service";
@@ -30,6 +30,7 @@ class CreateACSKeyDTO {
 
     @ApiProperty()
     @IsNotEmpty()
+    @Matches("^(((0-9a-fA-F)(0-9a-fA-F)){1,})$")
     key: string;
 
     @ApiProperty()
@@ -143,13 +144,14 @@ export class ACSKeysController {
         if (!member) {
             throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
-        if (await this.acsKeysService.existsByKey(key)) {
+        const realKey = key.toUpperCase();
+        if (await this.acsKeysService.existsByKey(realKey)) {
             throw new HttpException(Errors.ACS_KEY_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
         }
         return ACSKeysController.mapToDTO(await this.acsKeysService.transaction(async (manager) => {
             const acsKey = await this.acsKeysService.for(manager).create({
                 type,
-                key,
+                key: realKey,
                 name,
                 member
             });
