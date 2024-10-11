@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {SwyncaMetadata} from "../common/database/entities/swynca-metadata.entity";
 import {DeepPartial, EntityManager, Repository} from "typeorm";
 
-export const LAST_SUBSCRIPTIONS_WITHDRAWAL = "last-subscriptions-withdrawal";
+export const LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY = "last-subscriptions-withdrawal";
 
 @Injectable()
 export class SwyncaMetadataService {
@@ -22,8 +22,24 @@ export class SwyncaMetadataService {
         });
     }
 
+    async findByKeyLocked(key: string): Promise<SwyncaMetadata | null> {
+        return await this.swyncaMetadataRepository.findOne({
+            where: {
+                key
+            },
+            lock: {
+                mode: "for_no_key_update"
+            }
+        });
+    }
+
     async create(data: DeepPartial<SwyncaMetadata>): Promise<SwyncaMetadata> {
         const swyncaMetadata = this.swyncaMetadataRepository.create(data);
+        await this.swyncaMetadataRepository.save(swyncaMetadata);
+        return swyncaMetadata;
+    }
+
+    async update(swyncaMetadata: SwyncaMetadata): Promise<SwyncaMetadata> {
         await this.swyncaMetadataRepository.save(swyncaMetadata);
         return swyncaMetadata;
     }

@@ -1,7 +1,7 @@
 import {Injectable, OnModuleInit} from "@nestjs/common";
 import {MembersService, SPACE_MEMBER_ID} from "../members/members.service";
 import {MemberStatus} from "../common/database/entities/member.entity";
-import {LAST_SUBSCRIPTIONS_WITHDRAWAL, SwyncaMetadataService} from "../swynca-metadata/swynca-metadata.service";
+import {LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY, SwyncaMetadataService} from "../swynca-metadata/swynca-metadata.service";
 
 @Injectable()
 export class SeederService implements OnModuleInit {
@@ -18,9 +18,9 @@ export class SeederService implements OnModuleInit {
                 joinedAt: new Date(0)
             });
         }
-        if (!await this.swyncaMetadataService.findByKey(LAST_SUBSCRIPTIONS_WITHDRAWAL)) {
+        if (!await this.swyncaMetadataService.findByKey(LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY)) {
             await this.swyncaMetadataService.create({
-                key: LAST_SUBSCRIPTIONS_WITHDRAWAL,
+                key: LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY,
                 value: "never"
             });
         }

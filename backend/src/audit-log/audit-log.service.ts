@@ -105,7 +105,8 @@ type AuditLogEntry = {
     },
     "delete-api-key": {
         id: string
-    }
+    },
+    "subscriptions-withdrawal": undefined
 }
 
 @Injectable()

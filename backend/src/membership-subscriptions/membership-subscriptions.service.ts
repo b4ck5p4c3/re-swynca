@@ -57,6 +57,18 @@ export class MembershipSubscriptionsService {
         });
     }
 
+    async findAllActive(): Promise<MembershipSubscription[]> {
+        return await this.membershipSubscriptionRepository.find({
+            where: {
+                declinedAt: IsNull()
+            },
+            relations: {
+                membership: true,
+                member: true
+            }
+        });
+    }
+
     async findActiveByMemberIdAndMembershipIdLocked(memberId: string, membershipId: string): Promise<MembershipSubscription | null> {
         return await this.membershipSubscriptionRepository.findOne({
             where: {
@@ -79,7 +91,7 @@ export class MembershipSubscriptionsService {
             id: subscription.id,
             declinedAt: IsNull()
         }, subscription);
-        return updateResult.affected !== 1;
+        return updateResult.affected === 1;
     }
 
     async getSumOfActive(): Promise<Decimal> {

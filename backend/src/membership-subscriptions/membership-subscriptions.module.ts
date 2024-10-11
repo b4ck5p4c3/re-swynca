@@ -11,7 +11,8 @@ import {AuditLogModule} from "../audit-log/audit-log.module";
     imports: [TypeOrmModule.forFeature([MembershipSubscription]),
         MembershipsModule, MembersModule, AuditLogModule],
     controllers: [MembershipSubscriptionsController],
-    providers: [MembershipSubscriptionsService]
+    providers: [MembershipSubscriptionsService],
+    exports: [MembershipSubscriptionsService]
 })
 export class MembershipSubscriptionsModule {
 

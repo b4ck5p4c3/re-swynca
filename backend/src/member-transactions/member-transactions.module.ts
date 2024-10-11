@@ -12,7 +12,8 @@ import {AuditLogModule} from "../audit-log/audit-log.module";
     imports: [MembersModule, TypeOrmModule.forFeature([MemberTransaction]),
         SpaceTransactionsModule, AuditLogModule],
     controllers: [MemberTransactionsController],
-    providers: [MemberTransactionsService]
+    providers: [MemberTransactionsService],
+    exports: [MemberTransactionsService]
 })
 export class MemberTransactionsModule {
 }

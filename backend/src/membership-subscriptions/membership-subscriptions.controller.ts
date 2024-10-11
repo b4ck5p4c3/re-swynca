@@ -174,7 +174,8 @@ export class MembershipSubscriptionsController {
             const membershipSubscription = await this.membershipSubscriptionsService.for(manager).create({
                 member,
                 membership,
-                declinedAt: null
+                declinedAt: null,
+                subscribedAt: new Date()
             });
 
             await this.auditLogService.for(manager).create("subscribe-member", actor, {
