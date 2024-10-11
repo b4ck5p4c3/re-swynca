@@ -53,7 +53,7 @@ export class SubscriptionsWithdrawerService {
                         type: TransactionType.WITHDRAWAL,
                         amount: subscription.membership.amount,
                         date: currentTime,
-                        comment: `For ${subscription.membership.title}`,
+                        comment: subscription.membership.title,
                         target: MemberTransactionWithdrawal.MEMBERSHIP,
                         subject: subscription.member,
                         actor: spaceMember,
