@@ -12,6 +12,7 @@ import {Paginator} from "@/components/paginator";
 import {Button} from "@/components/ui/button";
 import {CreateSpaceTransactionDialog} from "@/components/dialogs/create-space-transaction";
 import {Money} from "@/components/money";
+import {MemberLink} from "@/components/member-link";
 
 const TRANSACTIONS_PER_PAGE = 20;
 
@@ -122,14 +123,10 @@ export default function SpaceTransactionsPage() {
                                 <TableCell><Money amount={transaction.amount}
                                                   negate={transaction.type === "withdrawal"}/></TableCell>
                                 <TableCell>{transaction.comment ?? "-"} {transaction.relatedMemberTransactionSubject ?
-                                    <>from <a className={"underline"}
-                                              href={`/dashboard/members/${transaction.relatedMemberTransactionSubject.id}`}
-                                              target={"_blank"}>{transaction.relatedMemberTransactionSubject.name}</a></> : <></>}
+                                    <>from <MemberLink member={transaction.relatedMemberTransactionSubject}/></> : <></>}
                                 </TableCell>
                                 <TableCell>{getTextTransactionType(transaction)}</TableCell>
-                                <TableCell><a className={"underline"}
-                                              href={`/dashboard/members/${transaction.actor.id}`}
-                                              target={"_blank"}>{transaction.actor.name}</a></TableCell>
+                                <TableCell><MemberLink member={transaction.actor}/></TableCell>
                                 <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
                             </TableRow>) : <>
                             {[...Array(10)].map((value, index) => <EmptyTableRow key={index}/>)}

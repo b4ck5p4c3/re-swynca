@@ -8,6 +8,7 @@ import {ArrowDownZA, ArrowUpAZ} from "lucide-react";
 import {getMemberTransactionTypeText} from "@/lib/utils";
 import {Paginator} from "@/components/paginator";
 import {Money} from "./money";
+import {MemberLink} from "@/components/member-link";
 
 const TRANSACTIONS_PER_PAGE = 10;
 
@@ -94,9 +95,7 @@ export function MemberSubjectedTransactions({memberId}: { memberId: string }) {
                                                   negate={transaction.type === "withdrawal"}/></TableCell>
                                 <TableCell>{transaction.comment ?? "-"}</TableCell>
                                 <TableCell>{getMemberTransactionTypeText(transaction)}</TableCell>
-                                <TableCell><a className={"underline"}
-                                              href={`/dashboard/members/${transaction.actor.id}`}
-                                              target={"_blank"}>{transaction.actor.name}</a></TableCell>
+                                <TableCell><MemberLink member={transaction.actor}/></TableCell>
                                 <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
                             </TableRow>) : <>
                             {[...Array(10)].map((value, index) => <EmptyTableRow key={index}/>)}

@@ -8,6 +8,7 @@ import {getMemberTransactionTypeText} from "@/lib/utils";
 import {Paginator} from "@/components/paginator";
 import {Skeleton} from "@/components/ui/skeleton";
 import {Money} from "@/components/money";
+import {MemberLink} from "@/components/member-link";
 
 const TRANSACTIONS_PER_PAGE = 10;
 
@@ -94,8 +95,7 @@ export function MemberActedTransactions({memberId}: { memberId: string }) {
                                                   negate={transaction.type === "withdrawal"}/></TableCell>
                                 <TableCell>{transaction.comment ?? "-"}</TableCell>
                                 <TableCell>{getMemberTransactionTypeText(transaction)}</TableCell>
-                                <TableCell><a className={"underline"} href={`/dashboard/members/${transaction.subject.id}`}
-                                              target={"_blank"}>{transaction.subject.name}</a></TableCell>
+                                <TableCell><MemberLink member={transaction.subject}/></TableCell>
                                 <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
                             </TableRow>) : <>
                             {[...Array(10)].map((value, index) => <EmptyTableRow key={index}/>)}

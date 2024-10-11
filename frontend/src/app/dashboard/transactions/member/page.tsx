@@ -14,6 +14,7 @@ import {getMemberTransactionTypeText} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
 import {Money} from "@/components/money";
 import {CreateMemberTransactionDialog} from "@/components/dialogs/create-member-transaction";
+import {MemberLink} from "@/components/member-link";
 
 const TRANSACTIONS_PER_PAGE = 20;
 
@@ -102,12 +103,8 @@ export default function MemberTransactionsPage() {
                                                   negate={transaction.type === "withdrawal"}/></TableCell>
                                 <TableCell>{transaction.comment ?? "-"}</TableCell>
                                 <TableCell>{getMemberTransactionTypeText(transaction)}</TableCell>
-                                <TableCell><a className={"underline"}
-                                              href={`/dashboard/members/${transaction.subject.id}`}
-                                              target={"_blank"}>{transaction.subject.name}</a></TableCell>
-                                <TableCell><a className={"underline"}
-                                              href={`/dashboard/members/${transaction.actor.id}`}
-                                              target={"_blank"}>{transaction.actor.name}</a></TableCell>
+                                <TableCell><MemberLink member={transaction.subject}/></TableCell>
+                                <TableCell><MemberLink member={transaction.actor}/></TableCell>
                                 <TableCell>{new Date(transaction.createdAt).toLocaleString()}</TableCell>
                             </TableRow>) : <>
                             {[...Array(10)].map((value, index) => <EmptyTableRow key={index}/>)}
