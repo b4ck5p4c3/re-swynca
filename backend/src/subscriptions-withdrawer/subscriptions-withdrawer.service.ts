@@ -23,7 +23,7 @@ export class SubscriptionsWithdrawerService {
                 private auditLogService: AuditLogService) {
     }
 
-    @Cron(CronExpression.EVERY_MINUTE)
+    @Cron(CronExpression.EVERY_HOUR)
     async withdrawSubscriptions(): Promise<void> {
         if (this.withdrawing) {
             return;
