@@ -12,6 +12,14 @@ export class TelegramMetadatasService {
         return new TelegramMetadatasService(manager.getRepository(TelegramMetadata));
     }
 
+    async find(): Promise<TelegramMetadata[]> {
+        return await this.telegramMetadataRepository.find({
+            relations: {
+                member: true
+            }
+        });
+    }
+
     async create(telegramMetadataData: DeepPartial<TelegramMetadata>): Promise<TelegramMetadata> {
         const telegramMetadata = this.telegramMetadataRepository.create(telegramMetadataData);
         await this.telegramMetadataRepository.save(telegramMetadata);
