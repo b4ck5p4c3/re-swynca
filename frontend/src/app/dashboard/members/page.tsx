@@ -40,6 +40,7 @@ export default function MembersPage() {
                 <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>E-Mail</TableHead>
+                    <TableHead>Username</TableHead>
                     <TableHead>Joined at</TableHead>
                     <TableHead>Balance</TableHead>
                     <TableHead></TableHead>
@@ -51,6 +52,7 @@ export default function MembersPage() {
                                                                      onClick={() => router.push(`/dashboard/members/${member.id}`)}>
                     <TableCell>{member.name}</TableCell>
                     <TableCell>{member.email}</TableCell>
+                    <TableCell>{member.username}</TableCell>
                     <TableCell>{new Date(member.joinedAt).toLocaleDateString()}</TableCell>
                     <TableCell><Money amount={member.balance}/></TableCell>
                     <TableCell className={"flex flex-row gap-2 justify-end"}>
