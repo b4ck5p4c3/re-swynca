@@ -7,6 +7,7 @@ export class Errors {
     static SPACE_MEMBER_NOT_FOUND = "space-member-not-found";
     static ACS_KEY_ALREADY_EXISTS = "acs-key-already-exists";
     static MEMBER_EMAIL_ALREADY_EXISTS= "member-email-already-exists";
+    static MEMBER_USERNAME_ALREADY_EXISTS = "member-username-already-exists";
     static MEMBER_NO_LOGTO_BINDING = "member-no-logto-binding";
     static MEMBERSHIP_NOT_FOUND = "membership-not-found";
     static MEMBERSHIP_FROZEN = "membership-frozen";

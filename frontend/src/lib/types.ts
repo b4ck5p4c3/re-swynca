@@ -21,6 +21,7 @@ export interface MemberDTO {
     id: string;
     name: string;
     email: string;
+    username: string;
     githubMetadata?: {
         githubUsername: string;
     },

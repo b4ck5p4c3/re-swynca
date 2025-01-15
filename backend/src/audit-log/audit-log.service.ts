@@ -70,11 +70,13 @@ type AuditLogEntry = {
         id: string,
         name: string,
         email: string,
+        username: string,
         logtoId: string
     },
     "update-member": {
         id: string,
         name: string,
+        username: string,
         email: string
     },
     "subscribe-member": {

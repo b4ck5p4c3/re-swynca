@@ -106,7 +106,7 @@ export interface paths {
         options?: never;
         head?: never;
         /** Freeze/unfreeze member */
-        patch: operations["MembersController_freeze"];
+        patch: operations["MembersController_updateStatus"];
         trace?: never;
     };
     "/api/members/{id}/telegram": {
@@ -385,6 +385,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get your API keys */
+        get: operations["ApiKeysController_findMy"];
+        put?: never;
+        /** Create new API key */
+        post: operations["ApiKeysController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/api-keys/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete API key */
+        delete: operations["ApiKeysController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/self": {
         parameters: {
             query?: never;
@@ -439,6 +474,7 @@ export interface components {
             name: string;
             /** Format: email */
             email: string;
+            username: string;
             /** @enum {string} */
             status: "active" | "frozen";
             balance: string;
@@ -451,6 +487,7 @@ export interface components {
             name: string;
             /** Format: email */
             email: string;
+            username: string;
         };
         UpdateStatusDTO: {
             /** @enum {string} */
@@ -574,6 +611,11 @@ export interface components {
         };
         SpaceBalanceDTO: {
             balance: string;
+        };
+        ApiKeyDTO: {
+            /** Format: uuid */
+            id: string;
+            key: string;
         };
         SelfAuthInfoDTO: {
             /** Format: uuid */
@@ -842,7 +884,7 @@ export interface operations {
             };
         };
     };
-    MembersController_freeze: {
+    MembersController_updateStatus: {
         parameters: {
             query?: never;
             header?: never;
@@ -1517,6 +1559,95 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SpaceBalanceDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    ApiKeysController_findMy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiKeyDTO"][];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    ApiKeysController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiKeyDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    ApiKeysController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
                 };
             };
             /** @description Erroneous response */

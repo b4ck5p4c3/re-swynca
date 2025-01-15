@@ -11,28 +11,28 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 
-const updateNameDialogForm = z.object({
-    name: z.string()
+const updateUsernameDialogForm = z.object({
+    username: z.string()
 });
 
-type UpdateNameDialogData = z.infer<typeof updateNameDialogForm>;
+type UpdateUsernameDialogData = z.infer<typeof updateUsernameDialogForm>;
 
-export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & { member: MemberDTO }) {
-    const form = useForm<UpdateNameDialogData>({
-        resolver: zodResolver(updateNameDialogForm)
+export function UpdateUsernameDialog({open, onClose, member}: DefaultDialogProps & { member: MemberDTO }) {
+    const form = useForm<UpdateUsernameDialogData>({
+        resolver: zodResolver(updateUsernameDialogForm)
     });
 
     const client = getClient();
 
     const queryClient = useQueryClient();
 
-    const updateName = useMutation({
-        mutationFn: async (data: UpdateNameDialogData) => {
+    const updateUsername = useMutation({
+        mutationFn: async (data: UpdateUsernameDialogData) => {
             R(await client.PATCH("/api/members/{id}", {
                 body: {
-                    name: data.name,
+                    name: member.name,
                     email: member.email,
-                    username: member.username
+                    username: data.username
                 },
                 params: {
                     path: {
@@ -48,7 +48,7 @@ export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & {
     });
 
     function onOpenChange(open: boolean) {
-        if (!open && !updateName.isPending) {
+        if (!open && !updateUsername.isPending) {
             onClose();
         }
     }
@@ -56,7 +56,7 @@ export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & {
     useEffect(() => {
         if (open) {
             form.reset({
-                name: member.name
+                username: member.username
             });
         }
     }, [open, form, member]);
@@ -64,19 +64,19 @@ export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & {
     return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Update name</DialogTitle>
+                <DialogTitle>Update username</DialogTitle>
             </DialogHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(data => updateName.mutate(data))}>
+                <form onSubmit={form.handleSubmit(data => updateUsername.mutate(data))}>
                     <div className={"flex flex-col gap-4 mb-4"}>
                         <FormField
                             control={form.control}
-                            name="name"
+                            name="username"
                             render={({field}) => (
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Dmitry Pepperstein" disabled={updateName.isPending} {...field} />
+                                        <Input placeholder="radioegor146" disabled={updateUsername.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -84,7 +84,7 @@ export function UpdateNameDialog({open, onClose, member}: DefaultDialogProps & {
                         />
                     </div>
                     <DialogFooter>
-                        <Button type={"submit"} disabled={updateName.isPending}>Update</Button>
+                        <Button type={"submit"} disabled={updateUsername.isPending}>Update</Button>
                     </DialogFooter>
                 </form>
             </Form>

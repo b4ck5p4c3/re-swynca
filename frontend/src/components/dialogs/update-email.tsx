@@ -32,6 +32,7 @@ export function UpdateEMailDialog({open, onClose, member}: DefaultDialogProps & 
                 body: {
                     name: member.name,
                     email: data.email,
+                    username: member.username
                 },
                 params: {
                     path: {

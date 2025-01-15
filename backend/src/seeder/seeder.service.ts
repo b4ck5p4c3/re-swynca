@@ -14,6 +14,7 @@ export class SeederService implements OnModuleInit {
                 id: SPACE_MEMBER_ID,
                 name: "Space",
                 email: "space@space.space",
+                username: "space",
                 status: MemberStatus.FROZEN,
                 joinedAt: new Date(0)
             });

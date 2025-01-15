@@ -15,7 +15,8 @@ const createMemberSchema = z.object({
     name: z.string(),
     email: z.string().email({
         message: "E-Mail must be valid"
-    })
+    }),
+    username: z.string()
 });
 
 type CreateMemberData = z.infer<typeof createMemberSchema>;
@@ -34,7 +35,8 @@ export function CreateMemberDialog({open, onClose}: DefaultDialogProps) {
             R(await client.POST("/api/members", {
                 body: {
                     name: data.name,
-                    email: data.email
+                    email: data.email,
+                    username: data.username,
                 }
             }));
         },
@@ -85,6 +87,20 @@ export function CreateMemberDialog({open, onClose}: DefaultDialogProps) {
                                     <FormLabel>E-Mail</FormLabel>
                                     <FormControl>
                                         <Input placeholder="new-member@0x08.in"
+                                               disabled={createMember.isPending} {...field} />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="username"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Username</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="memberat00x8"
                                                disabled={createMember.isPending} {...field} />
                                     </FormControl>
                                     <FormMessage/>

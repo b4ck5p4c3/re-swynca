@@ -71,6 +71,9 @@ export class MemberDTO {
     @ApiProperty({format: "email"})
     email: string;
 
+    @ApiProperty()
+    username: string;
+
     @ApiProperty({enum: MemberStatus})
     status: MemberStatus;
 
@@ -95,6 +98,10 @@ class CreateUpdateMemberDTO {
     @ApiProperty({format: "email"})
     @IsEmail()
     email: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    username: string;
 }
 
 class UpdateTelegramMetadataDTO {
@@ -142,6 +149,7 @@ export class MembersController {
             id: member.id,
             name: member.name,
             email: member.email,
+            username: member.username,
             status: member.status,
             balance: member.balance.toFixed(MONEY_DECIMAL_PLACES),
             joinedAt: member.joinedAt.toISOString(),
@@ -249,13 +257,15 @@ export class MembersController {
             const member = await this.membersService.for(manager).create({
                 name: request.name,
                 email: request.email,
+                username: request.username,
                 status: MemberStatus.FROZEN,
                 joinedAt: new Date(),
             });
 
             const logtoId = await this.logtoManagementService.createUser({
                 name: request.name,
-                email: request.email
+                email: request.email,
+                username: request.username
             });
 
             await this.logtoManagementService.updateUserSuspensionStatus(logtoId, true);
@@ -269,6 +279,7 @@ export class MembersController {
                 id: member.id,
                 name: member.name,
                 email: member.email,
+                username: member.username,
                 logtoId: logtoId
             });
 
@@ -310,13 +321,20 @@ export class MembersController {
             }
         }
 
+        if (request.username !== member.username) {
+            if (await this.membersService.existsByUsername(request.username)) {
+                throw new HttpException(Errors.MEMBER_USERNAME_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
+            }
+        }
+
         member.name = request.name;
         member.email = request.email;
 
         return MembersController.mapToDTO(await this.membersService.transaction(async manager => {
             await this.logtoManagementService.updateUser(logtoBinding.logtoId, {
                 name: request.name,
-                email: request.email
+                email: request.email,
+                username: request.username,
             });
 
             await this.membersService.for(manager).update(member);
@@ -324,7 +342,8 @@ export class MembersController {
             await this.auditLogService.for(manager).create("update-member", actor, {
                 id: member.id,
                 name: member.name,
-                email: member.email
+                email: member.email,
+                username: member.username
             });
 
             return member;

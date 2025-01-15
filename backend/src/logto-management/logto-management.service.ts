@@ -21,11 +21,13 @@ interface LogtoTokenEndpointResponse {
 interface CreateUserData {
     name: string;
     email: string;
+    username: string;
 }
 
 interface UpdateUserData {
     name: string;
     email: string;
+    username: string;
 }
 
 interface LogtoCreateUserResponse {
@@ -90,7 +92,8 @@ export class LogtoManagementService {
         const response = (await this.httpService.axiosRef.post<LogtoCreateUserResponse>(
             `${this.logtoM2MConfig.endpoint}/api/users`, {
                 primaryEmail: createUserData.email,
-                name: createUserData.name
+                name: createUserData.name,
+                username: createUserData.username
             }, {
                 headers: {
                     "authorization": `Bearer ${await this.getToken()}`
@@ -115,7 +118,8 @@ export class LogtoManagementService {
         await this.httpService.axiosRef.patch(
             `${this.logtoM2MConfig.endpoint}/api/users/${id}`, {
                 name: data.name,
-                primaryEmail: data.email
+                primaryEmail: data.email,
+                username: data.username
             }, {
                 headers: {
                     "authorization": `Bearer ${await this.getToken()}`

@@ -1782,6 +1782,9 @@
                         "type": "string",
                         "format": "email"
                     },
+                    "username": {
+                        "type": "string"
+                    },
                     "status": {
                         "type": "string",
                         "enum": [
@@ -1807,6 +1810,7 @@
                     "id",
                     "name",
                     "email",
+                    "username",
                     "status",
                     "balance",
                     "joinedAt"
@@ -1821,11 +1825,15 @@
                     "email": {
                         "type": "string",
                         "format": "email"
+                    },
+                    "username": {
+                        "type": "string"
                     }
                 },
                 "required": [
                     "name",
-                    "email"
+                    "email",
+                    "username"
                 ]
             },
             "UpdateStatusDTO": {

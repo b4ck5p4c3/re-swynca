@@ -25,6 +25,7 @@ import {SubscribeDialog} from "@/components/dialogs/subscribe";
 import {CreateACSKeyDialog} from "@/components/dialogs/create-acs-key";
 import {UpdateNameDialog} from "@/components/dialogs/update-name";
 import {UpdateEMailDialog} from "@/components/dialogs/update-email";
+import {UpdateUsernameDialog} from "@/components/dialogs/update-username";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
     "pan": "💳",
@@ -36,6 +37,7 @@ export default function MemberPage() {
     const [createACSKeyDialogOpened, setCreateACSKeyDialogOpened] = useState(false);
     const [updateNameDialogOpened, setUpdateNameDialogOpened] = useState(false);
     const [updateEMailDialogOpened, setUpdateEMailDialogOpened] = useState(false);
+    const [updateUsernameDialogOpened, setUpdateUsernameDialogOpened] = useState(false);
 
     const client = getClient();
 
@@ -161,6 +163,12 @@ export default function MemberPage() {
                             onClick={() => setUpdateEMailDialogOpened(true)}><Pencil className={"w-4 h-4"}/></Button>
                 </div> :
                 <Skeleton className={"h-[24px] w-[200px]"}/>}</MemberInfoRow>
+            <MemberInfoRow collapseWhenSm={true} title={"Username"}>{member.data ? <div className={"flex flex-row gap-2"}>
+                    <div className={"leading-8"}>{member.data.username}</div>
+                    <Button className={"w-8 p-0 h-8"}
+                            onClick={() => setUpdateUsernameDialogOpened(true)}><Pencil className={"w-4 h-4"}/></Button>
+                </div> :
+                <Skeleton className={"h-[24px] w-[200px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"Joined at"}>{member.data ? new Date(member.data.joinedAt).toLocaleDateString() :
                 <Skeleton className={"h-[24px] w-[90px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"Balance"}>{member.data ? <Money amount={member.data.balance}/> :
@@ -279,5 +287,7 @@ export default function MemberPage() {
                                          onClose={() => setUpdateNameDialogOpened(false)}/> : <></>}
         {member.data ? <UpdateEMailDialog member={member.data} open={updateEMailDialogOpened}
                                           onClose={() => setUpdateEMailDialogOpened(false)}/> : <></>}
+        {member.data ? <UpdateUsernameDialog member={member.data} open={updateUsernameDialogOpened}
+                                          onClose={() => setUpdateUsernameDialogOpened(false)}/> : <></>}
     </div>;
 }

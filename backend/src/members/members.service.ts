@@ -91,6 +91,13 @@ export class MembersService {
         });
     }
 
+    async existsByUsername(username: string): Promise<boolean> {
+        return await this.membersRepository.existsBy({
+            username,
+            id: Not(SPACE_MEMBER_ID)
+        });
+    }
+
     async create(memberData: DeepPartial<Member>): Promise<Member> {
         const member = this.membersRepository.create(memberData);
         await this.membersRepository.save(member);
