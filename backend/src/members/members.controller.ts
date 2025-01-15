@@ -329,6 +329,7 @@ export class MembersController {
 
         member.name = request.name;
         member.email = request.email;
+        member.username = request.username;
 
         return MembersController.mapToDTO(await this.membersService.transaction(async manager => {
             await this.logtoManagementService.updateUser(logtoBinding.logtoId, {
