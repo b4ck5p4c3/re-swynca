@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {ACSKey} from "src/common/database/entities/acs-key.entity";
 import {DeepPartial, EntityManager, Repository} from "typeorm";
+import {MemberStatus} from "../common/database/entities/member.entity";
 
 @Injectable()
 export class ACSKeysService {
@@ -12,10 +13,15 @@ export class ACSKeysService {
         return new ACSKeysService(manager.getRepository(ACSKey));
     }
 
-    async find(): Promise<ACSKey[]> {
+    async findForActiveMembers(): Promise<ACSKey[]> {
         return await this.acsKeyRepository.find({
             relations: {
                 member: true
+            },
+            where: {
+                member: {
+                    status: MemberStatus.ACTIVE
+                }
             }
         });
     }

@@ -1,15 +1,11 @@
 import {Injectable} from "@nestjs/common";
-import {Member, MemberStatus} from "../common/database/entities/member.entity";
+import {Member} from "../common/database/entities/member.entity";
 import {InjectRepository} from "@nestjs/typeorm";
-import {DeepPartial, EntityManager, MoreThanOrEqual, Not, Repository} from "typeorm";
+import {DeepPartial, EntityManager, Not, Repository} from "typeorm";
 import Decimal from "decimal.js";
 import {MONEY_DECIMAL_PLACES} from "../common/money";
 
 export const SPACE_MEMBER_ID = "00000000-0000-0000-0000-000000000000";
-
-export class MemberNotFoundError extends Error {
-
-}
 
 @Injectable()
 export class MembersService {

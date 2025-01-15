@@ -91,7 +91,7 @@ export class ACSKeysController {
             uids: {},
             pans: {}
         }
-        for (const acsKey of await this.acsKeysService.find()) {
+        for (const acsKey of await this.acsKeysService.findForActiveMembers()) {
             switch (acsKey.type) {
                 case ACSKeyType.PAN:
                     result.pans[acsKey.key] = `${acsKey.id}/${acsKey.member.id}`;

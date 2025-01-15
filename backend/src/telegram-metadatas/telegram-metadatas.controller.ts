@@ -22,7 +22,7 @@ export class TelegramMetadatasController {
         const result: TelegramMetadatasSystemResponseDTO = {
             telegrams: {}
         }
-        for (const telegramMetadata of await this.telegramMetadataService.find()) {
+        for (const telegramMetadata of await this.telegramMetadataService.findForActiveMembers()) {
             result.telegrams[telegramMetadata.telegramId] = `${telegramMetadata.member.id}/${telegramMetadata.telegramName}`
         }
         return result;

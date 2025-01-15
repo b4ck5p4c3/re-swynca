@@ -21,9 +21,9 @@ import {
     ApiTags
 } from "@nestjs/swagger";
 import {Member, MemberStatus} from "../common/database/entities/member.entity";
-import {IsEmail, IsEnum, IsNotEmpty, IsNumberString, Matches} from "class-validator";
+import {IsEmail, IsEnum, IsNotEmpty, Matches} from "class-validator";
 import {ErrorApiResponse} from "../common/api-responses";
-import {MemberNotFoundError, MembersService} from "./members.service";
+import {MembersService} from "./members.service";
 import {GitHubMetadatasService} from "../github-metadatas/github-metadatas.service";
 import {GitHubService} from "../github/github.service";
 import {TelegramMetadatasService} from "../telegram-metadatas/telegram-metadatas.service";

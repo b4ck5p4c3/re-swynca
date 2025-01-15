@@ -28,7 +28,7 @@ export class Member {
     @Column("text", {unique: true})
     email: string;
 
-    @Column("text", {unique: true, nullable: true})
+    @Column("text", {unique: true})
     username: string;
 
     @Column({type: "enum", enum: MemberStatus, default: MemberStatus.ACTIVE})

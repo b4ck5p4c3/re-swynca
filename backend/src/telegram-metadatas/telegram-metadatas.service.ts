@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {DeepPartial, EntityManager, Repository} from "typeorm";
 import {TelegramMetadata} from "../common/database/entities/telegram-metadata.entity";
+import {MemberStatus} from "../common/database/entities/member.entity";
 
 @Injectable()
 export class TelegramMetadatasService {
@@ -12,10 +13,15 @@ export class TelegramMetadatasService {
         return new TelegramMetadatasService(manager.getRepository(TelegramMetadata));
     }
 
-    async find(): Promise<TelegramMetadata[]> {
+    async findForActiveMembers(): Promise<TelegramMetadata[]> {
         return await this.telegramMetadataRepository.find({
             relations: {
                 member: true
+            },
+            where: {
+                member: {
+                    status: MemberStatus.ACTIVE
+                }
             }
         });
     }
