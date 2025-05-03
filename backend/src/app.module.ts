@@ -17,6 +17,7 @@ import {ScheduleModule} from "@nestjs/schedule";
 import {TelegramListenerModule} from "./telegram-listener/telegram-listener.module";
 import {ApiKeysControllerModule} from "./api-keys/api-keys-controller.module";
 import {SubscriptionsWithdrawerModule} from "./subscriptions-withdrawer/subscriptions-withdrawer.module";
+import {StatusModule} from "./status/status.module";
 
 @Module({
     imports: [
@@ -37,6 +38,8 @@ import {SubscriptionsWithdrawerModule} from "./subscriptions-withdrawer/subscrip
         MembershipSubscriptionsModule,
         SpaceModule,
         ApiKeysControllerModule,
+
+        StatusModule,
 
         LogtoAuthModule,
 
