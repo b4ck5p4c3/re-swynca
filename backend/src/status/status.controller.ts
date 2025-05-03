@@ -1,5 +1,6 @@
 import {Controller, Get, HttpException, HttpStatus} from "@nestjs/common";
 import {StatusService} from "./status.service";
+import {NoAuth} from "../auth/no-auth.decorator";
 
 @Controller()
 export class StatusController {
@@ -8,6 +9,7 @@ export class StatusController {
     }
 
     @Get("health")
+    @NoAuth()
     async health(): Promise<string> {
         try {
             await this.statusService.isDatabaseOk();
