@@ -12,8 +12,8 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 
 const createMACForm = z.object({
-    mac: z.string().regex(/^([0-9A-F]{2}):([0-9A-F]{2}):([0-9A-F]{2}):([0-9A-F]{2}):([0-9A-F]{2}):([0-9A-F]{2})$/,
-        "Input MAC address in form of 11:22:33:AA:BB:CC"),
+    mac: z.string().regex(/^([0-9A-F]{2}):([0-9A-F]{2}):([0-9A-F]{2}):([0-9A-F]{2}):([0-9A-F]{2}):([0-9A-F]{2})$/i,
+        "Input MAC address in form of 11:22:33:Aa:Bb:Cc"),
     description: z.string()
 });
 
@@ -33,7 +33,7 @@ export function CreateMACDialog({open, onClose, memberId}: DefaultDialogProps & 
             R(await client.POST("/api/macs", {
                 body: {
                     memberId,
-                    mac: data.mac,
+                    mac: data.mac.toUpperCase(),
                     description: data.description
                 }
             }));
