@@ -11,6 +11,7 @@ import {DecimalTransformer} from "../transformers/decimal.transformer";
 import Decimal from "decimal.js";
 import {AuditLog} from "./audit-log.entity";
 import {ApiKey} from "./api-key.entity";
+import {MAC} from "./mac.entity";
 
 export enum MemberStatus {
     ACTIVE = "active",
@@ -70,4 +71,7 @@ export class Member {
 
     @OneToMany(() => ApiKey, apiKey => apiKey.member)
     apiKeys: ApiKey[];
+
+    @OneToMany(() => MAC, mac => mac.member)
+    macs: MAC[];
 }

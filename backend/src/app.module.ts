@@ -18,6 +18,7 @@ import {TelegramListenerModule} from "./telegram-listener/telegram-listener.modu
 import {ApiKeysControllerModule} from "./api-keys/api-keys-controller.module";
 import {SubscriptionsWithdrawerModule} from "./subscriptions-withdrawer/subscriptions-withdrawer.module";
 import {StatusModule} from "./status/status.module";
+import {MACsModule} from "./macs/macs.module";
 
 @Module({
     imports: [
@@ -38,6 +39,7 @@ import {StatusModule} from "./status/status.module";
         MembershipSubscriptionsModule,
         SpaceModule,
         ApiKeysControllerModule,
+        MACsModule,
 
         StatusModule,
 

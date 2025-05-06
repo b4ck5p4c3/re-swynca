@@ -5,7 +5,7 @@ import {getClient, R} from "@/lib/api/client";
 import {useParams} from "next/navigation";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
-    MEMBER_ACS_KEYS_QUERY_KEY,
+    MEMBER_ACS_KEYS_QUERY_KEY, MEMBER_MACS_QUERY_KEY,
     MEMBER_QUERY_KEY,
     MEMBER_SUBSCRIPTIONS_QUERY_KEY,
     MEMBERSHIPS_QUERY_KEY
@@ -26,6 +26,7 @@ import {CreateACSKeyDialog} from "@/components/dialogs/create-acs-key";
 import {UpdateNameDialog} from "@/components/dialogs/update-name";
 import {UpdateEMailDialog} from "@/components/dialogs/update-email";
 import {UpdateUsernameDialog} from "@/components/dialogs/update-username";
+import {CreateMACDialog} from "@/components/dialogs/create-mac";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
     "pan": "💳",
@@ -35,6 +36,7 @@ const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
 export default function MemberPage() {
     const [subscribeDialogOpened, setSubscribeDialogOpened] = useState(false);
     const [createACSKeyDialogOpened, setCreateACSKeyDialogOpened] = useState(false);
+    const [createMACDialogOpened, setCreateMACDialogOpened] = useState(false);
     const [updateNameDialogOpened, setUpdateNameDialogOpened] = useState(false);
     const [updateEMailDialogOpened, setUpdateEMailDialogOpened] = useState(false);
     const [updateUsernameDialogOpened, setUpdateUsernameDialogOpened] = useState(false);
@@ -99,6 +101,22 @@ export default function MemberPage() {
         retry: false
     });
 
+    const memberMACs = useQuery({
+        queryFn: async () => {
+            const memberMacsData = R(await client.GET("/api/macs/member/{memberId}", {
+                params: {
+                    path: {
+                        memberId: id
+                    }
+                }
+            }));
+
+            return memberMacsData.data!;
+        },
+        queryKey: [MEMBER_MACS_QUERY_KEY, id],
+        retry: false
+    });
+
     const queryClient = useQueryClient();
 
     const unsubscribe = useMutation(({
@@ -148,6 +166,21 @@ export default function MemberPage() {
             await queryClient.refetchQueries({queryKey: [MEMBER_QUERY_KEY, id]});
         }
     });
+
+    const removeMAC = useMutation(({
+        mutationFn: async (id: string) => {
+            R(await client.DELETE("/api/macs/{id}", {
+                params: {
+                    path: {
+                        id
+                    }
+                }
+            }));
+        },
+        onSuccess: async () => {
+            await queryClient.refetchQueries({queryKey: [MEMBER_MACS_QUERY_KEY, id]});
+        }
+    }));
 
     return <div>
         <div className={"flex flex-col gap-4"}>
@@ -271,6 +304,36 @@ export default function MemberPage() {
                         </TableRow>}
                 </TableBody>
             </Table>
+            <Separator/>
+            <div className={"flex flex-row"}>
+                <div className={"text-xl font-semibold"}>MACs:</div>
+                <div className={"flex-1"}/>
+                <Button onClick={() => setCreateMACDialogOpened(true)}>Add</Button>
+            </div>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>MAC</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead></TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {memberMACs.data ? memberMACs.data.map(mac =>
+                            <TableRow className={"cursor-pointer"} key={mac.id}>
+                                <TableCell>{mac.mac}</TableCell>
+                                <TableCell>{mac.description}</TableCell>
+                                <TableCell><Button disabled={removeMAC.isPending} onClick={() => removeMAC.mutate(mac.id)} variant={"destructive"}
+                                                   className={"w-8 p-0 h-8"}><Trash
+                                    className={"w-4 h-4"}/></Button></TableCell>
+                            </TableRow>) :
+                        <TableRow>
+                            <TableCell><Skeleton className={"h-[24px] w-[60px]"}/></TableCell>
+                            <TableCell><Skeleton className={"h-[24px] w-[40px]"}/></TableCell>
+                            <TableCell></TableCell>
+                        </TableRow>}
+                </TableBody>
+            </Table>
         </div>
         {memberSubscriptions.data && memberships.data ?
             <SubscribeDialog open={subscribeDialogOpened} onClose={() => setSubscribeDialogOpened(false)}
@@ -282,6 +345,8 @@ export default function MemberPage() {
                              memberId={id}/>
             : <></>}
         <CreateACSKeyDialog open={createACSKeyDialogOpened} onClose={() => setCreateACSKeyDialogOpened(false)}
+                            memberId={id}/>
+        <CreateMACDialog open={createMACDialogOpened} onClose={() => setCreateMACDialogOpened(false)}
                             memberId={id}/>
         {member.data ? <UpdateNameDialog member={member.data} open={updateNameDialogOpened}
                                          onClose={() => setUpdateNameDialogOpened(false)}/> : <></>}
