@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {Member} from "../common/database/entities/member.entity";
+import {Member, MemberStatus} from "../common/database/entities/member.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {DeepPartial, EntityManager, Not, Repository} from "typeorm";
 import Decimal from "decimal.js";
@@ -17,9 +17,10 @@ export class MembersService {
         return new MembersService(manager.getRepository(Member));
     }
 
-    async count(): Promise<number> {
+    async countActive(): Promise<number> {
         return await this.membersRepository.countBy({
-            id: Not(SPACE_MEMBER_ID)
+            id: Not(SPACE_MEMBER_ID),
+            status: MemberStatus.ACTIVE
         });
     }
 

@@ -189,7 +189,7 @@ export class MembersController {
     })
     async stats(): Promise<MemberStatsDTO> {
         return {
-            count: await this.membersService.count()
+            count: await this.membersService.countActive()
         };
     }
 

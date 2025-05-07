@@ -288,7 +288,7 @@ export default function MemberPage() {
                 </TableHeader>
                 <TableBody>
                     {memberAcsKeys.data ? memberAcsKeys.data.map(acsKey =>
-                            <TableRow className={"cursor-pointer"} key={acsKey.id}>
+                            <TableRow key={acsKey.id}>
                                 <TableCell>{acsKey.name}</TableCell>
                                 <TableCell>{ACS_KEY_TYPE_MAPPING[acsKey.type]}</TableCell>
                                 <TableCell>{acsKey.key}</TableCell>
@@ -320,7 +320,7 @@ export default function MemberPage() {
                 </TableHeader>
                 <TableBody>
                     {memberMACs.data ? memberMACs.data.map(mac =>
-                            <TableRow className={"cursor-pointer"} key={mac.id}>
+                            <TableRow key={mac.id}>
                                 <TableCell>{mac.mac}</TableCell>
                                 <TableCell>{mac.description}</TableCell>
                                 <TableCell><Button disabled={removeMAC.isPending} onClick={() => removeMAC.mutate(mac.id)} variant={"destructive"}
