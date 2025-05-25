@@ -1,7 +1,8 @@
-FROM node:21-slim
-COPY package.json package.json
-COPY yarn.lock yarn.lock
-RUN yarn --frozen-lockfile
+FROM node:22-slim
+ENV NODE_ENV=production
+RUN ["corepack", "enable"]
+COPY ./package.json ./pnpm-lock.yaml ./
+RUN ["pnpm", "install", "--frozen-lockfile"]
 COPY . .
-RUN yarn build
-CMD yarn start:prod
+RUN ["pnpm", "run", "build"]
+CMD ["pnpm", "run", "start:prod"]
