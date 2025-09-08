@@ -1,8 +1,8 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {MembershipSubscription} from "src/common/database/entities/membership-subscription.entity";
-import {DeepPartial, EntityManager, IsNull, Not, Repository} from "typeorm";
-import {Member} from "../common/database/entities/member.entity";
+import {DeepPartial, EntityManager, IsNull, Repository} from "typeorm";
+import {MemberStatus} from "../common/database/entities/member.entity";
 import {Membership} from "../common/database/entities/membership.entity";
 import Decimal from "decimal.js";
 
@@ -60,7 +60,10 @@ export class MembershipSubscriptionsService {
     async findAllActive(): Promise<MembershipSubscription[]> {
         return await this.membershipSubscriptionRepository.find({
             where: {
-                declinedAt: IsNull()
+                declinedAt: IsNull(),
+                member: {
+                    status: MemberStatus.ACTIVE
+                }
             },
             relations: {
                 membership: true,
