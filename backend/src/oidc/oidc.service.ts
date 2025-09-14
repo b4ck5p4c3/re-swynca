@@ -37,7 +37,7 @@ export class OIDCService implements OnModuleInit {
 
     getAuthUrl(redirectUrl: string): string {
         const authUrl = new URL(this.issuerConfig.authorization_endpoint);
-        authUrl.searchParams.set("redirect_url", redirectUrl);
+        authUrl.searchParams.set("redirect_uri", redirectUrl);
         authUrl.searchParams.set("client_id", this.config.clientId);
         authUrl.searchParams.set("scope", "openid");
         authUrl.searchParams.set("response_type", "code");
@@ -48,7 +48,7 @@ export class OIDCService implements OnModuleInit {
         const postData = new URLSearchParams();
         postData.set("grant_type", "authorization_code");
         postData.set("code", code);
-        postData.set("redirect_url", redirectUrl);
+        postData.set("redirect_uri", redirectUrl);
         postData.set("client_id", this.config.clientId);
         postData.set("client_secret", this.config.clientSecret);
         const response: OIDCTokenResponse = (await this.httpService.axiosRef.post(this.issuerConfig.token_endpoint, postData.toString(), {
