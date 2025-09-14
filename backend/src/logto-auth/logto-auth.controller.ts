@@ -20,7 +20,7 @@ export class LogtoAuthController {
                 private authService: AuthService, private auditLogService: AuditLogService) {
         this.baseUrl = this.configService.getOrThrow("BASE_URL");
         const redirectUrl = new URL(this.baseUrl);
-        redirectUrl.pathname = `${Reflect.getMetadata(PATH_METADATA, LogtoAuthController)}/${
+        redirectUrl.pathname = `api/${Reflect.getMetadata(PATH_METADATA, LogtoAuthController)}/${
             Reflect.getMetadata(PATH_METADATA, LogtoAuthController.prototype.callback)}`
         this.redirectUrl = redirectUrl.toString();
     }
