@@ -36,6 +36,19 @@ export class MembersService {
         });
     }
 
+    async findAllActive(): Promise<Member[]> {
+        return await this.membersRepository.find({
+            relations: {
+                telegramMetadata: true,
+                githubMetadata: true
+            },
+            where: {
+                id: Not(SPACE_MEMBER_ID),
+                status: MemberStatus.ACTIVE
+            }
+        });
+    }
+
     async findById(id: string): Promise<Member | null> {
         if (id === SPACE_MEMBER_ID) {
             return null;

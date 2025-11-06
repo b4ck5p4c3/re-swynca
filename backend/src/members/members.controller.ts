@@ -169,7 +169,7 @@ export class MembersController {
     @NoAuth()
     @UseGuards(MembersGitHubApiAuthGuard)
     async findAllMembersGithubs(): Promise<string[]> {
-        const members = await this.membersService.findAll();
+        const members = await this.membersService.findAllActive();
         return members.map(member => member.githubMetadata?.githubUsername)
             .filter(githubUsername => githubUsername);
     }
