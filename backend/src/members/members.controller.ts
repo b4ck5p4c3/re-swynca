@@ -542,6 +542,8 @@ export class MembersController {
         }
 
         if (member.githubMetadata && githubInfo.id === member.githubMetadata.githubId) {
+            member.githubMetadata.githubUsername = request.githubUsername;
+            await this.githubMetadataService.update(member.githubMetadata);
             return {};
         }
 
