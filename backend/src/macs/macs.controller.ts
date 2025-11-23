@@ -48,7 +48,11 @@ class CreateMACDTO {
 }
 
 class MacsSystemResponseDTO {
-    macs: Record<string, string[]>
+    macs: {
+        memberId: string;
+        memberUsername: string;
+        mac: string;
+    }[]
 }
 
 @Controller("macs")
@@ -73,13 +77,14 @@ export class MACsController {
     @UseGuards(MacsSystemApiAuthGuard)
     async findAll(): Promise<MacsSystemResponseDTO> {
         const result: MacsSystemResponseDTO = {
-            macs: {}
+            macs: []
         }
         for (const mac of await this.macsService.findForActiveMembers()) {
-            if (!result.macs[mac.member.id]) {
-                result.macs[mac.member.id] = [];
-            }
-            result.macs[mac.member.id].push(mac.mac);
+            result.macs.push({
+                memberId: mac.member.id,
+                memberUsername: mac.member.username,
+                mac: mac.mac
+            })
         }
         return result;
     }
