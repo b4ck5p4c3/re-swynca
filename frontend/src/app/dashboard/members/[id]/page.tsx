@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {getClient, R} from "@/lib/api/client";
 import {useParams} from "next/navigation";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
@@ -27,6 +27,7 @@ import {UpdateNameDialog} from "@/components/dialogs/update-name";
 import {UpdateEMailDialog} from "@/components/dialogs/update-email";
 import {UpdateUsernameDialog} from "@/components/dialogs/update-username";
 import {CreateMACDialog} from "@/components/dialogs/create-mac";
+import { getCurrentMemberId } from "@/lib/auth-storage";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
     "pan": "💳",
@@ -44,6 +45,13 @@ export default function MemberPage() {
     const client = getClient();
 
     const {id} = useParams<{ id: string }>();
+
+    const [selfId, setSelfId] = useState<string | null>(null);
+    useEffect(() => {
+        setSelfId(getCurrentMemberId());
+    }, []);
+
+    const isSelfProfile = selfId === id;
 
     const member = useQuery({
         queryFn: async () => {
@@ -224,6 +232,10 @@ export default function MemberPage() {
                 <GitHubMetadata metadata={member.data.githubMetadata} member={member.data}/> :
                 <Skeleton className={"h-[32px] w-[80px]"}/>}</MemberInfoRow>
             <Separator/>
+            {isSelfProfile && <>
+                <BkspIdSection/>
+                <Separator />
+            </>}
             <div className={"flex flex-col 2xl:flex-row gap-4"}>
                 <MemberSubjectedTransactions memberId={id}/>
                 <MemberActedTransactions memberId={id}/>
@@ -355,4 +367,30 @@ export default function MemberPage() {
         {member.data ? <UpdateUsernameDialog member={member.data} open={updateUsernameDialogOpened}
                                           onClose={() => setUpdateUsernameDialogOpened(false)}/> : <></>}
     </div>;
+}
+
+export function BkspIdSection() {
+    return <section className="flex flex-col gap-4">
+        <div className="text-xl font-semibold">BKSP ID</div>
+        <div className="flex flex-row gap-4">
+            <a 
+                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
+                href="https://id.bksp.in/account/passkey/manage"
+                target="_blank"
+                rel="noopener noreferrer"
+            >Manage Passkeys ↗</a>
+            <a 
+                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
+                href="https://id.bksp.in/account/authenticator-app/replace"
+                target="_blank"
+                rel="noopener noreferrer"
+            >Manage TOTP ↗</a>
+            <a 
+                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
+                href="https://id.bksp.in/account/password"
+                target="_blank"
+                rel="noopener noreferrer"
+            >Change Password ↗</a>
+        </div>
+    </section>
 }
