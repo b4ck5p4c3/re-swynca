@@ -34,6 +34,32 @@ const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
     "uid": "🔑"
 };
 
+function BkspIdSection() {
+    return <section className="flex flex-col gap-4">
+        <div className="text-xl font-semibold">BKSP ID</div>
+        <div className="flex flex-row gap-4">
+            <a 
+                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
+                href="https://id.bksp.in/account/passkey/manage"
+                target="_blank"
+                rel="noopener noreferrer"
+            >Manage Passkeys ↗</a>
+            <a 
+                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
+                href="https://id.bksp.in/account/authenticator-app/replace"
+                target="_blank"
+                rel="noopener noreferrer"
+            >Manage TOTP ↗</a>
+            <a 
+                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
+                href="https://id.bksp.in/account/password"
+                target="_blank"
+                rel="noopener noreferrer"
+            >Change Password ↗</a>
+        </div>
+    </section>
+}
+
 export default function MemberPage() {
     const [subscribeDialogOpened, setSubscribeDialogOpened] = useState(false);
     const [createACSKeyDialogOpened, setCreateACSKeyDialogOpened] = useState(false);
@@ -367,30 +393,4 @@ export default function MemberPage() {
         {member.data ? <UpdateUsernameDialog member={member.data} open={updateUsernameDialogOpened}
                                           onClose={() => setUpdateUsernameDialogOpened(false)}/> : <></>}
     </div>;
-}
-
-export function BkspIdSection() {
-    return <section className="flex flex-col gap-4">
-        <div className="text-xl font-semibold">BKSP ID</div>
-        <div className="flex flex-row gap-4">
-            <a 
-                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
-                href="https://id.bksp.in/account/passkey/manage"
-                target="_blank"
-                rel="noopener noreferrer"
-            >Manage Passkeys ↗</a>
-            <a 
-                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
-                href="https://id.bksp.in/account/authenticator-app/replace"
-                target="_blank"
-                rel="noopener noreferrer"
-            >Manage TOTP ↗</a>
-            <a 
-                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
-                href="https://id.bksp.in/account/password"
-                target="_blank"
-                rel="noopener noreferrer"
-            >Change Password ↗</a>
-        </div>
-    </section>
 }
