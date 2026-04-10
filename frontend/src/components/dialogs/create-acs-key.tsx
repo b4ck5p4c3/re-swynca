@@ -5,12 +5,13 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {getClient, R} from "@/lib/api/client";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {MEMBER_ACS_KEYS_QUERY_KEY} from "@/lib/cache-tags";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from "@/components/ui/dialog";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Button} from "@/components/ui/button";
+import {PlantainPANConverter} from "@/components/dialogs/plantain-pan-converter";
 
 const createACSKeyForm = z.object({
     name: z.string(),
@@ -22,8 +23,13 @@ type CreateACSKeyData = z.infer<typeof createACSKeyForm>;
 
 export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps & { memberId: string }) {
     const form = useForm<CreateACSKeyData>({
-        resolver: zodResolver(createACSKeyForm)
+        resolver: zodResolver(createACSKeyForm),
+        defaultValues: {
+            type: "uid"
+        }
     });
+
+    const [plantainConverterOpen, setPlantainConverterOpen] = useState(false);
 
     const client = getClient();
 
@@ -107,15 +113,32 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                         <FormField
                             control={form.control}
                             name="key"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Key</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="CAFEBABE" disabled={addACSKey.isPending}  {...field} />
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
+                            render={({field}) => {
+                                const type = form.watch("type");
+                                return (
+                                    <FormItem>
+                                        <FormLabel>{type === 'pan' ? 'Card No.' : 'NFC UID'}</FormLabel>
+                                        <FormControl>
+                                            <Input 
+                                                className="font-mono"
+                                                placeholder={type === "pan" ? "1234 5678 9012 3456" : "0123456789ABCD"} 
+                                                disabled={addACSKey.isPending}  
+                                                {...field} 
+                                            />
+                                        </FormControl>
+                                        {type === "uid" && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setPlantainConverterOpen(true)}
+                                                className="text-xs font-semibold underline underline-offset-4"
+                                            >
+                                                Use Podorozhnik Number instead ↗
+                                            </button>
+                                        )}
+                                        <FormMessage/>
+                                    </FormItem>
+                                );
+                            }}
                         />
                     </div>
                     <DialogFooter>
@@ -124,5 +147,10 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                 </form>
             </Form>
         </DialogContent>
+        <PlantainPANConverter
+            open={plantainConverterOpen}
+            onClose={() => setPlantainConverterOpen(false)}
+            onApply={(uid) => form.setValue("key", uid)}
+        />
     </Dialog>;
 }
