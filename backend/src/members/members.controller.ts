@@ -268,7 +268,7 @@ export class MembersController {
                 username: request.username
             });
 
-            await this.logtoManagementService.updateUserSuspensionStatus(logtoId, true);
+            // await this.logtoManagementService.updateUserSuspensionStatus(logtoId, true);
 
             await this.logtoBindingsService.for(manager).create({
                 logtoId,
