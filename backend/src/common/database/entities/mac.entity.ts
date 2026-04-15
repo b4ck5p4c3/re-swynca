@@ -1,17 +1,18 @@
-import {Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Member} from "./member.entity";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+
+import { Member } from './member.entity'
 
 @Entity()
 export class MAC {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+  @Column('text')
+  description: string
 
-    @Column("text")
-    mac: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
-    @Column("text")
-    description: string;
+  @Column('text')
+  mac: string
 
-    @ManyToOne(() => Member, member => member.macs)
-    member: Member;
+  @ManyToOne(() => Member, member => member.macs)
+  member: Member
 }

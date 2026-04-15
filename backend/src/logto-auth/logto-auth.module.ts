@@ -1,17 +1,17 @@
-import {Module} from "@nestjs/common";
-import {LogtoAuthController} from "./logto-auth.controller";
-import {LogtoAuthService} from "./logto-auth.service";
-import {ConfigModule} from "@nestjs/config";
-import {AuthModule} from "../auth/auth.module";
-import {HttpModule} from "@nestjs/axios";
-import {LogtoBindingsModule} from "../logto-bindings/logto-bindings.module";
-import {AuditLogModule} from "../audit-log/audit-log.module";
+import { HttpModule } from '@nestjs/axios'
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+
+import { AuditLogModule } from '../audit-log/audit-log.module'
+import { AuthModule } from '../auth/auth.module'
+import { LogtoBindingsModule } from '../logto-bindings/logto-bindings.module'
+import { LogtoAuthController } from './logto-auth.controller'
+import { LogtoAuthService } from './logto-auth.service'
 
 @Module({
-    imports: [ConfigModule, AuthModule, LogtoBindingsModule,
-        HttpModule, AuditLogModule],
-    controllers: [LogtoAuthController],
-    providers: [LogtoAuthService]
+  controllers: [LogtoAuthController],
+  imports: [ConfigModule, AuthModule, LogtoBindingsModule,
+    HttpModule, AuditLogModule],
+  providers: [LogtoAuthService]
 })
-export class LogtoAuthModule {
-}
+export class LogtoAuthModule {}

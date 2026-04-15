@@ -1,10 +1,10 @@
-import {Column, Entity, PrimaryColumn} from "typeorm";
+import { Column, Entity, PrimaryColumn } from 'typeorm'
 
 @Entity()
 export class SwyncaMetadata {
-    @PrimaryColumn("text")
-    key: string;
+  @PrimaryColumn('text')
+  key: string
 
-    @Column("text")
-    value: string;
+  @Column('text')
+  value: string
 }

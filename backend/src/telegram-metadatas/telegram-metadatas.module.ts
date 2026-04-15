@@ -1,15 +1,15 @@
-import {Module} from "@nestjs/common";
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {TelegramMetadata} from "../common/database/entities/telegram-metadata.entity";
-import {TelegramMetadatasService} from "./telegram-metadatas.service";
-import {TelegramMetadatasController} from "./telegram-metadatas.controller";
-import {ConfigModule} from "@nestjs/config";
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { TypeOrmModule } from '@nestjs/typeorm'
+
+import { TelegramMetadata } from '../common/database/entities/telegram-metadata.entity'
+import { TelegramMetadatasController } from './telegram-metadatas.controller'
+import { TelegramMetadatasService } from './telegram-metadatas.service'
 
 @Module({
-    imports: [TypeOrmModule.forFeature([TelegramMetadata]), ConfigModule],
-    providers: [TelegramMetadatasService],
-    controllers: [TelegramMetadatasController],
-    exports: [TelegramMetadatasService]
+  controllers: [TelegramMetadatasController],
+  exports: [TelegramMetadatasService],
+  imports: [TypeOrmModule.forFeature([TelegramMetadata]), ConfigModule],
+  providers: [TelegramMetadatasService]
 })
-export class TelegramMetadatasModule {
-}
+export class TelegramMetadatasModule {}

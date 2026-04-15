@@ -1,25 +1,25 @@
-export class Errors {
-    static ACTOR_MEMBER_NOT_FOUND = "actor-member-not-found";
-    static ACTOR_FROZEN = "actor-frozen";
-    static SUBJECT_MEMBER_NOT_FOUND = "subject-member-not-found";
-    static MEMBER_NOT_FOUND = "member-not-found";
-    static NOT_AUTHORIZED = "not-authorized";
-    static SPACE_MEMBER_NOT_FOUND = "space-member-not-found";
-    static ACS_KEY_ALREADY_EXISTS = "acs-key-already-exists";
-    static MEMBER_EMAIL_ALREADY_EXISTS= "member-email-already-exists";
-    static MEMBER_USERNAME_ALREADY_EXISTS = "member-username-already-exists";
-    static MEMBER_NO_LOGTO_BINDING = "member-no-logto-binding";
-    static MEMBERSHIP_NOT_FOUND = "membership-not-found";
-    static MEMBERSHIP_FROZEN = "membership-frozen";
-    static MEMBER_ALREADY_SUBSCRIBED = "member-already-subscribed";
-    static MEMBERSHIP_SUBSCRIPTION_NOT_FOUND = "membership-subscription-not-found";
-    static MEMBERSHIP_SUBSCRIPTION_ALREADY_DECLINED = "membership-subscription-already-declined";
-    static MEMBER_NO_TELERGAM_METADATA = "member-no-telegram-metadata";
-    static MEMBER_NO_GITHUB_METADATA = "member-no-github-metadata";
-    static MEMBER_GITHUB_ALREADY_EXISTS = "member-github-already-exists";
-    static MEMBER_TELEGRAM_ALREADY_EXISTS = "member-telegram-already-exists";
-    static INVALID_GITHUB_USERNAME = "invalid-github-username";
-    static SPACE_BALANCE_IS_TOO_LOW = "space-balance-is-too-low";
-    static API_KEY_NOT_FOUND = "api-key-not-found";
-    static MAC_NOT_FOUND = "mac-not-found";
+export const Errors = {
+  ACS_KEY_ALREADY_EXISTS: 'acs-key-already-exists',
+  ACTOR_FROZEN: 'actor-frozen',
+  ACTOR_MEMBER_NOT_FOUND: 'actor-member-not-found',
+  API_KEY_NOT_FOUND: 'api-key-not-found',
+  INVALID_GITHUB_USERNAME: 'invalid-github-username',
+  MAC_NOT_FOUND: 'mac-not-found',
+  MEMBER_ALREADY_SUBSCRIBED: 'member-already-subscribed',
+  MEMBER_EMAIL_ALREADY_EXISTS: 'member-email-already-exists',
+  MEMBER_GITHUB_ALREADY_EXISTS: 'member-github-already-exists',
+  MEMBER_NO_GITHUB_METADATA: 'member-no-github-metadata',
+  MEMBER_NO_LOGTO_BINDING: 'member-no-logto-binding',
+  MEMBER_NO_TELERGAM_METADATA: 'member-no-telegram-metadata',
+  MEMBER_NOT_FOUND: 'member-not-found',
+  MEMBER_TELEGRAM_ALREADY_EXISTS: 'member-telegram-already-exists',
+  MEMBER_USERNAME_ALREADY_EXISTS: 'member-username-already-exists',
+  MEMBERSHIP_FROZEN: 'membership-frozen',
+  MEMBERSHIP_NOT_FOUND: 'membership-not-found',
+  MEMBERSHIP_SUBSCRIPTION_ALREADY_DECLINED: 'membership-subscription-already-declined',
+  MEMBERSHIP_SUBSCRIPTION_NOT_FOUND: 'membership-subscription-not-found',
+  NOT_AUTHORIZED: 'not-authorized',
+  SPACE_BALANCE_IS_TOO_LOW: 'space-balance-is-too-low',
+  SPACE_MEMBER_NOT_FOUND: 'space-member-not-found',
+  SUBJECT_MEMBER_NOT_FOUND: 'subject-member-not-found',
 }

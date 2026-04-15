@@ -1,12 +1,12 @@
-import {Module} from "@nestjs/common";
-import {LogtoManagementService} from "./logto-management.service";
-import {ConfigModule} from "@nestjs/config";
-import {HttpModule} from "@nestjs/axios";
+import { HttpModule } from '@nestjs/axios'
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+
+import { LogtoManagementService } from './logto-management.service'
 
 @Module({
-    imports: [ConfigModule, HttpModule],
-    providers: [LogtoManagementService],
-    exports: [LogtoManagementService]
+  exports: [LogtoManagementService],
+  imports: [ConfigModule, HttpModule],
+  providers: [LogtoManagementService]
 })
-export class LogtoManagementModule {
-}
+export class LogtoManagementModule {}

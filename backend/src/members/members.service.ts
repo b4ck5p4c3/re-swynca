@@ -1,157 +1,156 @@
-import {Injectable} from "@nestjs/common";
-import {Member, MemberStatus} from "../common/database/entities/member.entity";
-import {InjectRepository} from "@nestjs/typeorm";
-import {DeepPartial, EntityManager, Not, Repository} from "typeorm";
-import Decimal from "decimal.js";
-import {MONEY_DECIMAL_PLACES} from "../common/money";
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import Decimal from 'decimal.js'
+import { DeepPartial, EntityManager, Not, Repository } from 'typeorm'
 
-export const SPACE_MEMBER_ID = "00000000-0000-0000-0000-000000000000";
+import { Member, MemberStatus } from '../common/database/entities/member.entity'
+import { MONEY_DECIMAL_PLACES } from '../common/money'
+
+export const SPACE_MEMBER_ID = '00000000-0000-0000-0000-000000000000'
 
 @Injectable()
 export class MembersService {
+  constructor (@InjectRepository(Member) private membersRepository: Repository<Member>) {}
 
-    constructor(@InjectRepository(Member) private membersRepository: Repository<Member>) {
+  async atomicallyDecrementNonZeroableBalance (member: Member, change: Decimal): Promise<void> {
+    const decrementResult = await this.membersRepository.createQueryBuilder()
+      .update(Member)
+      .set({
+        balance: () => 'balance - :change'
+      })
+      .where({
+        id: member.id
+      })
+      .andWhere('balance >= :change')
+      .setParameter('change', change.toFixed(MONEY_DECIMAL_PLACES))
+      .execute()
+    if (decrementResult.affected !== 1) {
+      throw new Error('Failed to atomically decrement non-zeroed balance')
     }
+  }
 
-    for(manager: EntityManager): MembersService {
-        return new MembersService(manager.getRepository(Member));
+  async atomicallyIncrementBalance (member: Member, change: Decimal): Promise<void> {
+    const incrementResult = await this.membersRepository.createQueryBuilder()
+      .update(Member)
+      .set({
+        balance: () => 'balance + :change'
+      })
+      .where({
+        id: member.id
+      })
+      .setParameter('change', change.toFixed(MONEY_DECIMAL_PLACES))
+      .execute()
+    if (incrementResult.affected !== 1) {
+      throw new Error('Failed to atomically increment balance')
     }
+  }
 
-    async countActive(): Promise<number> {
-        return await this.membersRepository.countBy({
-            id: Not(SPACE_MEMBER_ID),
-            status: MemberStatus.ACTIVE
-        });
-    }
+  async countActive (): Promise<number> {
+    return await this.membersRepository.countBy({
+      id: Not(SPACE_MEMBER_ID),
+      status: MemberStatus.ACTIVE
+    })
+  }
 
-    async findAll(): Promise<Member[]> {
-        return await this.membersRepository.find({
-            relations: {
-                telegramMetadata: true,
-                githubMetadata: true
-            },
-            where: {
-                id: Not(SPACE_MEMBER_ID)
-            }
-        });
-    }
+  async create (memberData: DeepPartial<Member>): Promise<Member> {
+    const member = this.membersRepository.create(memberData)
+    await this.membersRepository.save(member)
+    return member
+  }
 
-    async findAllActive(): Promise<Member[]> {
-        return await this.membersRepository.find({
-            relations: {
-                telegramMetadata: true,
-                githubMetadata: true
-            },
-            where: {
-                id: Not(SPACE_MEMBER_ID),
-                status: MemberStatus.ACTIVE
-            }
-        });
-    }
+  async existsByEmail (email: string): Promise<boolean> {
+    return await this.membersRepository.existsBy({
+      email,
+      id: Not(SPACE_MEMBER_ID)
+    })
+  }
 
-    async findById(id: string): Promise<Member | null> {
-        if (id === SPACE_MEMBER_ID) {
-            return null;
-        }
-        return await this.findByIdUnfiltered(id);
-    }
+  async existsByIdUnfiltered (id: string): Promise<boolean> {
+    return await this.membersRepository.exists({
+      where: {
+        id
+      }
+    })
+  }
 
-    async findByIdUnfiltered(id: string): Promise<Member | null> {
-        return await this.membersRepository.findOne({
-            where: {
-                id
-            },
-            relations: {
-                telegramMetadata: true,
-                githubMetadata: true
-            }
-        });
-    }
+  async existsByUsername (username: string): Promise<boolean> {
+    return await this.membersRepository.existsBy({
+      id: Not(SPACE_MEMBER_ID),
+      username
+    })
+  }
 
-    async findByIdLocked(id: string): Promise<Member | null> {
-        if (id === SPACE_MEMBER_ID) {
-            return null;
-        }
-        return await this.findByIdUnfilteredLocked(id);
-    }
+  async findAll (): Promise<Member[]> {
+    return await this.membersRepository.find({
+      relations: {
+        githubMetadata: true,
+        telegramMetadata: true
+      },
+      where: {
+        id: Not(SPACE_MEMBER_ID)
+      }
+    })
+  }
 
-    async findByIdUnfilteredLocked(id: string): Promise<Member | null> {
-        return await this.membersRepository.findOne({
-            where: {
-                id
-            },
-            lock: {
-                mode: "for_no_key_update"
-            }
-        });
-    }
+  async findAllActive (): Promise<Member[]> {
+    return await this.membersRepository.find({
+      relations: {
+        githubMetadata: true,
+        telegramMetadata: true
+      },
+      where: {
+        id: Not(SPACE_MEMBER_ID),
+        status: MemberStatus.ACTIVE
+      }
+    })
+  }
 
-    async existsByIdUnfiltered(id: string): Promise<boolean> {
-        return await this.membersRepository.exists({
-            where: {
-                id
-            }
-        });
+  async findById (id: string): Promise<Member | null> {
+    if (id === SPACE_MEMBER_ID) {
+      return null
     }
+    return await this.findByIdUnfiltered(id)
+  }
 
-    async existsByEmail(email: string): Promise<boolean> {
-        return await this.membersRepository.existsBy({
-            email,
-            id: Not(SPACE_MEMBER_ID)
-        });
+  async findByIdLocked (id: string): Promise<Member | null> {
+    if (id === SPACE_MEMBER_ID) {
+      return null
     }
+    return await this.findByIdUnfilteredLocked(id)
+  }
 
-    async existsByUsername(username: string): Promise<boolean> {
-        return await this.membersRepository.existsBy({
-            username,
-            id: Not(SPACE_MEMBER_ID)
-        });
-    }
+  async findByIdUnfiltered (id: string): Promise<Member | null> {
+    return await this.membersRepository.findOne({
+      relations: {
+        githubMetadata: true,
+        telegramMetadata: true
+      },
+      where: {
+        id
+      }
+    })
+  }
 
-    async create(memberData: DeepPartial<Member>): Promise<Member> {
-        const member = this.membersRepository.create(memberData);
-        await this.membersRepository.save(member);
-        return member;
-    }
+  async findByIdUnfilteredLocked (id: string): Promise<Member | null> {
+    return await this.membersRepository.findOne({
+      lock: {
+        mode: 'for_no_key_update'
+      },
+      where: {
+        id
+      }
+    })
+  }
 
-    async update(member: Member): Promise<Member> {
-        return await this.membersRepository.save(member);
-    }
+  for (manager: EntityManager): MembersService {
+    return new MembersService(manager.getRepository(Member))
+  }
 
-    async transaction<T>(transactionFn: (manager: EntityManager) => Promise<T>): Promise<T> {
-        return await this.membersRepository.manager.transaction(transactionFn);
-    }
+  async transaction<T>(transactionFunction: (manager: EntityManager) => Promise<T>): Promise<T> {
+    return await this.membersRepository.manager.transaction(transactionFunction)
+  }
 
-    async atomicallyIncrementBalance(member: Member, change: Decimal): Promise<void> {
-        const incrementResult = await this.membersRepository.createQueryBuilder()
-            .update(Member)
-            .set({
-                balance: () => "balance + :change"
-            })
-            .where({
-                id: member.id
-            })
-            .setParameter("change", change.toFixed(MONEY_DECIMAL_PLACES))
-            .execute();
-        if (incrementResult.affected !== 1) {
-            throw new Error("Failed to atomically increment balance");
-        }
-    }
-
-    async atomicallyDecrementNonZeroableBalance(member: Member, change: Decimal): Promise<void> {
-        const decrementResult = await this.membersRepository.createQueryBuilder()
-            .update(Member)
-            .set({
-                balance: () => "balance - :change"
-            })
-            .where({
-                id: member.id
-            })
-            .andWhere("balance >= :change")
-            .setParameter("change", change.toFixed(MONEY_DECIMAL_PLACES))
-            .execute();
-        if (decrementResult.affected !== 1) {
-            throw new Error("Failed to atomically decrement non-zeroed balance");
-        }
-    }
+  async update (member: Member): Promise<Member> {
+    return await this.membersRepository.save(member)
+  }
 }

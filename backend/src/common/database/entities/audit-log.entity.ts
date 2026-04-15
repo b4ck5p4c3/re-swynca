@@ -1,23 +1,24 @@
-import {Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Member} from "./member.entity";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+
+import { Member } from './member.entity'
 
 @Entity()
 export class AuditLog {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+  @Column('text')
+  action: string
 
-    @Column("timestamp without time zone")
-    createdAt: Date;
+  @ManyToOne(() => Member, member => member.auditLogs)
+  actor: Member
 
-    @Column("text")
-    action: string;
+  @Column('timestamp without time zone')
+  createdAt: Date
 
-    @Column("jsonb", { nullable: true })
-    metadata?: object;
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
-    @ManyToOne(() => Member, member => member.auditLogs)
-    actor: Member;
+  @Column('jsonb', { nullable: true })
+  metadata?: object
 
-    @Column("text", { nullable: true })
-    nearTransactionHash: string;
+  @Column('text', { nullable: true })
+  nearTransactionHash: string
 }

@@ -1,16 +1,16 @@
-import {Module} from "@nestjs/common";
-import {MACsController} from "./macs.controller";
-import {MACsService} from "./macs.service";
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {MAC} from "../common/database/entities/mac.entity";
-import {AuditLogModule} from "../audit-log/audit-log.module";
-import {MembersModule} from "../members/members.module";
-import {ConfigModule} from "@nestjs/config";
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { TypeOrmModule } from '@nestjs/typeorm'
+
+import { AuditLogModule } from '../audit-log/audit-log.module'
+import { MAC } from '../common/database/entities/mac.entity'
+import { MembersModule } from '../members/members.module'
+import { MACsController } from './macs.controller'
+import { MACsService } from './macs.service'
 
 @Module({
-    imports: [TypeOrmModule.forFeature([MAC]), AuditLogModule, MembersModule, ConfigModule],
-    controllers: [MACsController],
-    providers: [MACsService],
+  controllers: [MACsController],
+  imports: [TypeOrmModule.forFeature([MAC]), AuditLogModule, MembersModule, ConfigModule],
+  providers: [MACsService],
 })
-export class MACsModule {
-}
+export class MACsModule {}

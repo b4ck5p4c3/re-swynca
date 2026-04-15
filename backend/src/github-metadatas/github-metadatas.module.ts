@@ -1,13 +1,12 @@
-import {Module} from "@nestjs/common";
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {GitHubMetadata} from "../common/database/entities/github-metadata.entity";
-import {GitHubMetadatasService} from "./github-metadatas.service";
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+
+import { GitHubMetadata } from '../common/database/entities/github-metadata.entity'
+import { GitHubMetadatasService } from './github-metadatas.service'
 
 @Module({
-    imports: [TypeOrmModule.forFeature([GitHubMetadata])],
-    providers: [GitHubMetadatasService],
-    exports: [GitHubMetadatasService]
+  exports: [GitHubMetadatasService],
+  imports: [TypeOrmModule.forFeature([GitHubMetadata])],
+  providers: [GitHubMetadatasService]
 })
-export class GitHubMetadatasModule {
-
-}
+export class GitHubMetadatasModule {}

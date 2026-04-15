@@ -1,11 +1,11 @@
-import {Module} from "@nestjs/common";
-import {BaseTransactionSignerService} from "./base-transaction-signer.service";
-import {ConfigModule} from "@nestjs/config";
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+
+import { BaseTransactionSignerService } from './base-transaction-signer.service'
 
 @Module({
-    imports: [ConfigModule],
-    providers: [BaseTransactionSignerService],
-    exports: [BaseTransactionSignerService]
+  exports: [BaseTransactionSignerService],
+  imports: [ConfigModule],
+  providers: [BaseTransactionSignerService]
 })
-export class BaseTransactionSignerModule {
-}
+export class BaseTransactionSignerModule {}

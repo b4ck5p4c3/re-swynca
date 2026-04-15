@@ -1,12 +1,12 @@
-import {Module} from "@nestjs/common";
-import {SwyncaMetadataService} from "./swynca-metadata.service";
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {SwyncaMetadata} from "../common/database/entities/swynca-metadata.entity";
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+
+import { SwyncaMetadata } from '../common/database/entities/swynca-metadata.entity'
+import { SwyncaMetadataService } from './swynca-metadata.service'
 
 @Module({
-    imports: [TypeOrmModule.forFeature([SwyncaMetadata])],
-    providers: [SwyncaMetadataService],
-    exports: [SwyncaMetadataService],
+  exports: [SwyncaMetadataService],
+  imports: [TypeOrmModule.forFeature([SwyncaMetadata])],
+  providers: [SwyncaMetadataService],
 })
-export class SwyncaMetadataModule {
-}
+export class SwyncaMetadataModule {}

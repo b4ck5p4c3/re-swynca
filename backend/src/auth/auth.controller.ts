@@ -1,33 +1,33 @@
-import {Controller, Get} from "@nestjs/common";
-import {UserId} from "./user-id.decorator";
-import {ApiCookieAuth, ApiDefaultResponse, ApiOkResponse, ApiOperation, ApiProperty, ApiTags} from "@nestjs/swagger";
-import {ErrorApiResponse} from "../common/api-responses";
+import { Controller, Get } from '@nestjs/common'
+import { ApiCookieAuth, ApiDefaultResponse, ApiOkResponse, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger'
+
+import { ErrorApiResponse } from '../common/api-responses'
+import { UserId } from './user-id.decorator'
 
 class SelfAuthInfoDTO {
-    @ApiProperty({format:"uuid"})
-    id: string;
+  @ApiProperty({ format: 'uuid' })
+  id: string
 }
 
-@Controller("auth")
-@ApiTags("auth")
+@ApiTags('auth')
+@Controller('auth')
 export class AuthController {
-
-    @Get("self")
-    @ApiOperation({
-        summary: "Get self member auth info"
-    })
-    @ApiOkResponse({
-        description: "Successful response",
-        type: SelfAuthInfoDTO
-    })
-    @ApiCookieAuth()
-    @ApiDefaultResponse({
-        description: "Erroneous response",
-        type: ErrorApiResponse
-    })
-    async getSelf(@UserId() userId: string): Promise<SelfAuthInfoDTO> {
-        return {
-            id: userId
-        };
+  @ApiCookieAuth()
+  @ApiDefaultResponse({
+    description: 'Erroneous response',
+    type: ErrorApiResponse
+  })
+  @ApiOkResponse({
+    description: 'Successful response',
+    type: SelfAuthInfoDTO
+  })
+  @ApiOperation({
+    summary: 'Get self member auth info'
+  })
+  @Get('self')
+  async getSelf (@UserId() userId: string): Promise<SelfAuthInfoDTO> {
+    return {
+      id: userId
     }
+  }
 }

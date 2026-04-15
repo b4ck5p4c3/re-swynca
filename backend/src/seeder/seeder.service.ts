@@ -1,29 +1,29 @@
-import {Injectable, OnModuleInit} from "@nestjs/common";
-import {MembersService, SPACE_MEMBER_ID} from "../members/members.service";
-import {MemberStatus} from "../common/database/entities/member.entity";
-import {LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY, SwyncaMetadataService} from "../swynca-metadata/swynca-metadata.service";
+import { Injectable, OnModuleInit } from '@nestjs/common'
+
+import { MemberStatus } from '../common/database/entities/member.entity'
+import { MembersService, SPACE_MEMBER_ID } from '../members/members.service'
+import { LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY, SwyncaMetadataService } from '../swynca-metadata/swynca-metadata.service'
 
 @Injectable()
 export class SeederService implements OnModuleInit {
-    constructor(private membersService: MembersService, private swyncaMetadataService: SwyncaMetadataService) {
-    }
+  constructor (private membersService: MembersService, private swyncaMetadataService: SwyncaMetadataService) {}
 
-    async onModuleInit(): Promise<void> {
-        if (!await this.membersService.existsByIdUnfiltered(SPACE_MEMBER_ID)) {
-            await this.membersService.create({
-                id: SPACE_MEMBER_ID,
-                name: "Space",
-                email: "space@space.space",
-                username: "space",
-                status: MemberStatus.FROZEN,
-                joinedAt: new Date(0)
-            });
-        }
-        if (!await this.swyncaMetadataService.findByKey(LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY)) {
-            await this.swyncaMetadataService.create({
-                key: LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY,
-                value: "never"
-            });
-        }
+  async onModuleInit (): Promise<void> {
+    if (!await this.membersService.existsByIdUnfiltered(SPACE_MEMBER_ID)) {
+      await this.membersService.create({
+        email: 'space@space.space',
+        id: SPACE_MEMBER_ID,
+        joinedAt: new Date(0),
+        name: 'Space',
+        status: MemberStatus.FROZEN,
+        username: 'space'
+      })
     }
+    if (!await this.swyncaMetadataService.findByKey(LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY)) {
+      await this.swyncaMetadataService.create({
+        key: LAST_SUBSCRIPTIONS_WITHDRAWAL_METADATA_KEY,
+        value: 'never'
+      })
+    }
+  }
 }

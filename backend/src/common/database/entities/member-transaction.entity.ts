@@ -1,65 +1,66 @@
-import {Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn} from "typeorm";
-import {TransactionType} from "./common";
-import {DecimalTransformer} from "../transformers/decimal.transformer";
-import Decimal from "decimal.js";
-import {Member} from "./member.entity";
-import {MONEY_DECIMAL_PLACES, MONEY_PRECISION} from "../../money";
-import {SpaceTransaction} from "./space-transaction.entity";
+import Decimal from 'decimal.js'
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 
-export enum MemberTransactionWithdrawal {
-    MAGIC = "magic",
-    MEMBERSHIP = "membership"
-}
+import { MONEY_DECIMAL_PLACES, MONEY_PRECISION } from '../../money'
+import { DecimalTransformer } from '../transformers/decimal.transformer'
+import { TransactionType } from './common'
+import { Member } from './member.entity'
+import { SpaceTransaction } from './space-transaction.entity'
 
 export enum MemberTransactionDeposit {
-    MAGIC = "magic",
-    DONATE = "donate",
-    TOPUP = "topup"
+  DONATE = 'donate',
+  MAGIC = 'magic',
+  TOPUP = 'topup'
+}
+
+export enum MemberTransactionWithdrawal {
+  MAGIC = 'magic',
+  MEMBERSHIP = 'membership'
 }
 
 @Entity()
 export class MemberTransaction {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+  @ManyToOne(() => Member, member => member.actedMemberTransactions)
+  actor: Member
 
-    @Column({
-        type: "enum",
-        enum: TransactionType
-    })
-    type: TransactionType;
+  @Column('decimal', { default: '0.0', precision: MONEY_PRECISION, scale: MONEY_DECIMAL_PLACES, transformer: new DecimalTransformer() })
+  amount: Decimal
 
-    @Column("decimal", {precision: MONEY_PRECISION, scale: MONEY_DECIMAL_PLACES, default: "0.0", transformer: new DecimalTransformer()})
-    amount: Decimal;
+  @Column('text', { nullable: true })
+  comment?: string
 
-    @Column("text", { nullable: true })
-    comment?: string;
+  @CreateDateColumn({ type: 'timestamp without time zone' })
+  createdAt: Date
 
-    @Column("timestamp without time zone")
-    date: Date;
+  @Column('timestamp without time zone')
+  date: Date
 
-    @Column({
-        type: "enum",
-        enum: MemberTransactionDeposit,
-        nullable: true,
-    })
-    source?: MemberTransactionDeposit;
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
-    @Column({
-        type: "enum",
-        enum: MemberTransactionWithdrawal,
-        nullable: true,
-    })
-    target?: MemberTransactionWithdrawal;
+  @OneToOne(() => SpaceTransaction, spaceTransaction => spaceTransaction.relatedMemberTransaction)
+  relatedSpaceTransaction?: SpaceTransaction
 
-    @ManyToOne(() => Member, member => member.actedMemberTransactions)
-    actor: Member;
+  @Column({
+    enum: MemberTransactionDeposit,
+    nullable: true,
+    type: 'enum',
+  })
+  source?: MemberTransactionDeposit
 
-    @ManyToOne(() => Member, member => member.subjectedMemberTransactions)
-    subject: Member;
+  @ManyToOne(() => Member, member => member.subjectedMemberTransactions)
+  subject: Member
 
-    @OneToOne(() => SpaceTransaction, spaceTransaction => spaceTransaction.relatedMemberTransaction)
-    relatedSpaceTransaction?: SpaceTransaction;
+  @Column({
+    enum: MemberTransactionWithdrawal,
+    nullable: true,
+    type: 'enum',
+  })
+  target?: MemberTransactionWithdrawal
 
-    @CreateDateColumn({type: "timestamp without time zone"})
-    createdAt: Date;
+  @Column({
+    enum: TransactionType,
+    type: 'enum'
+  })
+  type: TransactionType
 }

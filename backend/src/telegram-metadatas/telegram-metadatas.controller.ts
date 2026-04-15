@@ -1,30 +1,30 @@
-import {Controller, Get, UseGuards} from "@nestjs/common";
-import {ApiExcludeEndpoint, ApiTags} from "@nestjs/swagger";
-import {NoAuth} from "../auth/no-auth.decorator";
-import {TelegramMetadatasService} from "./telegram-metadatas.service";
-import {TelegramMetadatasSystemApiAuthGuard} from "./telegram-metadatas-system-api-auth.guard";
+import { Controller, Get, UseGuards } from '@nestjs/common'
+import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger'
+
+import { NoAuth } from '../auth/no-auth.decorator'
+import { TelegramMetadatasSystemApiAuthGuard } from './telegram-metadatas-system-api-auth.guard'
+import { TelegramMetadatasService } from './telegram-metadatas.service'
 
 class TelegramMetadatasSystemResponseDTO {
-    telegrams: Record<string, string>
+  telegrams: Record<string, string>
 }
 
-@Controller("telegram-metadatas")
-@ApiTags("telegram-metadatas")
+@ApiTags('telegram-metadatas')
+@Controller('telegram-metadatas')
 export class TelegramMetadatasController {
+  constructor (private readonly telegramMetadataService: TelegramMetadatasService) {}
 
-    constructor(private readonly telegramMetadataService: TelegramMetadatasService) {}
-
-    @Get("system")
-    @ApiExcludeEndpoint()
-    @NoAuth()
-    @UseGuards(TelegramMetadatasSystemApiAuthGuard)
-    async findAllForACSSystem(): Promise<TelegramMetadatasSystemResponseDTO> {
-        const result: TelegramMetadatasSystemResponseDTO = {
-            telegrams: {}
-        }
-        for (const telegramMetadata of await this.telegramMetadataService.findForActiveMembers()) {
-            result.telegrams[telegramMetadata.telegramId] = `${telegramMetadata.member.id}/${telegramMetadata.telegramName}`
-        }
-        return result;
+  @ApiExcludeEndpoint()
+  @Get('system')
+  @NoAuth()
+  @UseGuards(TelegramMetadatasSystemApiAuthGuard)
+  async findAllForACSSystem (): Promise<TelegramMetadatasSystemResponseDTO> {
+    const result: TelegramMetadatasSystemResponseDTO = {
+      telegrams: {}
     }
+    for (const telegramMetadata of await this.telegramMetadataService.findForActiveMembers()) {
+      result.telegrams[telegramMetadata.telegramId] = `${telegramMetadata.member.id}/${telegramMetadata.telegramName}`
+    }
+    return result
+  }
 }

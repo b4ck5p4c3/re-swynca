@@ -1,21 +1,22 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Membership} from "./membership.entity";
-import {Member} from "./member.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+
+import { Member } from './member.entity'
+import { Membership } from './membership.entity'
 
 @Entity()
 export class MembershipSubscription {
-    @PrimaryGeneratedColumn("uuid")
-    id: string;
+  @Column('timestamp without time zone', { nullable: true })
+  declinedAt: Date
 
-    @Column("timestamp without time zone")
-    subscribedAt: Date;
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
-    @Column("timestamp without time zone", {nullable: true})
-    declinedAt: Date;
+  @ManyToOne(() => Member, member => member.subscriptions)
+  member: Member
 
-    @ManyToOne(() => Membership, membership => membership.subscriptions)
-    membership: Membership;
+  @ManyToOne(() => Membership, membership => membership.subscriptions)
+  membership: Membership
 
-    @ManyToOne(() => Member, member => member.subscriptions)
-    member: Member;
+  @Column('timestamp without time zone')
+  subscribedAt: Date
 }

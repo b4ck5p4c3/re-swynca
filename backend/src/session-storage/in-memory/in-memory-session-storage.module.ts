@@ -1,13 +1,13 @@
-import {Module} from "@nestjs/common";
-import {InMemorySessionStorageService} from "./in-memory-session-storage.service";
-import {SessionStorageService} from "../session-storage.service";
+import { Module } from '@nestjs/common'
+
+import { SessionStorageService } from '../session-storage.service'
+import { InMemorySessionStorageService } from './in-memory-session-storage.service'
 
 @Module({
-    providers: [{
-        provide: SessionStorageService,
-        useClass: InMemorySessionStorageService
-    }],
-    exports: [SessionStorageService]
+  exports: [SessionStorageService],
+  providers: [{
+    provide: SessionStorageService,
+    useClass: InMemorySessionStorageService
+  }]
 })
-export class InMemorySessionStorageModule {
-}
+export class InMemorySessionStorageModule {}

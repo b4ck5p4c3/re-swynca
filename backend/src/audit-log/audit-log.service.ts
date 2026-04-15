@@ -1,187 +1,187 @@
-import {Injectable} from "@nestjs/common";
-import {InjectRepository} from "@nestjs/typeorm";
-import {AuditLog} from "../common/database/entities/audit-log.entity";
-import {EntityManager, FindOptionsOrder, IsNull, Repository} from "typeorm";
-import {Member} from "../common/database/entities/member.entity";
-import {ACSKeyType} from "../common/database/entities/acs-key.entity";
-import {MONEY_DECIMAL_PLACES} from "../common/money";
-import {TransactionType} from "../common/database/entities/common";
+import { Injectable } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { EntityManager, FindOptionsOrder, IsNull, Repository } from 'typeorm'
+
+import { ACSKeyType } from '../common/database/entities/acs-key.entity'
+import { AuditLog } from '../common/database/entities/audit-log.entity'
+import { TransactionType } from '../common/database/entities/common'
 import {
-    SpaceTransactionDeposit,
-    SpaceTransactionWithdrawal
-} from "../common/database/entities/space-transaction.entity";
+  MemberTransaction,
+  MemberTransactionDeposit,
+  MemberTransactionWithdrawal
+} from '../common/database/entities/member-transaction.entity'
+import { Member } from '../common/database/entities/member.entity'
 import {
-    MemberTransaction,
-    MemberTransactionDeposit,
-    MemberTransactionWithdrawal
-} from "../common/database/entities/member-transaction.entity";
+  SpaceTransactionDeposit,
+  SpaceTransactionWithdrawal
+} from '../common/database/entities/space-transaction.entity'
+import { MONEY_DECIMAL_PLACES } from '../common/money'
 
 type AuditLogEntry = {
-    "logto-authorize": undefined,
-    "create-acs-key": {
-        id: string,
-        type: ACSKeyType,
-        key: string,
-        name: string,
-        memberId: string
-    },
-    "delete-acs-key": {
-        id: string
-    },
-    "create-membership": {
-        id: string,
-        title: string,
-        amount: string,
-        active: boolean
-    },
-    "update-membership": {
-        id: string,
-        title: string,
-        amount: string,
-        active: boolean
-    },
-    "create-space-transaction": {
-        id: string,
-        type: TransactionType,
-        amount: string,
-        comment?: string | null,
-        date: string,
-        source?: SpaceTransactionDeposit | null,
-        target?: SpaceTransactionWithdrawal | null,
-        relatedMemberTransaction?: string | null
-    },
-    "create-member-transaction": {
-        id: string,
-        type: TransactionType,
-        amount: string,
-        comment?: string | null,
-        date: string,
-        source?: MemberTransactionDeposit | null,
-        target?: MemberTransactionWithdrawal | null,
-        subjectId: string
-    },
-    "freeze-member": {
-        id: string
-    },
-    "unfreeze-member": {
-        id: string
-    },
-    "create-member": {
-        id: string,
-        name: string,
-        email: string,
-        username: string,
-        logtoId: string
-    },
-    "update-member": {
-        id: string,
-        name: string,
-        username: string,
-        email: string
-    },
-    "subscribe-member": {
-        memberId: string,
-        membershipId: string,
-        membershipSubscriptionId: string
-    },
-    "unsubscribe-member": {
-        membershipSubscriptionId: string
-    },
-    "update-member-telegram-metadata": {
-        memberId: string,
-        telegramId: string
-    },
-    "delete-member-telegram-metadata": {
-        memberId: string
-    },
-    "update-member-github-metadata": {
-        memberId: string,
-        githubId: string
-    },
-    "delete-member-github-metadata": {
-        memberId: string
-    },
-    "create-api-key": {
-        id: string,
-        key: string
-    },
-    "delete-api-key": {
-        id: string
-    },
-    "subscriptions-withdrawal": undefined,
-    "delete-mac": {
-        id: string
-    },
-    "create-mac": {
-        id: string,
-        mac: string,
-        description: string,
-        memberId: string
-    }
+  'create-acs-key': {
+    id: string,
+    key: string,
+    memberId: string
+    name: string,
+    type: ACSKeyType,
+  },
+  'create-api-key': {
+    id: string,
+    key: string
+  },
+  'create-mac': {
+    description: string,
+    id: string,
+    mac: string,
+    memberId: string
+  }
+  'create-member': {
+    email: string,
+    id: string,
+    logtoId: string
+    name: string,
+    username: string,
+  },
+  'create-member-transaction': {
+    amount: string,
+    comment?: null | string,
+    date: string,
+    id: string,
+    source?: MemberTransactionDeposit | null,
+    subjectId: string
+    target?: MemberTransactionWithdrawal | null,
+    type: TransactionType,
+  },
+  'create-membership': {
+    active: boolean
+    amount: string,
+    id: string,
+    title: string,
+  },
+  'create-space-transaction': {
+    amount: string,
+    comment?: null | string,
+    date: string,
+    id: string,
+    relatedMemberTransaction?: null | string
+    source?: null | SpaceTransactionDeposit,
+    target?: null | SpaceTransactionWithdrawal,
+    type: TransactionType,
+  },
+  'delete-acs-key': {
+    id: string
+  },
+  'delete-api-key': {
+    id: string
+  },
+  'delete-mac': {
+    id: string
+  },
+  'delete-member-github-metadata': {
+    memberId: string
+  },
+  'delete-member-telegram-metadata': {
+    memberId: string
+  },
+  'freeze-member': {
+    id: string
+  },
+  'logto-authorize': undefined,
+  'subscribe-member': {
+    memberId: string,
+    membershipId: string,
+    membershipSubscriptionId: string
+  },
+  'subscriptions-withdrawal': undefined,
+  'unfreeze-member': {
+    id: string
+  },
+  'unsubscribe-member': {
+    membershipSubscriptionId: string
+  },
+  'update-member': {
+    email: string
+    id: string,
+    name: string,
+    username: string,
+  },
+  'update-member-github-metadata': {
+    githubId: string
+    memberId: string,
+  },
+  'update-member-telegram-metadata': {
+    memberId: string,
+    telegramId: string
+  },
+  'update-membership': {
+    active: boolean
+    amount: string,
+    id: string,
+    title: string,
+  },
 }
 
 @Injectable()
 export class AuditLogService {
-    constructor(@InjectRepository(AuditLog) private auditLogRepository: Repository<AuditLog>) {
-    }
+  constructor (@InjectRepository(AuditLog) private auditLogRepository: Repository<AuditLog>) {}
 
-    for(manager: EntityManager): AuditLogService {
-        return new AuditLogService(manager.getRepository(AuditLog));
-    }
+  async countAll (): Promise<number> {
+    return await this.auditLogRepository.count()
+  }
 
-    async create<TAction extends keyof AuditLogEntry>(action: TAction, actor: Member,
-                                                      metadata: AuditLogEntry[TAction]): Promise<void> {
-        const auditLogEntry = this.auditLogRepository.create({
-            action,
-            actor,
-            metadata,
-            createdAt: new Date()
-        });
-        await this.auditLogRepository.save(auditLogEntry);
-    }
+  async create<TAction extends keyof AuditLogEntry>(action: TAction, actor: Member,
+    metadata: AuditLogEntry[TAction]): Promise<void> {
+    const auditLogEntry = this.auditLogRepository.create({
+      action,
+      actor,
+      createdAt: new Date(),
+      metadata
+    })
+    await this.auditLogRepository.save(auditLogEntry)
+  }
 
-    async countAll(): Promise<number> {
-        return await this.auditLogRepository.count();
-    }
+  async existsWithoutNearTransaction (): Promise<boolean> {
+    return await this.auditLogRepository.exists({
+      where: {
+        nearTransactionHash: IsNull()
+      }
+    })
+  }
 
-    async findAll(offset: number, count: number): Promise<AuditLog[]> {
-        return await this.auditLogRepository.find({
-            skip: offset,
-            take: count,
-            relations: {
-                actor: true
-            },
-            order: {
-                createdAt: "desc"
-            }
-        });
-    }
+  async findAll (offset: number, count: number): Promise<AuditLog[]> {
+    return await this.auditLogRepository.find({
+      order: {
+        createdAt: 'desc'
+      },
+      relations: {
+        actor: true
+      },
+      skip: offset,
+      take: count
+    })
+  }
 
-    async existsWithoutNearTransaction(): Promise<boolean> {
-        return await this.auditLogRepository.exists({
-            where: {
-                nearTransactionHash: IsNull()
-            }
-        });
-    }
+  async findAllWithoutNearTransaction (offset: number, count: number): Promise<AuditLog[]> {
+    return await this.auditLogRepository.find({
+      order: {
+        createdAt: 'asc'
+      },
+      relations: {
+        actor: true
+      },
+      skip: offset,
+      take: count,
+      where: {
+        nearTransactionHash: IsNull()
+      }
+    })
+  }
 
-    async findAllWithoutNearTransaction(offset: number, count: number): Promise<AuditLog[]> {
-        return await this.auditLogRepository.find({
-            where: {
-                nearTransactionHash: IsNull()
-            },
-            order: {
-                createdAt: "asc"
-            },
-            relations: {
-                actor: true
-            },
-            skip: offset,
-            take: count
-        });
-    }
+  for (manager: EntityManager): AuditLogService {
+    return new AuditLogService(manager.getRepository(AuditLog))
+  }
 
-    async update(auditLog: AuditLog): Promise<AuditLog> {
-        return await this.auditLogRepository.save(auditLog);
-    }
+  async update (auditLog: AuditLog): Promise<AuditLog> {
+    return await this.auditLogRepository.save(auditLog)
+  }
 }
