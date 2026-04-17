@@ -80,6 +80,9 @@ export function EditEntranceSoundDialog({open, onClose, memberId, currentSoundId
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
+                                <SelectItem value={""} key={"sound-none"}>
+                                    None
+                                </SelectItem>
                                 {entranceSounds.data?.map(sound =>
                                     <SelectItem value={sound.id} key={sound.id}>
                                         {sound.name}

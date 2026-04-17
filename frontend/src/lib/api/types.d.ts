@@ -604,6 +604,11 @@ export interface components {
             name: string;
             username: string;
         };
+        MemberEntranceSoundDTO: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
         GitHubMetadataDTO: {
             githubId: string;
             githubUsername: string;
@@ -616,7 +621,7 @@ export interface components {
             balance: string;
             /** Format: email */
             email: string;
-            entranceSound?: string;
+            entranceSound?: components["schemas"]["MemberEntranceSoundDTO"];
             githubMetadata?: components["schemas"]["GitHubMetadataDTO"];
             /** Format: uuid */
             id: string;

@@ -243,7 +243,7 @@ export default function MemberPage() {
             <MemberInfoRow title={"Balance"}>{member.data ? <Money amount={member.data.balance}/> :
                 <Skeleton className={"h-[24px] w-[50px]"}/>}</MemberInfoRow>
             <MemberInfoRow collapseWhenSm={true} title={"Entrance Sound"}>{member.data ? <div className={"flex flex-row gap-2"}>
-                    <div className={"leading-8"}>{member.data.entranceSound ?? "None"}</div>
+                    <div className={"leading-8"}>{member.data.entranceSound?.name ?? "None"}</div>
                     <Button className={"w-8 p-0 h-8"}
                             onClick={() => setEditEntranceSoundDialogOpened(true)}><Pencil className={"w-4 h-4"}/></Button>
                 </div> :
@@ -403,6 +403,6 @@ export default function MemberPage() {
         <EditEntranceSoundDialog open={editEntranceSoundDialogOpened}
                                  onClose={() => setEditEntranceSoundDialogOpened(false)}
                                  memberId={id}
-                                 currentSoundId={member.data?.entranceSound}/>
+                                 currentSoundId={member.data?.entranceSound?.id}/>
     </div>;
 }
