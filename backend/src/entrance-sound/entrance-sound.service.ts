@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { InjectRepository } from '@nestjs/typeorm'
 import { EntranceSound } from 'src/common/database/entities/entrance-sound.entity'
 import { Errors } from 'src/common/errors'
+import { EmptyResponse } from 'src/common/utils'
 import { Repository } from 'typeorm'
 
 import { EntranceSoundListResponseDto } from './dto/entrance-sound-list-response.dto'
@@ -30,7 +31,7 @@ export class EntranceSoundService {
     return { sounds }
   }
 
-  async playSound (input: PlayEntranceSoundRequestDto): Promise<void> {
+  async playSound (input: PlayEntranceSoundRequestDto): Promise<EmptyResponse> {
     const playbackUrl = this.configService.get<string>('SWYNCA_ENTRANCE_SOUND_PLAYBACK_URL')
     if (!playbackUrl) {
       throw new HttpException(Errors.FEATURE_NOT_AVAILABLE, HttpStatus.NOT_IMPLEMENTED)
@@ -44,5 +45,6 @@ export class EntranceSoundService {
     await this.httpService.axiosRef.post(playbackUrl, {
       eventText: `<speaker audio="${sound.key}">`
     })
+    return {}
   }
 }
