@@ -83,6 +83,7 @@ export class MembersService {
   async findAll (): Promise<Member[]> {
     return await this.membersRepository.find({
       relations: {
+        entranceSound: true,
         githubMetadata: true,
         telegramMetadata: true
       },
@@ -95,6 +96,7 @@ export class MembersService {
   async findAllActive (): Promise<Member[]> {
     return await this.membersRepository.find({
       relations: {
+        entranceSound: true,
         githubMetadata: true,
         telegramMetadata: true
       },
@@ -122,6 +124,7 @@ export class MembersService {
   async findByIdUnfiltered (id: string): Promise<Member | null> {
     return await this.membersRepository.findOne({
       relations: {
+        entranceSound: true,
         githubMetadata: true,
         telegramMetadata: true
       },
