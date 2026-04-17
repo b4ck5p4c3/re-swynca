@@ -23,7 +23,7 @@ export class TelegramMetadatasController {
       telegrams: {}
     }
     for (const telegramMetadata of await this.telegramMetadataService.findForActiveMembers()) {
-      result.telegrams[telegramMetadata.telegramId] = `${telegramMetadata.member.id}/${telegramMetadata.telegramName}`
+      result.telegrams[telegramMetadata.telegramId] = `${telegramMetadata.member.id}/${telegramMetadata.telegramName}/${telegramMetadata.member.entranceSound?.key ?? 'null'}`
     }
     return result
   }

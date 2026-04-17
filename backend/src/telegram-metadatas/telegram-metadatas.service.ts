@@ -24,7 +24,9 @@ export class TelegramMetadatasService {
   async findForActiveMembers (): Promise<TelegramMetadata[]> {
     return await this.telegramMetadataRepository.find({
       relations: {
-        member: true
+        member: {
+          entranceSound: true
+        }
       },
       where: {
         member: {
