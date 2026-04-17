@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js'
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 
 import { MONEY_DECIMAL_PLACES, MONEY_PRECISION } from '../../money'
 import { DecimalTransformer } from '../transformers/decimal.transformer'
@@ -43,10 +43,8 @@ export class Member {
   @Column('text', { unique: true })
   email: string
 
-  // Sound to play on Razvalice when ACS key is used for entrance.
-  // Must be a enum value from TTS-supported. Refer to Razvalice workgroup for details.
-  @OneToMany(() => EntranceSound, entranceSound => entranceSound.id, { nullable: true })
-  entranceSound: EntranceSound | null
+  @ManyToOne(() => EntranceSound, entranceSound => entranceSound.id, { nullable: true })
+  entranceSound?: EntranceSound | null
 
   @OneToOne(() => LogtoBinding, externalAuthenticationLogto =>
     externalAuthenticationLogto.member, { nullable: true })
