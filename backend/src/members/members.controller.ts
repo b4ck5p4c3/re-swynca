@@ -197,7 +197,7 @@ export class MembersController {
     @UserId() actorId: string,
     @Param('id') id: string,
     @Body() request: EditEntranceSoundDTO
-  ): Promise<void> {
+  ): Promise<EmptyResponse> {
     const actor = await getValidActor(this.membersService, actorId)
     const member = await this.membersService.findById(id)
     if (!member) {
@@ -218,6 +218,8 @@ export class MembersController {
         memberId: member.id
       })
     })
+
+    return {}
   }
 
   @ApiBody({
