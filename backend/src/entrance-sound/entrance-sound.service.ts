@@ -26,7 +26,11 @@ export class EntranceSoundService {
   }
 
   async getList (): Promise<EntranceSoundListResponseDto> {
-    const sounds = await this.entranceSoundRepository.find()
+    const sounds = await this.entranceSoundRepository.find({
+      order: {
+        name: 'asc'
+      }
+    })
     return { sounds }
   }
 
