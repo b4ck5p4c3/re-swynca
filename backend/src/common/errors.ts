@@ -3,6 +3,8 @@ export const Errors = {
   ACTOR_FROZEN: 'actor-frozen',
   ACTOR_MEMBER_NOT_FOUND: 'actor-member-not-found',
   API_KEY_NOT_FOUND: 'api-key-not-found',
+  ENTRANCE_SOUND_NOT_FOUND: 'entrance-sound-not-found',
+  FEATURE_NOT_AVAILABLE: 'feature-not-available',
   INVALID_GITHUB_USERNAME: 'invalid-github-username',
   MAC_NOT_FOUND: 'mac-not-found',
   MEMBER_ALREADY_SUBSCRIBED: 'member-already-subscribed',
@@ -21,5 +23,5 @@ export const Errors = {
   NOT_AUTHORIZED: 'not-authorized',
   SPACE_BALANCE_IS_TOO_LOW: 'space-balance-is-too-low',
   SPACE_MEMBER_NOT_FOUND: 'space-member-not-found',
-  SUBJECT_MEMBER_NOT_FOUND: 'subject-member-not-found',
+  SUBJECT_MEMBER_NOT_FOUND: 'subject-member-not-found'
 }

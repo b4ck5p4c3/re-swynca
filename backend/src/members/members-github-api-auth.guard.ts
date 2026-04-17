@@ -28,7 +28,7 @@ export class MembersGitHubApiAuthGuard implements CanActivate {
   async canActivate (context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<express.Request>()
     const token = MembersGitHubApiAuthGuard.getMembersGitHubAuthToken(request)
-    if (token != this.token) {
+    if (token !== this.token) {
       throw new HttpException(Errors.NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED)
     }
     return true

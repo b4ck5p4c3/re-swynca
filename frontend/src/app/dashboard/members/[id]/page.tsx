@@ -27,6 +27,7 @@ import {UpdateNameDialog} from "@/components/dialogs/update-name";
 import {UpdateEMailDialog} from "@/components/dialogs/update-email";
 import {UpdateUsernameDialog} from "@/components/dialogs/update-username";
 import {CreateMACDialog} from "@/components/dialogs/create-mac";
+import {EditEntranceSoundDialog} from "@/components/dialogs/edit-entrance-sound";
 import { getCurrentMemberId } from "@/lib/auth-storage";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
@@ -67,6 +68,7 @@ export default function MemberPage() {
     const [updateNameDialogOpened, setUpdateNameDialogOpened] = useState(false);
     const [updateEMailDialogOpened, setUpdateEMailDialogOpened] = useState(false);
     const [updateUsernameDialogOpened, setUpdateUsernameDialogOpened] = useState(false);
+    const [editEntranceSoundDialogOpened, setEditEntranceSoundDialogOpened] = useState(false);
 
     const client = getClient();
 
@@ -240,6 +242,12 @@ export default function MemberPage() {
                 <Skeleton className={"h-[24px] w-[90px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"Balance"}>{member.data ? <Money amount={member.data.balance}/> :
                 <Skeleton className={"h-[24px] w-[50px]"}/>}</MemberInfoRow>
+            <MemberInfoRow collapseWhenSm={true} title={"Entrance Sound"}>{member.data ? <div className={"flex flex-row gap-2"}>
+                    <div className={"leading-8"}>{member.data.entranceSound ?? "None"}</div>
+                    <Button className={"w-8 p-0 h-8"}
+                            onClick={() => setEditEntranceSoundDialogOpened(true)}><Pencil className={"w-4 h-4"}/></Button>
+                </div> :
+                <Skeleton className={"h-[32px] w-[120px]"}/>}</MemberInfoRow>
             <MemberInfoRow title={"Status"}>{member.data ?
                 <div className={"flex flex-row gap-2"}>
                     <div className={"leading-8"}>{member.data.status === "active" ? "Active" : "Frozen"}</div>
@@ -392,5 +400,9 @@ export default function MemberPage() {
                                           onClose={() => setUpdateEMailDialogOpened(false)}/> : <></>}
         {member.data ? <UpdateUsernameDialog member={member.data} open={updateUsernameDialogOpened}
                                           onClose={() => setUpdateUsernameDialogOpened(false)}/> : <></>}
+        <EditEntranceSoundDialog open={editEntranceSoundDialogOpened}
+                                 onClose={() => setEditEntranceSoundDialogOpened(false)}
+                                 memberId={id}
+                                 currentSoundId={member.data?.entranceSound}/>
     </div>;
 }

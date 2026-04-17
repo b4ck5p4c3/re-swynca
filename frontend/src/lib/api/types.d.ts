@@ -39,21 +39,24 @@ export interface paths {
         patch: operations["MembershipsController_updateMembership"];
         trace?: never;
     };
-    "/api/members/stats": {
+    "/api/members/{id}/entrance-sound": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get stats of all members */
-        get: operations["MembersController_stats"];
+        get?: never;
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Change Sound
+         * @description Change entrance sound for member. Null removes entrance sound.
+         */
+        patch: operations["MembersController_changeEntranceSound"];
         trace?: never;
     };
     "/api/members": {
@@ -74,25 +77,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/members/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get full info about member */
-        get: operations["MembersController_findById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update member */
-        patch: operations["MembersController_update"];
-        trace?: never;
-    };
-    "/api/members/{id}/status": {
+    "/api/members/{id}/github": {
         parameters: {
             query?: never;
             header?: never;
@@ -102,11 +87,12 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete GitHub metadata for member */
+        delete: operations["MembersController_deleteGitHubMetadata"];
         options?: never;
         head?: never;
-        /** Freeze/unfreeze member */
-        patch: operations["MembersController_updateStatus"];
+        /** Add/update GitHub metadata for member */
+        patch: operations["MembersController_updateGitHubMetadata"];
         trace?: never;
     };
     "/api/members/{id}/telegram": {
@@ -127,7 +113,42 @@ export interface paths {
         patch: operations["MembersController_updateTelegramMetadata"];
         trace?: never;
     };
-    "/api/members/{id}/github": {
+    "/api/members/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get full info about member */
+        get: operations["MembersController_findById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update member */
+        patch: operations["MembersController_update"];
+        trace?: never;
+    };
+    "/api/members/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get stats of all members */
+        get: operations["MembersController_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/members/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -137,25 +158,58 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete GitHub metadata for member */
-        delete: operations["MembersController_deleteGitHubMetadata"];
+        delete?: never;
         options?: never;
         head?: never;
-        /** Add/update GitHub metadata for member */
-        patch: operations["MembersController_updateGitHubMetadata"];
+        /** Freeze/unfreeze member */
+        patch: operations["MembersController_updateStatus"];
         trace?: never;
     };
-    "/api/acs-keys/member/{memberId}": {
+    "/api/entrance-sound/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get ACS keys for specific member */
-        get: operations["ACSKeysController_findAllByMemberId"];
+        /** Get entrance sound by ID */
+        get: operations["EntranceSoundController_getById"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/entrance-sound": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of all entrance sounds */
+        get: operations["EntranceSoundController_getList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/entrance-sound/play": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Play an entrance sound */
+        post: operations["EntranceSoundController_playSound"];
         delete?: never;
         options?: never;
         head?: never;
@@ -173,6 +227,23 @@ export interface paths {
         put?: never;
         /** Create ACS key */
         post: operations["ACSKeysController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/acs-keys/member/{memberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get ACS keys for specific member */
+        get: operations["ACSKeysController_findAllByMemberId"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -214,23 +285,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/member-transactions/subject/{memberId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all member transactions for subject member */
-        get: operations["MemberTransactionsController_findAllBySubjectMember"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/member-transactions/actor/{memberId}": {
         parameters: {
             query?: never;
@@ -240,6 +294,23 @@ export interface paths {
         };
         /** Get all member transactions for actor member */
         get: operations["MemberTransactionsController_findAllByActorMember"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/member-transactions/subject/{memberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all member transactions for subject member */
+        get: operations["MemberTransactionsController_findAllBySubjectMember"];
         put?: never;
         post?: never;
         delete?: never;
@@ -283,23 +354,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/membership-subscriptions/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all membership subscriptions statistics */
-        get: operations["MembershipSubscriptionsController_stats"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/membership-subscriptions/member/{memberId}": {
         parameters: {
             query?: never;
@@ -326,6 +380,23 @@ export interface paths {
         };
         /** Get all membership subscriptions for membership */
         get: operations["MembershipSubscriptionsController_findAllByMembershipId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/membership-subscriptions/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all membership subscriptions statistics */
+        get: operations["MembershipSubscriptionsController_stats"];
         put?: never;
         post?: never;
         delete?: never;
@@ -420,23 +491,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/macs/member/{memberId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get MACs for specific member */
-        get: operations["MACsController_findByMemberId"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/macs": {
         parameters: {
             query?: never;
@@ -448,6 +502,23 @@ export interface paths {
         put?: never;
         /** Create new MAC */
         post: operations["MACsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/macs/member/{memberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get MACs for specific member */
+        get: operations["MACsController_findByMemberId"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -508,53 +579,61 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CreateUpdateMembershipDTO: {
+            active: boolean;
+            amount: string;
+            title: string;
+        };
         MembershipDTO: {
+            active: boolean;
+            amount: string;
             /** Format: uuid */
             id: string;
             title: string;
-            amount: string;
-            active: boolean;
         };
         ErrorApiResponse: {
-            statusCode: number;
             message: string;
+            statusCode: number;
         };
-        CreateUpdateMembershipDTO: {
-            title: string;
-            amount: string;
-            active: boolean;
+        EditEntranceSoundDTO: {
+            id: string;
         };
-        MemberStatsDTO: {
-            count: number;
-        };
-        TelegramMetadataDTO: {
-            telegramId: string;
-            telegramName?: string;
+        CreateUpdateMemberDTO: {
+            /** Format: email */
+            email: string;
+            name: string;
+            username: string;
         };
         GitHubMetadataDTO: {
             githubId: string;
             githubUsername: string;
         };
+        TelegramMetadataDTO: {
+            telegramId: string;
+            telegramName?: string;
+        };
         MemberDTO: {
+            balance: string;
+            /** Format: email */
+            email: string;
+            entranceSound?: string;
+            githubMetadata?: components["schemas"]["GitHubMetadataDTO"];
             /** Format: uuid */
             id: string;
-            name: string;
-            /** Format: email */
-            email: string;
-            username: string;
-            /** @enum {string} */
-            status: "active" | "frozen";
-            balance: string;
             /** Format: date-time */
             joinedAt: string;
-            telegramMetadata?: components["schemas"]["TelegramMetadataDTO"];
-            githubMetadata?: components["schemas"]["GitHubMetadataDTO"];
-        };
-        CreateUpdateMemberDTO: {
             name: string;
-            /** Format: email */
-            email: string;
+            /** @enum {string} */
+            status: "active" | "frozen";
+            telegramMetadata?: components["schemas"]["TelegramMetadataDTO"];
             username: string;
+        };
+        EmptyResponse: Record<string, never>;
+        MemberStatsDTO: {
+            count: number;
+        };
+        UpdateGitHubMetadataDTO: {
+            githubUsername: string;
         };
         UpdateStatusDTO: {
             /** @enum {string} */
@@ -563,102 +642,104 @@ export interface components {
         UpdateTelegramMetadataDTO: {
             telegramId: string;
         };
-        EmptyResponse: Record<string, never>;
-        UpdateGitHubMetadataDTO: {
-            githubUsername: string;
+        PlayEntranceSoundRequestDto: {
+            /**
+             * Format: uuid
+             * @description ID of the entrance sound to play
+             */
+            id: string;
+        };
+        CreateACSKeyDTO: {
+            key: string;
+            /** Format: uuid */
+            memberId: string;
+            name: string;
+            /** @enum {string} */
+            type: "pan" | "uid";
         };
         ACSKeyDTO: {
             /** Format: uuid */
             id: string;
+            key: string;
             /** Format: uuid */
             memberId: string;
+            name: string;
             /** @enum {string} */
             type: "pan" | "uid";
-            key: string;
-            name: string;
         };
-        CreateACSKeyDTO: {
-            /** @enum {string} */
-            type: "pan" | "uid";
-            key: string;
-            name: string;
-            /** Format: uuid */
-            memberId: string;
-        };
-        MemberTransactionDTO: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            type: "deposit" | "withdrawal";
+        CreateMemberTransactionDTO: {
             amount: string;
             comment?: string;
             /** Format: date-time */
             date: string;
             /** @enum {string} */
-            source?: "magic" | "donate" | "topup";
+            source?: "donate" | "magic" | "topup";
+            /** Format: uuid */
+            subjectId: string;
             /** @enum {string} */
             target?: "magic" | "membership";
+            /** @enum {string} */
+            type: "deposit" | "withdrawal";
+        };
+        MemberTransactionDTO: {
             actor: components["schemas"]["MemberDTO"];
-            subject: components["schemas"]["MemberDTO"];
+            amount: string;
+            comment?: string;
             /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
+            date: string;
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            source?: "donate" | "magic" | "topup";
+            subject: components["schemas"]["MemberDTO"];
+            /** @enum {string} */
+            target?: "magic" | "membership";
+            /** @enum {string} */
+            type: "deposit" | "withdrawal";
         };
         MemberTransactionsDTO: {
             count: number;
             transactions: components["schemas"]["MemberTransactionDTO"][];
         };
-        CreateMemberTransactionDTO: {
-            /** @enum {string} */
-            type: "deposit" | "withdrawal";
+        CreateSpaceTransactionDTO: {
             amount: string;
             comment?: string;
             /** Format: date-time */
             date: string;
             /** @enum {string} */
-            source?: "magic" | "donate" | "topup";
+            source?: "donate" | "magic" | "topup";
             /** @enum {string} */
-            target?: "magic" | "membership";
-            /** Format: uuid */
-            subjectId: string;
+            target?: "basic" | "magic" | "purchases";
+            /** @enum {string} */
+            type: "deposit" | "withdrawal";
         };
         SpaceTransactionDTO: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            type: "deposit" | "withdrawal";
+            actor: components["schemas"]["MemberDTO"];
             amount: string;
             comment?: string;
             /** Format: date-time */
-            date: string;
-            /** @enum {string} */
-            source?: "magic" | "donate" | "topup";
-            /** @enum {string} */
-            target?: "magic" | "basic" | "purchases";
-            actor: components["schemas"]["MemberDTO"];
-            relatedMemberTransactionSubject?: components["schemas"]["MemberDTO"];
-            /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
+            date: string;
+            /** Format: uuid */
+            id: string;
+            relatedMemberTransactionSubject?: components["schemas"]["MemberDTO"];
+            /** @enum {string} */
+            source?: "donate" | "magic" | "topup";
+            /** @enum {string} */
+            target?: "basic" | "magic" | "purchases";
+            /** @enum {string} */
+            type: "deposit" | "withdrawal";
         };
         SpaceTransactionsDTO: {
             count: number;
             transactions: components["schemas"]["SpaceTransactionDTO"][];
         };
-        CreateSpaceTransactionDTO: {
-            /** @enum {string} */
-            type: "deposit" | "withdrawal";
-            amount: string;
-            comment?: string;
-            /** Format: date-time */
-            date: string;
-            /** @enum {string} */
-            source?: "magic" | "donate" | "topup";
-            /** @enum {string} */
-            target?: "magic" | "basic" | "purchases";
-        };
-        MembershipSubscriptionStatsDTO: {
-            totalActiveAmount: string;
-        };
         MembershipSubscriptionDTO: {
+            /** Format: date-time */
+            declinedAt?: string;
             /** Format: uuid */
             id: string;
             /** Format: uuid */
@@ -667,8 +748,9 @@ export interface components {
             membershipId: string;
             /** Format: date-time */
             subscribedAt: string;
-            /** Format: date-time */
-            declinedAt?: string;
+        };
+        MembershipSubscriptionStatsDTO: {
+            totalActiveAmount: string;
         };
         SubscribeDTO: {
             /** Format: uuid */
@@ -684,17 +766,17 @@ export interface components {
             id: string;
             key: string;
         };
+        CreateMACDTO: {
+            description: string;
+            mac: string;
+            /** Format: uuid */
+            memberId: string;
+        };
         MACDTO: {
+            description: string;
             /** Format: uuid */
             id: string;
             mac: string;
-            description: string;
-        };
-        CreateMACDTO: {
-            /** Format: uuid */
-            memberId: string;
-            mac: string;
-            description: string;
         };
         SelfAuthInfoDTO: {
             /** Format: uuid */
@@ -806,32 +888,26 @@ export interface operations {
             };
         };
     };
-    MembersController_stats: {
+    MembersController_changeEntranceSound: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditEntranceSoundDTO"];
+            };
+        };
         responses: {
-            /** @description Successful response */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["MemberStatsDTO"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
+                content?: never;
             };
         };
     };
@@ -884,173 +960,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberDTO"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
-            };
-        };
-    };
-    MembersController_findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MemberDTO"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
-            };
-        };
-    };
-    MembersController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateUpdateMemberDTO"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MemberDTO"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
-            };
-        };
-    };
-    MembersController_updateStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateStatusDTO"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MemberDTO"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
-            };
-        };
-    };
-    MembersController_deleteTelegramMetadata: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EmptyResponse"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
-            };
-        };
-    };
-    MembersController_updateTelegramMetadata: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTelegramMetadataDTO"];
-            };
-        };
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EmptyResponse"];
                 };
             };
             /** @description Erroneous response */
@@ -1130,12 +1039,12 @@ export interface operations {
             };
         };
     };
-    ACSKeysController_findAllByMemberId: {
+    MembersController_deleteTelegramMetadata: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                memberId: string;
+                id: string;
             };
             cookie?: never;
         };
@@ -1147,7 +1056,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ACSKeyDTO"][];
+                    "application/json": components["schemas"]["EmptyResponse"];
                 };
             };
             /** @description Erroneous response */
@@ -1158,6 +1067,228 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ErrorApiResponse"];
                 };
+            };
+        };
+    };
+    MembersController_updateTelegramMetadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTelegramMetadataDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_findById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateUpdateMemberDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberStatsDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_updateStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    EntranceSoundController_getById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EntranceSoundController_getList: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EntranceSoundController_playSound: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlayEntranceSoundRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -1181,6 +1312,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ACSKeyDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    ACSKeysController_findAllByMemberId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ACSKeyDTO"][];
                 };
             };
             /** @description Erroneous response */
@@ -1292,7 +1454,7 @@ export interface operations {
             };
         };
     };
-    MemberTransactionsController_findAllBySubjectMember: {
+    MemberTransactionsController_findAllByActorMember: {
         parameters: {
             query: {
                 offset: string;
@@ -1328,7 +1490,7 @@ export interface operations {
             };
         };
     };
-    MemberTransactionsController_findAllByActorMember: {
+    MemberTransactionsController_findAllBySubjectMember: {
         parameters: {
             query: {
                 offset: string;
@@ -1467,35 +1629,6 @@ export interface operations {
             };
         };
     };
-    MembershipSubscriptionsController_stats: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MembershipSubscriptionStatsDTO"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
-            };
-        };
-    };
     MembershipSubscriptionsController_findAllByMemberId: {
         parameters: {
             query?: never;
@@ -1545,6 +1678,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MembershipSubscriptionDTO"][];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembershipSubscriptionsController_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MembershipSubscriptionStatsDTO"];
                 };
             };
             /** @description Erroneous response */
@@ -1740,37 +1902,6 @@ export interface operations {
             };
         };
     };
-    MACsController_findByMemberId: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                memberId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MACDTO"][];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
-            };
-        };
-    };
     MACsController_create: {
         parameters: {
             query?: never;
@@ -1791,6 +1922,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MACDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MACsController_findByMemberId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MACDTO"][];
                 };
             };
             /** @description Erroneous response */

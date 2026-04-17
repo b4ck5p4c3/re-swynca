@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { EntranceSoundModule } from 'src/entrance-sound/entrance-sound.module'
 
 import { ApiKeysModule } from '../api-keys/api-keys.module'
 import { AuditLogModule } from '../audit-log/audit-log.module'
@@ -17,9 +18,19 @@ import { MembersService } from './members.service'
 @Module({
   controllers: [MembersController],
   exports: [MembersService],
-  imports: [TypeOrmModule.forFeature([Member]), GitHubModule, GitHubMetadatasModule,
-    TelegramMetadatasModule, LogtoManagementModule, LogtoBindingsModule, AuditLogModule,
-    ConfigModule, SessionStorageModule, ApiKeysModule],
+  imports: [
+    TypeOrmModule.forFeature([Member]),
+    GitHubModule,
+    GitHubMetadatasModule,
+    TelegramMetadatasModule,
+    LogtoManagementModule,
+    LogtoBindingsModule,
+    AuditLogModule,
+    ConfigModule,
+    SessionStorageModule,
+    ApiKeysModule,
+    EntranceSoundModule
+  ],
   providers: [MembersService]
 })
 export class MembersModule {}

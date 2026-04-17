@@ -8,6 +8,7 @@ import { BaseAuditLogModule } from './base-audit-log/base-audit-log.module'
 import { AppConfigModule } from './common/config/app-config.module'
 import { DatabaseModule } from './common/database/database.module'
 import { AppHttpModule } from './common/http/app-http.module'
+import { EntranceSoundModule } from './entrance-sound/entrance-sound.module'
 import { LogtoAuthModule } from './logto-auth/logto-auth.module'
 import { MACsModule } from './macs/macs.module'
 import { MemberTransactionsModule } from './member-transactions/member-transactions.module'
@@ -50,7 +51,9 @@ import { TelegramListenerModule } from './telegram-listener/telegram-listener.mo
     SeederModule,
     SubscriptionsWithdrawerModule,
 
-    TelegramListenerModule
+    TelegramListenerModule,
+
+    EntranceSoundModule
   ],
   providers: [],
 })

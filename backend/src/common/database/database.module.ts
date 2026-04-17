@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { ACSKey } from './entities/acs-key.entity'
 import { ApiKey } from './entities/api-key.entity'
 import { AuditLog } from './entities/audit-log.entity'
+import { EntranceSound } from './entities/entrance-sound.entity'
 import { GitHubMetadata } from './entities/github-metadata.entity'
 import { LogtoBinding } from './entities/logto-binding.entity'
 import { MAC } from './entities/mac.entity'
@@ -27,7 +28,7 @@ import { TelegramMetadata } from './entities/telegram-metadata.entity'
           Membership, MembershipSubscription,
           TelegramMetadata, GitHubMetadata,
           AuditLog, ApiKey, SwyncaMetadata,
-          MAC],
+          MAC, EntranceSound],
         logging: process.env.NODE_ENV === 'development',
         synchronize: true,
         type: 'postgres',

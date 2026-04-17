@@ -22,6 +22,7 @@ import {
   ApiTags
 } from '@nestjs/swagger'
 import { IsEmail, IsEnum, IsNotEmpty, Matches } from 'class-validator'
+import { EntranceSoundService } from 'src/entrance-sound/entrance-sound.service'
 
 import { ApiKeysService } from '../api-keys/api-keys.service'
 import { AuditLogService } from '../audit-log/audit-log.service'
@@ -58,6 +59,11 @@ class CreateUpdateMemberDTO {
   @ApiProperty()
   @IsNotEmpty()
   username: string
+}
+
+class EditEntranceSoundDTO {
+  @ApiProperty()
+  id: null | string
 }
 
 class GitHubMetadataDTO {
@@ -109,6 +115,9 @@ export class MemberDTO {
   email: string
 
   @ApiProperty({ required: false })
+  entranceSound?: string
+
+  @ApiProperty({ required: false })
   githubMetadata?: GitHubMetadataDTO
 
   @ApiProperty({ format: 'uuid' })
@@ -136,12 +145,19 @@ export class MembersController {
   private readonly githubOrganizationName: string
   private readonly logger = new Logger(MembersController.name)
 
-  constructor (private membersService: MembersService, private githubMetadataService: GitHubMetadatasService,
-    private githubService: GitHubService, private telegramMetadataService: TelegramMetadatasService,
+  constructor (
+    private membersService: MembersService,
+    private githubMetadataService: GitHubMetadatasService,
+    private githubService: GitHubService,
+    private telegramMetadataService: TelegramMetadatasService,
     private logtoManagementService: LogtoManagementService,
-    private logtoBindingsService: LogtoBindingsService, private auditLogService: AuditLogService,
-    configService: ConfigService, private sessionStorageService: SessionStorageService,
-    private apiKeysService: ApiKeysService) {
+    private logtoBindingsService: LogtoBindingsService,
+    private auditLogService: AuditLogService,
+    private entranceSoundService: EntranceSoundService,
+    private configService: ConfigService,
+    private sessionStorageService: SessionStorageService,
+    private apiKeysService: ApiKeysService
+  ) {
     this.githubOrganizationName = configService.getOrThrow('GITHUB_ORGANIZATION_NAME')
   }
 
@@ -149,6 +165,7 @@ export class MembersController {
     return {
       balance: member.balance.toFixed(MONEY_DECIMAL_PLACES),
       email: member.email,
+      entranceSound: member.entranceSound?.id ?? null,
       githubMetadata: member.githubMetadata
         ? {
             githubId: member.githubMetadata.githubId,
@@ -167,6 +184,40 @@ export class MembersController {
         : undefined,
       username: member.username
     }
+  }
+
+  @ApiBody({ type: EditEntranceSoundDTO })
+  @ApiCookieAuth()
+  @ApiOperation({
+    description: 'Change entrance sound for member. Null removes entrance sound.',
+    summary: 'Change Sound'
+  })
+  @Patch(':id/entrance-sound')
+  async changeEntranceSound (
+    @UserId() actorId: string,
+    @Param('id') id: string,
+    @Body() request: EditEntranceSoundDTO
+  ): Promise<void> {
+    const actor = await getValidActor(this.membersService, actorId)
+    const member = await this.membersService.findById(id)
+    if (!member) {
+      throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND)
+    }
+
+    if (request.id) {
+      const entranceSound = await this.entranceSoundService.getById(request.id)
+      member.entranceSound = entranceSound
+    } else {
+      member.entranceSound = null
+    }
+
+    await this.membersService.transaction(async manager => {
+      await this.membersService.for(manager).update(member)
+      await this.auditLogService.for(manager).create('update-entrance-sound', actor, {
+        entranceSoundId: member.entranceSound?.id ?? null,
+        memberId: member.id
+      })
+    })
   }
 
   @ApiBody({

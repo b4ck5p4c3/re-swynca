@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
 import { promises as fsPromises } from 'node:fs'
-import * as path from 'node:path'
+import path from 'node:path'
 
 import { AppModule } from './app.module'
 import { SESSION_COOKIE_NAME } from './auth/auth.service'
@@ -11,15 +11,15 @@ import { SESSION_COOKIE_NAME } from './auth/auth.service'
 async function bootstrap () {
   const app = await NestFactory.create(
     AppModule,
-    process.env.NODE_ENV === 'development'
-      ? {
+    process.env.NODE_ENV === 'production'
+      ? undefined
+      : {
           cors: {
             allowedHeaders: ['Cookie', 'Content-Type'],
             credentials: true,
             origin: 'http://localhost:3000',
           },
         }
-      : undefined
   )
 
   app.use(cookieParser())

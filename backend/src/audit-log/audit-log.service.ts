@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { EntityManager, FindOptionsOrder, IsNull, Repository } from 'typeorm'
+import { EntityManager, IsNull, Repository } from 'typeorm'
 
 import { ACSKeyType } from '../common/database/entities/acs-key.entity'
 import { AuditLog } from '../common/database/entities/audit-log.entity'
 import { TransactionType } from '../common/database/entities/common'
 import {
-  MemberTransaction,
   MemberTransactionDeposit,
   MemberTransactionWithdrawal
 } from '../common/database/entities/member-transaction.entity'
@@ -15,7 +14,15 @@ import {
   SpaceTransactionDeposit,
   SpaceTransactionWithdrawal
 } from '../common/database/entities/space-transaction.entity'
-import { MONEY_DECIMAL_PLACES } from '../common/money'
+
+// Helper types to distinguish actions with and without metadata
+type ActionsWithMetadata = {
+  [K in keyof AuditLogEntry]: AuditLogEntry[K] extends undefined ? never : K
+}[keyof AuditLogEntry]
+
+type ActionsWithoutMetadata = {
+  [K in keyof AuditLogEntry]: AuditLogEntry[K] extends undefined ? K : never
+}[keyof AuditLogEntry]
 
 type AuditLogEntry = {
   'create-acs-key': {
@@ -99,6 +106,10 @@ type AuditLogEntry = {
   'unsubscribe-member': {
     membershipSubscriptionId: string
   },
+  'update-entrance-sound': {
+    entranceSoundId: null | string
+    memberId: string,
+  }
   'update-member': {
     email: string
     id: string,
@@ -129,8 +140,23 @@ export class AuditLogService {
     return await this.auditLogRepository.count()
   }
 
-  async create<TAction extends keyof AuditLogEntry>(action: TAction, actor: Member,
-    metadata: AuditLogEntry[TAction]): Promise<void> {
+  // Overload for actions without metadata (metadata parameter is optional)
+  async create (
+    action: ActionsWithoutMetadata,
+    actor: Member
+  ): Promise<void>
+  // Overload for actions with metadata (metadata parameter is required)
+  async create<TAction extends ActionsWithMetadata>(
+    action: TAction,
+    actor: Member,
+    metadata: AuditLogEntry[TAction]
+  ): Promise<void>
+  // Implementation signature
+  async create<TAction extends keyof AuditLogEntry>(
+    action: TAction,
+    actor: Member,
+    metadata?: AuditLogEntry[TAction]
+  ): Promise<void> {
     const auditLogEntry = this.auditLogRepository.create({
       action,
       actor,

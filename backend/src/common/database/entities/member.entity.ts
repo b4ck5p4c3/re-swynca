@@ -1,11 +1,12 @@
 import Decimal from 'decimal.js'
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, Unique } from 'typeorm'
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 
 import { MONEY_DECIMAL_PLACES, MONEY_PRECISION } from '../../money'
 import { DecimalTransformer } from '../transformers/decimal.transformer'
 import { ACSKey } from './acs-key.entity'
 import { ApiKey } from './api-key.entity'
 import { AuditLog } from './audit-log.entity'
+import { EntranceSound } from './entrance-sound.entity'
 import { GitHubMetadata } from './github-metadata.entity'
 import { LogtoBinding } from './logto-binding.entity'
 import { MAC } from './mac.entity'
@@ -42,8 +43,10 @@ export class Member {
   @Column('text', { unique: true })
   email: string
 
-  @Column('text')
-  entranceSound: string
+  // Sound to play on Razvalice when ACS key is used for entrance.
+  // Must be a enum value from TTS-supported. Refer to Razvalice workgroup for details.
+  @OneToMany(() => EntranceSound, entranceSound => entranceSound.id, { nullable: true })
+  entranceSound: EntranceSound | null
 
   @OneToOne(() => LogtoBinding, externalAuthenticationLogto =>
     externalAuthenticationLogto.member, { nullable: true })
