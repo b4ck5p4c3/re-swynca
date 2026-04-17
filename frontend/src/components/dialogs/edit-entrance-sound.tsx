@@ -51,7 +51,7 @@ export function EditEntranceSoundDialog({open, onClose, memberId, currentSoundId
         mutationFn: async (soundId: string | null) => {
             R(await client.PATCH("/api/members/{id}/entrance-sound", {
                 params: {path: {id: memberId}},
-                body: {id: soundId ?? ""}
+                body: {id: soundId && soundId !== 'none' ? soundId : ''}
             }));
         },
         onSuccess: async () => {
@@ -80,7 +80,7 @@ export function EditEntranceSoundDialog({open, onClose, memberId, currentSoundId
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
-                                <SelectItem value={""} key={"sound-none"}>
+                                <SelectItem value={"none"} key={"none"}>
                                     None
                                 </SelectItem>
                                 {entranceSounds.data?.map(sound =>
