@@ -37,7 +37,9 @@ export class ACSKeysService {
   async findForActiveMembers (): Promise<ACSKey[]> {
     return await this.acsKeyRepository.find({
       relations: {
-        member: true
+        member: {
+          entranceSound: true
+        }
       },
       where: {
         member: {

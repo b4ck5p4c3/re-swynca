@@ -107,6 +107,14 @@ class UpdateTelegramMetadataDTO {
   telegramId: string
 }
 
+export class MemberEntranceSoundDTO {
+  @ApiProperty({ format: 'uuid' })
+  id: string
+
+  @ApiProperty()
+  name: string
+}
+
 export class MemberDTO {
   @ApiProperty()
   balance: string
@@ -115,7 +123,7 @@ export class MemberDTO {
   email: string
 
   @ApiProperty({ required: false })
-  entranceSound?: string
+  entranceSound?: MemberEntranceSoundDTO
 
   @ApiProperty({ required: false })
   githubMetadata?: GitHubMetadataDTO
@@ -165,7 +173,12 @@ export class MembersController {
     return {
       balance: member.balance.toFixed(MONEY_DECIMAL_PLACES),
       email: member.email,
-      entranceSound: member.entranceSound?.id ?? null,
+      entranceSound: member.entranceSound
+        ? {
+            id: member.entranceSound.id,
+            name: member.entranceSound.name
+          }
+        : undefined,
       githubMetadata: member.githubMetadata
         ? {
             githubId: member.githubMetadata.githubId,

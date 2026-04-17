@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common'
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { EmptyResponse } from 'src/common/utils'
 
 import { EntranceSoundListResponseDto } from './dto/entrance-sound-list-response.dto'
 import { EntranceSoundDto } from './dto/entrance-sound.dto'
@@ -34,7 +35,8 @@ export class EntranceSoundController {
     summary: 'Play an entrance sound'
   })
   @Post('play')
-  async playSound (@Body() input: PlayEntranceSoundRequestDto): Promise<void> {
-    return this.entranceSoundService.playSound(input)
+  async playSound (@Body() input: PlayEntranceSoundRequestDto): Promise<EmptyResponse> {
+    this.entranceSoundService.playSound(input)
+    return {}
   }
 }
