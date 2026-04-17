@@ -382,6 +382,20 @@ export class MembersController {
       .filter(Boolean)
   }
 
+  async removeMemberFromGitHubOrganization (member: Member): Promise<void> {
+    try {
+      const oldGitHubId = member.githubMetadata.githubId
+      const oldGitHubUsername = await this.githubService.getUsernameById(oldGitHubId)
+      if (oldGitHubUsername) {
+        await this.githubService.removeOrganizationMemberForUser(this.githubOrganizationName, oldGitHubUsername)
+      }
+    } catch {
+      this.logger.warn(`Failed to remove old GitHub user from organization (${
+                member.githubMetadata.githubId}/${member.githubMetadata.githubUsername}), user ${member.id}/${member.name}`)
+    }
+  }
+
+  // eslint-disable-next-line perfectionist/sort-classes
   @ApiCookieAuth()
   @ApiDefaultResponse({
     description: 'Erroneous response',
@@ -401,19 +415,6 @@ export class MembersController {
       throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND)
     }
     return MembersController.mapToDTO(member)
-  }
-
-  async removeMemberFromGitHubOrganization (member: Member): Promise<void> {
-    try {
-      const oldGitHubId = member.githubMetadata.githubId
-      const oldGitHubUsername = await this.githubService.getUsernameById(oldGitHubId)
-      if (oldGitHubUsername) {
-        await this.githubService.removeOrganizationMemberForUser(this.githubOrganizationName, oldGitHubUsername)
-      }
-    } catch {
-      this.logger.warn(`Failed to remove old GitHub user from organization (${
-                member.githubMetadata.githubId}/${member.githubMetadata.githubUsername}), user ${member.id}/${member.name}`)
-    }
   }
 
   @ApiCookieAuth()
