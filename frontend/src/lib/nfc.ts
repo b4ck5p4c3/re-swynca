@@ -29,16 +29,15 @@ export function convertPlantainPANToUID(rawPan: string): string {
 
   // Remove prefix and check digit (last digit)
   const numStr = pan.slice(PLANTAIN_PAN_PREFIX.length, -1);
-  const num = parseInt(numStr, 10);
 
-  // Convert number back to UID bytes
+  // Use BigInt to avoid precision loss for 17-digit numbers (> Number.MAX_SAFE_INTEGER)
   const uid: number[] = [];
-  let remaining = num;
+  let remaining = BigInt(numStr);
 
   // Extract first 7 bytes (56 bits) from the number
   for (let i = 0; i < 7; i++) {
-    uid.push(remaining & 0xFF);
-    remaining = Math.floor(remaining / 256);
+    uid.push(Number(remaining & 0xFFn));
+    remaining >>= 8n;
   }
 
   // Convert to hex
