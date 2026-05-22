@@ -81,6 +81,7 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
+  "packageManager": "pnpm@10.5.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@nestjs/core",
