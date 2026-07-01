@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post } from '@nestjs/common'
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { EmptyResponse } from 'src/common/utils'
 
@@ -6,11 +6,16 @@ import { EntranceSoundListResponseDto } from './dto/entrance-sound-list-response
 import { EntranceSoundDto } from './dto/entrance-sound.dto'
 import { PlayEntranceSoundRequestDto } from './dto/play-entrance-sound-request.dto'
 import { EntranceSoundService } from './entrance-sound.service'
+import { Errors } from 'src/common/errors'
 
 @ApiTags('entrance-sound')
 @Controller('entrance-sound')
 export class EntranceSoundController {
-  constructor (private readonly entranceSoundService: EntranceSoundService) {}
+  private readonly logger = new Logger(EntranceSoundController.name)
+
+  constructor (
+    private readonly entranceSoundService: EntranceSoundService,
+  ) {}
 
   @ApiCookieAuth()
   @ApiOperation({
@@ -36,7 +41,14 @@ export class EntranceSoundController {
   })
   @Post('play')
   async playSound (@Body() input: PlayEntranceSoundRequestDto): Promise<EmptyResponse> {
-    this.entranceSoundService.playSound(input)
+    try {
+      await this.entranceSoundService.playSound(input)
+    } catch (error) {
+      // As we don't have a global interceptor for handling external dependency interaction errors,
+      // we simply throw a Quasar error code here.
+      this.logger.error(`Failed to play entrance sound with ID ${input.id}: ${error}`)
+      throw new HttpException(Errors.QUASAR_TTS_ERROR, HttpStatus.SERVICE_UNAVAILABLE)
+    }
     return {}
   }
 }

@@ -23,5 +23,6 @@ export const Errors = {
   NOT_AUTHORIZED: 'not-authorized',
   SPACE_BALANCE_IS_TOO_LOW: 'space-balance-is-too-low',
   SPACE_MEMBER_NOT_FOUND: 'space-member-not-found',
-  SUBJECT_MEMBER_NOT_FOUND: 'subject-member-not-found'
+  SUBJECT_MEMBER_NOT_FOUND: 'subject-member-not-found',
+  QUASAR_TTS_ERROR: 'quasar-tts-error',
 }
