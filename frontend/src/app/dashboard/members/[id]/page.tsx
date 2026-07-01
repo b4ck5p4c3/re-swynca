@@ -41,22 +41,10 @@ function BkspIdSection() {
         <div className="flex flex-row gap-4">
             <a 
                 className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
-                href="https://id.bksp.in/account/passkey/manage"
+                href="https://id.bksp.in/account/security"
                 target="_blank"
                 rel="noopener noreferrer"
-            >Manage Passkeys ↗</a>
-            <a 
-                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
-                href="https://id.bksp.in/account/authenticator-app/replace"
-                target="_blank"
-                rel="noopener noreferrer"
-            >Manage TOTP ↗</a>
-            <a 
-                className="inline-flex p-2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer"
-                href="https://id.bksp.in/account/password"
-                target="_blank"
-                rel="noopener noreferrer"
-            >Change Password ↗</a>
+            >Account Centre ↗</a>
         </div>
     </section>
 }
