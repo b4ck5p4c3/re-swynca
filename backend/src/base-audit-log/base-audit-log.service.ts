@@ -11,7 +11,7 @@ import {
   TransactionLike,
   TransactionRequest, TypedDataDomain, TypedDataField
 } from 'ethers'
-import { CompactEncrypt, importSPKI, KeyLike } from 'jose'
+import { CompactEncrypt, importSPKI, CryptoKey } from 'jose'
 import { readFileSync } from 'node:fs'
 import * as process from 'node:process'
 import { createBrotliCompress } from 'node:zlib'
@@ -67,7 +67,7 @@ class ExternalSigner extends AbstractSigner {
 
 @Injectable()
 export class BaseAuditLogService implements OnModuleInit {
-  private auditLogEncryptionPublicKey: KeyLike
+  private auditLogEncryptionPublicKey: CryptoKey
   private baseContractAddress: string
   private readonly baseJsonRpcProviderUrl: string
   private baseSignerAddress: string
