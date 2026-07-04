@@ -12,11 +12,17 @@ import {Button} from "@/components/ui/button";
 import {useState} from "react";
 import {CreateMemberDialog} from "@/components/dialogs/create-member";
 import {Money} from "@/components/money";
+import { Input } from "@/components/ui/input";
+
+function cleanFuzzySearch(text: string): string {
+    return text.replaceAll(/[^\p{L}\d]/gu, '')
+}
 
 export default function MembersPage() {
     const client = getClient();
 
     const [createMemberDialogOpened, setCreateMemberDialogOpened] = useState(false);
+    const [fuzzySearch, setFuzzySearch] = useState("")
 
     const members = useQuery({
         queryFn: async () => {
@@ -35,6 +41,10 @@ export default function MembersPage() {
             <div className={"flex-1"}/>
             <Button onClick={() => setCreateMemberDialogOpened(true)}>Create</Button>
         </div>
+        <div className={"flex flex-row"}>
+            <Input placeholder="Fuzzy search (name, e-mail, username, etc)" 
+                onChange={e => setFuzzySearch(e.target.value)} value={fuzzySearch} />
+        </div>
         <Table>
             <TableHeader>
                 <TableRow>
@@ -48,7 +58,15 @@ export default function MembersPage() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {members.data ? members.data.map(member => <TableRow key={member.id} className={"cursor-pointer"}
+                {members.data ? members.data.filter(member => {
+                    if (fuzzySearch === '') {
+                        return true
+                    }
+                    const text = member.name + member.email + member.username + 
+                        (member.telegramMetadata?.telegramName ?? '') + 
+                        (member.githubMetadata?.githubUsername ?? '')
+                    return cleanFuzzySearch(text).includes(cleanFuzzySearch(text));
+                }).map(member => <TableRow key={member.id} className={"cursor-pointer"}
                                                                      onClick={() => router.push(`/dashboard/members/${member.id}`)}>
                     <TableCell>{member.name}</TableCell>
                     <TableCell>{member.email}</TableCell>
