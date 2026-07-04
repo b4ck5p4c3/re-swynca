@@ -65,7 +65,7 @@ export default function MembersPage() {
                     const text = member.name + member.email + member.username + 
                         (member.telegramMetadata?.telegramName ?? '') + 
                         (member.githubMetadata?.githubUsername ?? '')
-                    return cleanFuzzySearch(text).includes(cleanFuzzySearch(text));
+                    return cleanFuzzySearch(text).includes(cleanFuzzySearch(fuzzySearch));
                 }).map(member => <TableRow key={member.id} className={"cursor-pointer"}
                                                                      onClick={() => router.push(`/dashboard/members/${member.id}`)}>
                     <TableCell>{member.name}</TableCell>
