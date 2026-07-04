@@ -82,6 +82,11 @@ export class MembersService {
 
   async findAll (): Promise<Member[]> {
     return await this.membersRepository.find({
+      order: {
+        joinedAt: 'desc',
+        // eslint-disable-next-line perfectionist/sort-objects
+        id: 'desc'
+      },
       relations: {
         entranceSound: true,
         githubMetadata: true,
