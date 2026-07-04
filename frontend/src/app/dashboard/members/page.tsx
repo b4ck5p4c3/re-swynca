@@ -15,7 +15,7 @@ import {Money} from "@/components/money";
 import { Input } from "@/components/ui/input";
 
 function cleanFuzzySearch(text: string): string {
-    return text.replaceAll(/[^\p{L}\d]/gu, '')
+    return text.replaceAll(/[^\p{L}\d]/gu, '').toLowerCase()
 }
 
 export default function MembersPage() {
