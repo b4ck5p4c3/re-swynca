@@ -145,9 +145,13 @@ export function CreateMemberTransactionDialog({open, onClose}: DefaultDialogProp
                                                 <PopoverContent className={"min-ww-[200px] p-0"}
                                                                 style={{width: memberSelectButtonRef.current?.clientWidth}}>
                                                     <Command filter={(value, search, keywords) => {
-                                                        const label = members.data ? formatMemberLabel(
-                                                            members.data.find((member) =>
-                                                                member.id === value)) ?? "" : "";
+                                                        const member = members.data ? members.data.find((member) =>
+                                                                member.id === value) : undefined;
+                                                        const label = member === undefined ? '' : (
+                                                            member.name + member.email + member.username + 
+                                                            (member.telegramMetadata?.telegramName ?? '') + 
+                                                            (member.githubMetadata?.githubUsername ?? '')
+                                                        )
                                                         return commandScore(label, search, keywords);
                                                     }}>
                                                         <CommandInput placeholder={"Search member..."}/>
