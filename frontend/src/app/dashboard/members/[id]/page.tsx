@@ -30,9 +30,10 @@ import {CreateMACDialog} from "@/components/dialogs/create-mac";
 import {EditEntranceSoundDialog} from "@/components/dialogs/edit-entrance-sound";
 import { getCurrentMemberId } from "@/lib/auth-storage";
 
-const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid", React.ReactNode> = {
+const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid" | "aliro", React.ReactNode> = {
     "pan": "💳",
-    "uid": "🔑"
+    "uid": "🔑",
+    "aliro": "🚪"
 };
 
 function BkspIdSection() {
@@ -325,7 +326,7 @@ export default function MemberPage() {
                             <TableRow key={acsKey.id}>
                                 <TableCell>{acsKey.name}</TableCell>
                                 <TableCell>{ACS_KEY_TYPE_MAPPING[acsKey.type]}</TableCell>
-                                <TableCell>{acsKey.key}</TableCell>
+                                <TableCell>{acsKey.key.slice(0, 40)}{acsKey.key.length > 40 ? "...": ""}</TableCell>
                                 <TableCell><Button disabled={removeACSKey.isPending} onClick={() => removeACSKey.mutate(acsKey.id)} variant={"destructive"}
                                                    className={"w-8 p-0 h-8"}><Trash
                                     className={"w-4 h-4"}/></Button></TableCell>

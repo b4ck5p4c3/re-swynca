@@ -41,7 +41,7 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                 body: {
                     memberId,
                     name: data.name,
-                    type: data.type as ("pan" | "uid"),
+                    type: data.type as ("pan" | "uid" | "aliro"),
                     key: data.key
                 }
             }));
@@ -102,6 +102,7 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                                                 <SelectGroup>
                                                     <SelectItem value={"uid"}>NFC UID</SelectItem>
                                                     <SelectItem value={"pan"}>Bank card PAN</SelectItem>
+                                                    <SelectItem value={"aliro"}>Aliro public key (HomeKey)</SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
@@ -117,11 +118,12 @@ export function CreateACSKeyDialog({open, onClose, memberId}: DefaultDialogProps
                                 const type = form.watch("type");
                                 return (
                                     <FormItem>
-                                        <FormLabel>{type === 'pan' ? 'Card No.' : 'NFC UID'}</FormLabel>
+                                        <FormLabel>{type === 'pan' ? 'Card No.' : type === 'aliro' ? 'Aliro public key (hex)' : 'NFC UID'}</FormLabel>
                                         <FormControl>
                                             <Input 
                                                 className="font-mono"
-                                                placeholder={type === "pan" ? "1234 5678 9012 3456" : "0123456789ABCD"} 
+                                                placeholder={type === "pan" ? "1234 5678 9012 3456" :
+                                                    type === 'aliro' ? "04113806febcc97532b423f3114e46e9..." : "0123456789ABCD"} 
                                                 disabled={addACSKey.isPending}  
                                                 {...field} 
                                             />
