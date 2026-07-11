@@ -3,6 +3,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { Member } from './member.entity'
 
 export enum ACSKeyType {
+  ALIRO = 'aliro',
   PAN = 'pan',
   UID = 'uid'
 }

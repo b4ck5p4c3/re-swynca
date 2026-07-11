@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import * as cookieParser from 'cookie-parser'
 import { promises as fsPromises } from 'node:fs'
-import path from 'node:path'
+import { join } from 'node:path'
 
 import { AppModule } from './app.module'
 import { SESSION_COOKIE_NAME } from './auth/auth.service'
@@ -36,7 +36,7 @@ async function bootstrap () {
 
   if (process.env.NODE_ENV === 'development') {
     await fsPromises.writeFile(
-      path.join(process.cwd(), 'openapi.json'),
+      join(process.cwd(), 'openapi.json'),
       JSON.stringify(document, null, 4)
     )
   }
