@@ -41,6 +41,7 @@ class ACSKeyDTO {
 }
 
 class ACSKeysSystemResponseDTO {
+  aliro: Record<string, string>
   pans: Record<string, string>
   uids: Record<string, string>
 }
@@ -150,11 +151,16 @@ export class ACSKeysController {
   @UseGuards(AcsKeysSystemApiAuthGuard)
   async findAllForACSSystem (): Promise<ACSKeysSystemResponseDTO> {
     const result: ACSKeysSystemResponseDTO = {
+      aliro: {},
       pans: {},
-      uids: {}
+      uids: {},
     }
     for (const acsKey of await this.acsKeysService.findForActiveMembers()) {
       switch (acsKey.type) {
+        case ACSKeyType.ALIRO: {
+          result.aliro[acsKey.key] = `${acsKey.id}/${acsKey.member.id}/${acsKey.member.entranceSound?.key ?? 'null'}`
+          break
+        }
         case ACSKeyType.PAN: {
           result.pans[acsKey.key] = `${acsKey.id}/${acsKey.member.id}/${acsKey.member.entranceSound?.key ?? 'null'}`
           break
