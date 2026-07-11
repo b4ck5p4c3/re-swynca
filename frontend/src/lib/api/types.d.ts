@@ -113,6 +113,23 @@ export interface paths {
         patch: operations["MembersController_updateTelegramMetadata"];
         trace?: never;
     };
+    "/api/members/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get stats of all members */
+        get: operations["MembersController_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/members/{id}": {
         parameters: {
             query?: never;
@@ -129,23 +146,6 @@ export interface paths {
         head?: never;
         /** Update member */
         patch: operations["MembersController_update"];
-        trace?: never;
-    };
-    "/api/members/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get stats of all members */
-        get: operations["MembersController_stats"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
         trace?: never;
     };
     "/api/members/{id}/status": {
@@ -660,7 +660,7 @@ export interface components {
             memberId: string;
             name: string;
             /** @enum {string} */
-            type: "pan" | "uid";
+            type: "aliro" | "pan" | "uid";
         };
         ACSKeyDTO: {
             /** Format: uuid */
@@ -670,7 +670,7 @@ export interface components {
             memberId: string;
             name: string;
             /** @enum {string} */
-            type: "pan" | "uid";
+            type: "aliro" | "pan" | "uid";
         };
         CreateMemberTransactionDTO: {
             amount: string;
@@ -1110,6 +1110,35 @@ export interface operations {
             };
         };
     };
+    MembersController_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberStatsDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
     MembersController_findById: {
         parameters: {
             query?: never;
@@ -1163,35 +1192,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberDTO"];
-                };
-            };
-            /** @description Erroneous response */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorApiResponse"];
-                };
-            };
-        };
-    };
-    MembersController_stats: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MemberStatsDTO"];
                 };
             };
             /** @description Erroneous response */
