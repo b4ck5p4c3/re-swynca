@@ -11,7 +11,8 @@ export function setCurrentMemberId(id: string): void {
 export function getCurrentMemberId(): string {
      const memberId = localStorage.getItem(CURRENT_MEMBER_ID_LOCAL_STORAGE_KEY);
      if (!memberId) {
-         throw new UnauthorizedError("Member ID not found in localstorage");
+         // throw new UnauthorizedError("Member ID not found in localstorage");
+         return '';
      }
      return memberId;
 }

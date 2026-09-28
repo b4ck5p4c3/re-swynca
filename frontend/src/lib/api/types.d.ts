@@ -148,6 +148,23 @@ export interface paths {
         patch: operations["MembersController_update"];
         trace?: never;
     };
+    "/api/members/{id}/presence-stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change presence stats enabled for member */
+        patch: operations["MembersController_updatePresenceStats"];
+        trace?: never;
+    };
     "/api/members/{id}/status": {
         parameters: {
             query?: never;
@@ -628,6 +645,7 @@ export interface components {
             /** Format: date-time */
             joinedAt: string;
             name: string;
+            presenceStatsEnabled: boolean;
             /** @enum {string} */
             status: "active" | "frozen";
             telegramMetadata?: components["schemas"]["TelegramMetadataDTO"];
@@ -639,6 +657,9 @@ export interface components {
         };
         UpdateGitHubMetadataDTO: {
             githubUsername: string;
+        };
+        UpdatePresenceStatsEnabledDTO: {
+            enabled: boolean;
         };
         UpdateStatusDTO: {
             /** @enum {string} */
@@ -1182,6 +1203,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["CreateUpdateMemberDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_updatePresenceStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePresenceStatsEnabledDTO"];
             };
         };
         responses: {

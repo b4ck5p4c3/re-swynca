@@ -65,6 +65,9 @@ export class Member {
   @Column('text')
   name: string
 
+  @Column('boolean', { default: false })
+  presenceStatsEnabled: boolean
+
   @Column({ default: MemberStatus.ACTIVE, enum: MemberStatus, type: 'enum' })
   status: MemberStatus
 

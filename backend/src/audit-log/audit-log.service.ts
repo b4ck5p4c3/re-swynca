@@ -94,6 +94,10 @@ type AuditLogEntry = {
     id: string
   },
   'logto-authorize': undefined,
+  'member-presence-stats-enabled': {
+    id: string,
+    presenceStatsEnabled: boolean,
+  },
   'subscribe-member': {
     memberId: string,
     membershipId: string,

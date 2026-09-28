@@ -604,6 +604,62 @@
                 ]
             }
         },
+        "/api/members/{id}/presence-stats": {
+            "patch": {
+                "operationId": "MembersController_updatePresenceStats",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePresenceStatsEnabledDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ],
+                "summary": "Change presence stats enabled for member",
+                "tags": [
+                    "members"
+                ]
+            }
+        },
         "/api/members/{id}/status": {
             "patch": {
                 "operationId": "MembersController_updateStatus",
@@ -2106,6 +2162,9 @@
                     "name": {
                         "type": "string"
                     },
+                    "presenceStatsEnabled": {
+                        "type": "boolean"
+                    },
                     "status": {
                         "type": "string",
                         "enum": [
@@ -2126,6 +2185,7 @@
                     "id",
                     "joinedAt",
                     "name",
+                    "presenceStatsEnabled",
                     "status",
                     "username"
                 ]
@@ -2154,6 +2214,17 @@
                 },
                 "required": [
                     "githubUsername"
+                ]
+            },
+            "UpdatePresenceStatsEnabledDTO": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "enabled"
                 ]
             },
             "UpdateStatusDTO": {

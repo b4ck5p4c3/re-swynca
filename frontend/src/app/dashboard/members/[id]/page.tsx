@@ -29,6 +29,8 @@ import {UpdateUsernameDialog} from "@/components/dialogs/update-username";
 import {CreateMACDialog} from "@/components/dialogs/create-mac";
 import {EditEntranceSoundDialog} from "@/components/dialogs/edit-entrance-sound";
 import { getCurrentMemberId } from "@/lib/auth-storage";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid" | "aliro", React.ReactNode> = {
     "pan": "💳",
@@ -192,6 +194,24 @@ export default function MemberPage() {
         }
     });
 
+    const updateMemberPresenceStatsEnabled = useMutation({
+        mutationFn: async (data: boolean) => {
+            R(await client.PATCH("/api/members/{id}/presence-stats", {
+                params: {
+                    path: {
+                        id
+                    }
+                },
+                body: {
+                    enabled: data
+                }
+            }))
+        },
+        onSuccess: async () => {
+            await queryClient.refetchQueries({queryKey: [MEMBER_QUERY_KEY, id]});
+        }
+    })
+
     const removeMAC = useMutation(({
         mutationFn: async (id: string) => {
             R(await client.DELETE("/api/macs/{id}", {
@@ -344,6 +364,12 @@ export default function MemberPage() {
                 <div className={"text-xl font-semibold"}>MACs:</div>
                 <div className={"flex-1"}/>
                 <Button onClick={() => setCreateMACDialogOpened(true)}>Add</Button>
+            </div>
+            <div className={"flex flex-row items-center space-x-2"}>
+                <Switch id={"enable-stats"} disabled={!member.data || updateMemberPresenceStatsEnabled.isPending}
+                    onCheckedChange={(enable) => updateMemberPresenceStatsEnabled.mutate(enable)} 
+                    checked={member.data?.presenceStatsEnabled ?? false} />
+                <Label htmlFor={"enable-stats"}>Enable presence statistics</Label>
             </div>
             <Table>
                 <TableHeader>

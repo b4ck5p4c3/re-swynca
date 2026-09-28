@@ -54,6 +54,8 @@ class MacsSystemResponseDTO {
     memberId: string;
     memberUsername: string;
   }[]
+
+  statsEnabled: Record<string, boolean>
 }
 
 @ApiTags('macs')
@@ -109,7 +111,11 @@ export class MACsController {
   @UseGuards(MacsSystemApiAuthGuard)
   async findAll (): Promise<MacsSystemResponseDTO> {
     const result: MacsSystemResponseDTO = {
-      macs: []
+      macs: [],
+      statsEnabled: {}
+    }
+    for (const member of await this.membersService.findAllActive()) {
+      result.statsEnabled[member.id] = member.presenceStatsEnabled
     }
     for (const mac of await this.macsService.findForActiveMembers()) {
       result.macs.push({

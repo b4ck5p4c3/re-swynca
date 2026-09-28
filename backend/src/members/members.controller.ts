@@ -21,7 +21,7 @@ import {
   ApiProperty,
   ApiTags
 } from '@nestjs/swagger'
-import { IsEmail, IsEnum, IsNotEmpty, Matches } from 'class-validator'
+import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, Matches } from 'class-validator'
 import { EntranceSoundService } from 'src/entrance-sound/entrance-sound.service'
 
 import { ApiKeysService } from '../api-keys/api-keys.service'
@@ -93,6 +93,13 @@ class UpdateGitHubMetadataDTO {
   githubUsername: string
 }
 
+class UpdatePresenceStatsEnabledDTO {
+  @ApiProperty()
+  @IsBoolean()
+  @IsNotEmpty()
+  enabled: boolean
+}
+
 class UpdateStatusDTO {
   @ApiProperty({ enum: MemberStatus })
   @IsEnum(MemberStatus)
@@ -136,6 +143,9 @@ export class MemberDTO {
 
   @ApiProperty()
   name: string
+
+  @ApiProperty()
+  presenceStatsEnabled: boolean
 
   @ApiProperty({ enum: MemberStatus })
   status: MemberStatus
@@ -188,6 +198,7 @@ export class MembersController {
       id: member.id,
       joinedAt: member.joinedAt.toISOString(),
       name: member.name,
+      presenceStatsEnabled: member.presenceStatsEnabled,
       status: member.status,
       telegramMetadata: member.telegramMetadata
         ? {
@@ -576,6 +587,46 @@ export class MembersController {
       })
 
     return {}
+  }
+
+  @ApiBody({
+    type: UpdatePresenceStatsEnabledDTO
+  })
+  @ApiCookieAuth()
+  @ApiDefaultResponse({
+    description: 'Erroneous response',
+    type: ErrorApiResponse
+  })
+  @ApiOkResponse({
+    description: 'Successful response',
+    type: MemberDTO
+  })
+  @ApiOperation({
+    summary: 'Change presence stats enabled for member'
+  })
+  @Patch(':id/presence-stats')
+  async updatePresenceStats (@UserId() actorId: string, @Param('id') id: string, @Body() request: UpdatePresenceStatsEnabledDTO): Promise<MemberDTO> {
+    const actor = await getValidActor(this.membersService, actorId)
+
+    return MembersController.mapToDTO(await this.membersService.transaction(async (manager) => {
+      const memberWithoutRelations = await this.membersService.for(manager).findByIdLocked(id)
+      if (!memberWithoutRelations) {
+        throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND)
+      }
+
+      const member = await this.membersService.for(manager).findById(id)
+
+      member.presenceStatsEnabled = request.enabled
+
+      await this.auditLogService.for(manager).create('member-presence-stats-enabled',
+        actor, {
+          id: member.id,
+          presenceStatsEnabled: member.presenceStatsEnabled
+        })
+
+      await this.membersService.for(manager).update(member)
+      return member
+    }))
   }
 
   @ApiBody({
