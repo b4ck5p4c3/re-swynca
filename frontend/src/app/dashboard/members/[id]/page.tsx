@@ -7,6 +7,7 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {
     MEMBER_ACS_KEYS_QUERY_KEY, MEMBER_MACS_QUERY_KEY,
     MEMBER_QUERY_KEY,
+    MEMBER_REALSENSE_KEY,
     MEMBER_SUBSCRIPTIONS_QUERY_KEY,
     MEMBERSHIPS_QUERY_KEY
 } from "@/lib/cache-tags";
@@ -31,6 +32,7 @@ import {EditEntranceSoundDialog} from "@/components/dialogs/edit-entrance-sound"
 import { getCurrentMemberId } from "@/lib/auth-storage";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { EnrollRealSenseDialog } from "@/components/dialogs/enroll-realsense";
 
 const ACS_KEY_TYPE_MAPPING: Record<"pan" | "uid" | "aliro", React.ReactNode> = {
     "pan": "💳",
@@ -60,6 +62,7 @@ export default function MemberPage() {
     const [updateEMailDialogOpened, setUpdateEMailDialogOpened] = useState(false);
     const [updateUsernameDialogOpened, setUpdateUsernameDialogOpened] = useState(false);
     const [editEntranceSoundDialogOpened, setEditEntranceSoundDialogOpened] = useState(false);
+    const [enrollRealSenseDialogOpened, setEnrollRealSenseDialogOpened] = useState(false);
 
     const client = getClient();
 
@@ -227,6 +230,35 @@ export default function MemberPage() {
         }
     }));
 
+    const realSenseStatus = useQuery({
+        queryFn: async () => {
+            const response = R(await client.GET("/api/members/{id}/realsense", {
+                params: {
+                    path: {
+                        id
+                    }
+                }
+            }))
+            return response.data!
+        },
+        queryKey: [MEMBER_REALSENSE_KEY, id]
+    })
+
+    const removeRealSenseEnrollment = useMutation({
+        mutationFn: async () => {
+            R(await client.DELETE("/api/members/{id}/realsense", {
+                params: {
+                    path: {
+                        id
+                    }
+                }
+            }))
+        },
+        onSuccess: async () => {
+            await queryClient.refetchQueries({queryKey: [MEMBER_REALSENSE_KEY, id]});
+        }
+    })
+
     return <div>
         <div className={"flex flex-col gap-4"}>
             <MemberInfoRow collapseWhenSm={true} title={"Name"}>{member.data ? <div className={"flex flex-row gap-2"}>
@@ -328,6 +360,16 @@ export default function MemberPage() {
             </Table>
             <Separator/>
             <div className={"flex flex-row"}>
+                <div className={"text-xl font-semibold"}>RealSense:</div>
+            </div>
+            <div className={"flex flex-row"}>
+                {realSenseStatus.data ? (realSenseStatus.data.enrolled ? 
+                <Button onClick={() => setEnrollRealSenseDialogOpened(true)}>Enroll</Button> : 
+                <Button variant={"destructive"} 
+                    onClick={() => removeRealSenseEnrollment.mutate()}>Remove enrollment</Button>) : 
+                <Skeleton className={"h-[24px] w-full"}/>}
+            </div>
+            <div className={"flex flex-row"}>
                 <div className={"text-xl font-semibold"}>ACS keys:</div>
                 <div className={"flex-1"}/>
                 <Button onClick={() => setCreateACSKeyDialogOpened(true)}>Add</Button>
@@ -419,5 +461,8 @@ export default function MemberPage() {
                                  onClose={() => setEditEntranceSoundDialogOpened(false)}
                                  memberId={id}
                                  currentSoundId={member.data?.entranceSound?.id}/>
+        <EnrollRealSenseDialog open={enrollRealSenseDialogOpened}
+                                 onClose={() => setEnrollRealSenseDialogOpened(false)}
+                                 memberId={id}/>
     </div>;
 }

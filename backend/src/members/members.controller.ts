@@ -23,6 +23,7 @@ import {
 } from '@nestjs/swagger'
 import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, Matches } from 'class-validator'
 import { EntranceSoundService } from 'src/entrance-sound/entrance-sound.service'
+import { RealSenseService } from 'src/realsense/realsense.service'
 
 import { ApiKeysService } from '../api-keys/api-keys.service'
 import { AuditLogService } from '../audit-log/audit-log.service'
@@ -157,6 +158,19 @@ export class MemberDTO {
   username: string
 }
 
+export class RealSenseEnrollmentResponse {
+  @ApiProperty()
+  enrolled: boolean
+}
+
+export class RealSenseEnrollResponse {
+  @ApiProperty()
+  status: string
+
+  @ApiProperty()
+  success: boolean
+}
+
 @ApiTags('members')
 @Controller('members')
 export class MembersController {
@@ -174,7 +188,8 @@ export class MembersController {
     private entranceSoundService: EntranceSoundService,
     private configService: ConfigService,
     private sessionStorageService: SessionStorageService,
-    private apiKeysService: ApiKeysService
+    private apiKeysService: ApiKeysService,
+    private realSenseService: RealSenseService
   ) {
     this.githubOrganizationName = configService.getOrThrow('GITHUB_ORGANIZATION_NAME')
   }
@@ -386,6 +401,40 @@ export class MembersController {
   })
   @ApiOkResponse({
     description: 'Successful response',
+    type: RealSenseEnrollResponse
+  })
+  @ApiOperation({
+    summary: 'Enroll member to RealSense'
+  })
+  @Post(':id/realsense')
+  async enrollRealSense (@UserId() actorId: string, @Param('id') id: string): Promise<EmptyResponse> {
+    const actor = await getValidActor(this.membersService, actorId)
+    const member = await this.membersService.findById(id)
+    if (!member) {
+      throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND)
+    }
+
+    const enrollResult = await this.realSenseService.enrollMember(member.id)
+
+    await this.auditLogService.create('enroll-realsense-for-member', actor, {
+      id: member.id,
+      status: enrollResult.status,
+      success: enrollResult.success
+    })
+
+    return {
+      status: enrollResult.status,
+      success: enrollResult.success
+    }
+  }
+
+  @ApiCookieAuth()
+  @ApiDefaultResponse({
+    description: 'Erroneous response',
+    type: ErrorApiResponse
+  })
+  @ApiOkResponse({
+    description: 'Successful response',
     type: [MemberDTO]
   })
   @ApiOperation({
@@ -404,6 +453,30 @@ export class MembersController {
     const members = await this.membersService.findAllActive()
     return members.map(member => member.githubMetadata?.githubUsername)
       .filter(Boolean)
+  }
+
+  @ApiCookieAuth()
+  @ApiDefaultResponse({
+    description: 'Erroneous response',
+    type: ErrorApiResponse
+  })
+  @ApiOkResponse({
+    description: 'Successful response',
+    type: RealSenseEnrollmentResponse
+  })
+  @ApiOperation({
+    summary: 'Get RealSense enrollment status for member'
+  })
+  @Get(':id/realsense')
+  async getRealSenseEnrollment (@Param('id') id: string): Promise<EmptyResponse> {
+    const member = await this.membersService.findById(id)
+    if (!member) {
+      throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND)
+    }
+
+    return {
+      enrolled: await this.realSenseService.getMemberEnrollmentStatus(member.id)
+    }
   }
 
   async removeMemberFromGitHubOrganization (member: Member): Promise<void> {
@@ -426,16 +499,26 @@ export class MembersController {
   })
   @ApiOkResponse({
     description: 'Successful response',
-    type: MemberStatsDTO
+    type: EmptyResponse
   })
   @ApiOperation({
-    summary: 'Get stats of all members'
+    summary: 'Get RealSense enrollment status for member'
   })
-  @Get('stats')
-  async stats (): Promise<MemberStatsDTO> {
-    return {
-      count: await this.membersService.countActive()
+  @Delete(':id/realsense')
+  async removeMemberFromRealSense (@UserId() actorId: string, @Param('id') id: string): Promise<EmptyResponse> {
+    const actor = await getValidActor(this.membersService, actorId)
+    const member = await this.membersService.findById(id)
+    if (!member) {
+      throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND)
     }
+
+    await this.realSenseService.removeMember(member.id)
+
+    await this.auditLogService.create('remove-member-from-realsense', actor, {
+      id: member.id
+    })
+
+    return {}
   }
 
   // eslint-disable-next-line perfectionist/sort-classes
@@ -458,6 +541,25 @@ export class MembersController {
       throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND)
     }
     return MembersController.mapToDTO(member)
+  }
+
+  @ApiCookieAuth()
+  @ApiDefaultResponse({
+    description: 'Erroneous response',
+    type: ErrorApiResponse
+  })
+  @ApiOkResponse({
+    description: 'Successful response',
+    type: MemberStatsDTO
+  })
+  @ApiOperation({
+    summary: 'Get stats of all members'
+  })
+  @Get('stats')
+  async stats (): Promise<MemberStatsDTO> {
+    return {
+      count: await this.membersService.countActive()
+    }
   }
 
   @ApiBody({

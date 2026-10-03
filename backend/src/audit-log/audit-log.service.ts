@@ -90,6 +90,11 @@ type AuditLogEntry = {
   'delete-member-telegram-metadata': {
     memberId: string
   },
+  'enroll-realsense-for-member': {
+    id: string,
+    status: string
+    success: boolean,
+  },
   'freeze-member': {
     id: string
   },
@@ -97,6 +102,9 @@ type AuditLogEntry = {
   'member-presence-stats-enabled': {
     id: string,
     presenceStatsEnabled: boolean,
+  },
+  'remove-member-from-realsense': {
+    id: string
   },
   'subscribe-member': {
     memberId: string,

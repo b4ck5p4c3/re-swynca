@@ -113,18 +113,20 @@ export interface paths {
         patch: operations["MembersController_updateTelegramMetadata"];
         trace?: never;
     };
-    "/api/members/stats": {
+    "/api/members/{id}/realsense": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get stats of all members */
-        get: operations["MembersController_stats"];
+        /** Get RealSense enrollment status for member */
+        get: operations["MembersController_getRealSenseEnrollment"];
         put?: never;
-        post?: never;
-        delete?: never;
+        /** Enroll member to RealSense */
+        post: operations["MembersController_enrollRealSense"];
+        /** Get RealSense enrollment status for member */
+        delete: operations["MembersController_removeMemberFromRealSense"];
         options?: never;
         head?: never;
         patch?: never;
@@ -146,6 +148,23 @@ export interface paths {
         head?: never;
         /** Update member */
         patch: operations["MembersController_update"];
+        trace?: never;
+    };
+    "/api/members/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get stats of all members */
+        get: operations["MembersController_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/members/{id}/presence-stats": {
@@ -652,6 +671,13 @@ export interface components {
             username: string;
         };
         EmptyResponse: Record<string, never>;
+        RealSenseEnrollResponse: {
+            status: string;
+            success: boolean;
+        };
+        RealSenseEnrollmentResponse: {
+            enrolled: boolean;
+        };
         MemberStatsDTO: {
             count: number;
         };
@@ -1131,11 +1157,13 @@ export interface operations {
             };
         };
     };
-    MembersController_stats: {
+    MembersController_getRealSenseEnrollment: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1146,7 +1174,69 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MemberStatsDTO"];
+                    "application/json": components["schemas"]["RealSenseEnrollmentResponse"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_enrollRealSense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RealSenseEnrollResponse"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_removeMemberFromRealSense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmptyResponse"];
                 };
             };
             /** @description Erroneous response */
@@ -1213,6 +1303,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberDTO"];
+                };
+            };
+            /** @description Erroneous response */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorApiResponse"];
+                };
+            };
+        };
+    };
+    MembersController_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberStatsDTO"];
                 };
             };
             /** @description Erroneous response */

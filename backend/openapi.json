@@ -467,17 +467,26 @@
                 ]
             }
         },
-        "/api/members/stats": {
-            "get": {
-                "operationId": "MembersController_stats",
-                "parameters": [],
+        "/api/members/{id}/realsense": {
+            "post": {
+                "operationId": "MembersController_enrollRealSense",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MemberStatsDTO"
+                                    "$ref": "#/components/schemas/RealSenseEnrollResponse"
                                 }
                             }
                         }
@@ -498,7 +507,95 @@
                         "cookie": []
                     }
                 ],
-                "summary": "Get stats of all members",
+                "summary": "Enroll member to RealSense",
+                "tags": [
+                    "members"
+                ]
+            },
+            "get": {
+                "operationId": "MembersController_getRealSenseEnrollment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RealSenseEnrollmentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ],
+                "summary": "Get RealSense enrollment status for member",
+                "tags": [
+                    "members"
+                ]
+            },
+            "delete": {
+                "operationId": "MembersController_removeMemberFromRealSense",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ],
+                "summary": "Get RealSense enrollment status for member",
                 "tags": [
                     "members"
                 ]
@@ -599,6 +696,43 @@
                     }
                 ],
                 "summary": "Update member",
+                "tags": [
+                    "members"
+                ]
+            }
+        },
+        "/api/members/stats": {
+            "get": {
+                "operationId": "MembersController_stats",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MemberStatsDTO"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Erroneous response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookie": []
+                    }
+                ],
+                "summary": "Get stats of all members",
                 "tags": [
                     "members"
                 ]
@@ -2193,6 +2327,32 @@
             "EmptyResponse": {
                 "type": "object",
                 "properties": {}
+            },
+            "RealSenseEnrollResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "status",
+                    "success"
+                ]
+            },
+            "RealSenseEnrollmentResponse": {
+                "type": "object",
+                "properties": {
+                    "enrolled": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "enrolled"
+                ]
             },
             "MemberStatsDTO": {
                 "type": "object",

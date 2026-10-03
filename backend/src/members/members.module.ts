@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { EntranceSoundModule } from 'src/entrance-sound/entrance-sound.module'
+import { RealSenseModule } from 'src/realsense/realsense.module'
 
 import { ApiKeysModule } from '../api-keys/api-keys.module'
 import { AuditLogModule } from '../audit-log/audit-log.module'
@@ -29,7 +30,8 @@ import { MembersService } from './members.service'
     ConfigModule,
     SessionStorageModule,
     ApiKeysModule,
-    EntranceSoundModule
+    EntranceSoundModule,
+    RealSenseModule
   ],
   providers: [MembersService]
 })
