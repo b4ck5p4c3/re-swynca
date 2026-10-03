@@ -366,7 +366,8 @@ export default function MemberPage() {
                 {realSenseStatus.data ? (!realSenseStatus.data.enrolled ? 
                 <Button onClick={() => setEnrollRealSenseDialogOpened(true)}>Enroll</Button> : 
                 <Button variant={"destructive"} 
-                    onClick={() => removeRealSenseEnrollment.mutate()}>Remove enrollment</Button>) : 
+                    onClick={() => removeRealSenseEnrollment.mutate()} 
+                    disabled={removeRealSenseEnrollment.isPending}>Remove enrollment</Button>) : 
                 <Skeleton className={"h-[24px] w-full"}/>}
             </div>
             <div className={"flex flex-row"}>
