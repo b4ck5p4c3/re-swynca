@@ -225,6 +225,25 @@ export class MembersController {
     }
   }
 
+  @ApiCookieAuth()
+  @ApiDefaultResponse({
+    description: 'Erroneous response',
+    type: ErrorApiResponse
+  })
+  @ApiOkResponse({
+    description: 'Successful response',
+    type: MemberStatsDTO
+  })
+  @ApiOperation({
+    summary: 'Get stats of all members'
+  })
+  @Get('stats')
+  async aStats (): Promise<MemberStatsDTO> {
+    return {
+      count: await this.membersService.countActive()
+    }
+  }
+
   @ApiBody({ type: EditEntranceSoundDTO })
   @ApiCookieAuth()
   @ApiOperation({
@@ -541,25 +560,6 @@ export class MembersController {
       throw new HttpException(Errors.MEMBER_NOT_FOUND, HttpStatus.NOT_FOUND)
     }
     return MembersController.mapToDTO(member)
-  }
-
-  @ApiCookieAuth()
-  @ApiDefaultResponse({
-    description: 'Erroneous response',
-    type: ErrorApiResponse
-  })
-  @ApiOkResponse({
-    description: 'Successful response',
-    type: MemberStatsDTO
-  })
-  @ApiOperation({
-    summary: 'Get stats of all members'
-  })
-  @Get('stats')
-  async stats (): Promise<MemberStatsDTO> {
-    return {
-      count: await this.membersService.countActive()
-    }
   }
 
   @ApiBody({
