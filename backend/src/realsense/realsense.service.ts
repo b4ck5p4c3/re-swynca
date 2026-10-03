@@ -17,7 +17,8 @@ export class RealSenseService {
                 `${this.realSenseApiUrl}/api/users/${id}`, {
                   headers: {
                     authorization: `Bearer ${this.realSenseApiKey}`
-                  }
+                  },
+                  timeout: 15_000 // big timeout for enroll
                 })
 
     return {

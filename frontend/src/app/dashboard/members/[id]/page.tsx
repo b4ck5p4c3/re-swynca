@@ -363,7 +363,7 @@ export default function MemberPage() {
                 <div className={"text-xl font-semibold"}>RealSense:</div>
             </div>
             <div className={"flex flex-row"}>
-                {realSenseStatus.data ? (realSenseStatus.data.enrolled ? 
+                {realSenseStatus.data ? (!realSenseStatus.data.enrolled ? 
                 <Button onClick={() => setEnrollRealSenseDialogOpened(true)}>Enroll</Button> : 
                 <Button variant={"destructive"} 
                     onClick={() => removeRealSenseEnrollment.mutate()}>Remove enrollment</Button>) : 
