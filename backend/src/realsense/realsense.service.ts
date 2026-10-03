@@ -13,7 +13,7 @@ export class RealSenseService {
   }
 
   async enrollMember (id: string): Promise<{ status: string; success: boolean, }> {
-    const response = await this.httpService.axiosRef.get<{ status: string; success: boolean, }>(
+    const response = await this.httpService.axiosRef.post<{ status: string; success: boolean, }>(
                 `${this.realSenseApiUrl}/api/users/${id}`, {
                   headers: {
                     authorization: `Bearer ${this.realSenseApiKey}`
