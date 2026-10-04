@@ -27,7 +27,6 @@ export function EnrollRealSenseDialog({open, onClose, memberId}: DefaultDialogPr
             }
         },
         onSuccess: async () => {
-            onClose();
             await queryClient.refetchQueries({queryKey: [MEMBER_REALSENSE_KEY, memberId]});
         },
     });
