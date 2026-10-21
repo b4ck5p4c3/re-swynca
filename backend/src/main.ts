@@ -1,7 +1,7 @@
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import * as cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser'
 import { promises as fsPromises } from 'node:fs'
 import { join } from 'node:path'
 
